@@ -4,6 +4,7 @@ import CustomInput from "../components/ui/CustomInput.tsx";
 import CustomButton from "../components/ui/CustomButton.tsx";
 import { Flex, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 const LogInPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,8 +12,9 @@ const LogInPage: React.FC = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const { handleLogin } = useUser();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const payload = { email, password };
@@ -28,7 +30,7 @@ const LogInPage: React.FC = () => {
       if (!response.ok) {
         setError(data.error || "Login failed");
       } else {
-        localStorage.setItem("user", JSON.stringify(data));
+        handleLogin(data);
         navigate(`/${data.username}`);
       }
     } catch {
@@ -51,7 +53,12 @@ const LogInPage: React.FC = () => {
           Welcome back!
         </Heading>
 
-        <Flex as="form" onSubmit={handleLogin} direction={"column"} gap={4}>
+        <Flex
+          as="form"
+          onSubmit={handleLoginSubmit}
+          direction={"column"}
+          gap={4}
+        >
           <CustomInput
             placeholder="Email"
             value={email}

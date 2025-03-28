@@ -4,6 +4,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import CustomBox from "../components/ui/CustomBox.tsx";
 import CustomButton from "../components/ui/CustomButton.tsx";
 import CustomInput from "../components/ui/CustomInput.tsx";
+import { useUser } from "../context/UserContext.tsx";
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +12,9 @@ const SignUpPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
+  const { handleLogin } = useUser();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +32,7 @@ const SignUpPage: React.FC = () => {
       if (!response.ok) {
         setError(data.error || "Signup failed");
       } else {
-        localStorage.setItem("user", JSON.stringify(data));
+        handleLogin(data);
         navigate(`/${data.username}`);
       }
     } catch {

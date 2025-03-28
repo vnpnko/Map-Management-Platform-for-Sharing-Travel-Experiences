@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flex,
   Spinner,
@@ -11,10 +11,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../App";
 import CustomButton from "../components/ui/CustomButton";
 import Status from "../components/profile/Status";
-// import PlaceForm from "../components/PlaceForm";
-// import PlaceList from "../components/PlaceList";
 import CustomBox from "../components/ui/CustomBox";
-import { useProfileActions } from "../hooks/profile/useProfileActions.ts";
+import { useUser } from "../context/UserContext";
 import { User } from "../models/User";
 
 const ProfilePage: React.FC = () => {
@@ -22,16 +20,12 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>("");
   const [profileUser, setProfileUser] = useState<User | null>(null);
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+
+  const { loggedInUser, handleLogout, onFollow, onUnfollow } = useUser(); // Access user actions from context
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setLoggedInUser(JSON.parse(storedUser));
-    }
-
     async function fetchProfile() {
       try {
         const response = await fetch(`${BASE_URL}/users/username/${username}`);
@@ -50,11 +44,7 @@ const ProfilePage: React.FC = () => {
     fetchProfile();
   }, [username]);
 
-  // Get action functions from custom hook by passing current state and setters
-  const { handleLogout, onFollow, onUnfollow } = useProfileActions({
-    loggedInUser,
-    profileUser,
-  });
+  const isOwner = loggedInUser && loggedInUser._id === profileUser?._id;
 
   if (loading) {
     return (
@@ -100,9 +90,6 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  const isOwner =
-    loggedInUser && loggedInUser.username === profileUser.username;
-
   return (
     <Flex
       minH="100vh"
@@ -114,7 +101,7 @@ const ProfilePage: React.FC = () => {
       py={10}
     >
       <CustomBox p={8}>
-        <Flex direction="column" gap={8}>
+        <Flex direction={"column"} gap={8}>
           <Flex gap={8}>
             <Avatar
               name={profileUser.username}
@@ -126,6 +113,7 @@ const ProfilePage: React.FC = () => {
                 <Text color="black" fontSize="2xl">
                   {profileUser.username}
                 </Text>
+
                 {isOwner ? (
                   <Flex gap={4}>
                     <CustomButton
@@ -140,10 +128,13 @@ const ProfilePage: React.FC = () => {
                     <CustomButton
                       fontSize="md"
                       color="black"
-                      bg="gray.50"
+                      bg={"gray.50"}
                       border="1px"
                       _hover={{ bg: "red.400" }}
-                      onClick={handleLogout}
+                      onClick={() => {
+                        handleLogout();
+                        navigate(`/`);
+                      }}
                     >
                       Logout
                     </CustomButton>
@@ -151,20 +142,20 @@ const ProfilePage: React.FC = () => {
                 ) : loggedInUser?.following.includes(profileUser._id) ? (
                   <CustomButton
                     fontSize="md"
-                    color="black"
-                    bg="blackAlpha.300"
+                    color={"black"}
+                    bg={"blackAlpha.300"}
                     _hover={{ bg: "blackAlpha.400" }}
-                    onClick={onUnfollow}
+                    onClick={() => onUnfollow(profileUser)}
                   >
                     Unfollow
                   </CustomButton>
                 ) : (
                   <CustomButton
                     fontSize="md"
-                    color="black"
-                    bg="blackAlpha.300"
+                    color={"black"}
+                    bg={"blackAlpha.300"}
                     _hover={{ bg: "blackAlpha.400" }}
-                    onClick={onFollow}
+                    onClick={() => onFollow(profileUser)}
                   >
                     Follow
                   </CustomButton>
@@ -182,11 +173,6 @@ const ProfilePage: React.FC = () => {
               </Text>
             </Flex>
           </Flex>
-
-          {/*<Flex direction="column" gap={4}>*/}
-          {/*  {isOwner && <PlaceForm />}*/}
-          {/*  <PlaceList user={profileUser} />*/}
-          {/*</Flex>*/}
         </Flex>
       </CustomBox>
     </Flex>
