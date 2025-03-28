@@ -6,10 +6,6 @@ type CustomBoxProps = BoxProps;
 const CustomBox: React.FC<CustomBoxProps> = ({ children, ...rest }) => {
   return (
     <Box
-      // w="sm"
-      // w={"full"}
-      // w={"100%"}
-      p={8}
       bg="gray.50"
       border="2px"
       borderRadius="md"

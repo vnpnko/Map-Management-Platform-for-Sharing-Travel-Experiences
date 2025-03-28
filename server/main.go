@@ -12,29 +12,23 @@ import (
 )
 
 func main() {
-	// Load .env
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file:", err)
 	}
 
-	// Initialize Fiber
 	app := fiber.New()
 
-	// Set up middleware
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:5173",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
-	// Connect to MongoDB
-	dbClient := config.ConnectDB()        // e.g., returns a *mongo.Client or similar
-	defer dbClient.Disconnect(config.Ctx) // config.Ctx could be a global context
+	dbClient := config.ConnectDB()
+	defer dbClient.Disconnect(config.Ctx)
 
-	// Register routes
 	routes.SetupRoutes(app)
 
-	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"

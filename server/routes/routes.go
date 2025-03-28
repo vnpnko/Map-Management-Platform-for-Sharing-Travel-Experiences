@@ -10,11 +10,15 @@ func SetupRoutes(app *fiber.App) {
 
 	// User routes
 	api.Get("/users", controllers.GetUsers)
-	api.Get("/users/:username", controllers.GetUser)
+	api.Get("/users/username/:username", controllers.GetUserByUsername)
+	api.Get("/users/id/:id", controllers.GetUserByID)
 	api.Post("/signup", controllers.CreateUser)
 	api.Post("/login", controllers.LoginUser)
 	api.Patch("/follow", controllers.UpdateUserFollow)
+	api.Patch("/unfollow", controllers.UpdateUserUnfollow)
 	api.Delete("/users/:id", controllers.DeleteUser)
+	api.Patch("/users/addPlace", controllers.AddPlaceToUser)
+	api.Patch("/users/removePlace", controllers.RemovePlaceFromUser)
 
 	// Place routes
 	api.Get("/places", controllers.GetPlaces)

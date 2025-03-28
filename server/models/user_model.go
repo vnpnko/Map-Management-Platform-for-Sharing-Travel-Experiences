@@ -10,5 +10,5 @@ type User struct {
 	Password  string               `json:"password"`
 	Followers []primitive.ObjectID `json:"followers"`
 	Following []primitive.ObjectID `json:"following"`
-	Places    []primitive.ObjectID `json:"places"`
+	Places    []string             `json:"places"`
 }

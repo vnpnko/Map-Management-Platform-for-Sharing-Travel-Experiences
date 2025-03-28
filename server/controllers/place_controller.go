@@ -36,16 +36,9 @@ func GetPlace(c *fiber.Ctx) error {
 		})
 	}
 
-	objID, err := primitive.ObjectIDFromHex(placeID)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid place ID format",
-		})
-	}
-
 	var place models.Place
-	err = config.DB.Collection("places").
-		FindOne(context.Background(), bson.M{"_id": objID}).
+	err := config.DB.Collection("places").
+		FindOne(context.Background(), bson.M{"_id": placeID}).
 		Decode(&place)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -64,6 +57,11 @@ func CreatePlace(c *fiber.Ctx) error {
 		})
 	}
 
+	if place.ID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Place ID is required",
+		})
+	}
 	if place.Name == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Place name is required",
@@ -75,12 +73,11 @@ func CreatePlace(c *fiber.Ctx) error {
 		})
 	}
 
-	// If not provided, ensure Likes is an empty slice
 	if place.Likes == nil {
 		place.Likes = []primitive.ObjectID{}
 	}
 
-	insertResult, err := config.DB.Collection("places").
+	_, err := config.DB.Collection("places").
 		InsertOne(context.Background(), place)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -88,7 +85,6 @@ func CreatePlace(c *fiber.Ctx) error {
 		})
 	}
 
-	place.ID = insertResult.InsertedID.(primitive.ObjectID)
 	return c.Status(fiber.StatusCreated).JSON(place)
 }
 
@@ -100,16 +96,9 @@ func DeletePlace(c *fiber.Ctx) error {
 		})
 	}
 
-	objID, err := primitive.ObjectIDFromHex(placeID)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid place ID format",
-		})
-	}
-
 	// Delete the place from the DB
-	filter := bson.M{"_id": objID}
-	_, err = config.DB.Collection("places").DeleteOne(context.Background(), filter)
+	filter := bson.M{"_id": placeID}
+	_, err := config.DB.Collection("places").DeleteOne(context.Background(), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Could not delete place",
@@ -132,12 +121,6 @@ func AddPlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	placeObjID, err := primitive.ObjectIDFromHex(body.PlaceID)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid place ID format",
-		})
-	}
 	userObjID, err := primitive.ObjectIDFromHex(body.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -146,7 +129,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	}
 
 	// Add the user's ID to the place's Likes array (if not already present)
-	filter := bson.M{"_id": placeObjID}
+	filter := bson.M{"_id": body.PlaceID}
 	update := bson.M{
 		"$addToSet": bson.M{
 			"likes": userObjID,
@@ -165,7 +148,6 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	})
 }
 
-// PATCH /api/places/removeLike
 func RemovePlaceLike(c *fiber.Ctx) error {
 	var body struct {
 		PlaceID string `json:"placeId"`
@@ -177,12 +159,6 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	placeObjID, err := primitive.ObjectIDFromHex(body.PlaceID)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid place ID format",
-		})
-	}
 	userObjID, err := primitive.ObjectIDFromHex(body.UserID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -190,7 +166,7 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	filter := bson.M{"_id": placeObjID}
+	filter := bson.M{"_id": body.PlaceID}
 	update := bson.M{
 		"$pull": bson.M{
 			"likes": userObjID,

@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import CustomBox from "../components/ui/CustomBox.tsx";
 import CustomInput from "../components/ui/CustomInput.tsx";
 import CustomButton from "../components/ui/CustomButton.tsx";
-import { Heading, Link as ChakraLink, Text, VStack } from "@chakra-ui/react";
+import { Flex, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 const LogInPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -36,42 +37,45 @@ const LogInPage: React.FC = () => {
   };
 
   return (
-    <VStack
+    <Flex
+      minH="100vh"
+      bg="gray.50"
       direction="column"
       align="center"
       justify="center"
-      minH="100vh"
-      bg="gray.50"
+      gap={2}
+      py={10}
     >
-      <CustomBox w={"sm"}>
+      <CustomBox p={8} w={"sm"}>
         <Heading mb={8} color="black" size="lg">
           Welcome back!
         </Heading>
 
-        <form onSubmit={handleLogin}>
-          <VStack spacing={4}>
-            <CustomInput
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <CustomInput
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <CustomButton>Log in</CustomButton>
-            {error && (
-              <Text mt={8} color="red.500">
-                {error}
-              </Text>
-            )}
-          </VStack>
-        </form>
+        <Flex as="form" onSubmit={handleLogin} direction={"column"} gap={4}>
+          <CustomInput
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <CustomInput
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <CustomButton>Log in</CustomButton>
+        </Flex>
+
+        {error && (
+          <Text mt={4} color="red.500">
+            {error}
+          </Text>
+        )}
       </CustomBox>
 
-      <CustomBox w={"sm"} p={8}>
+      <CustomBox p={8} w={"sm"}>
         <Text fontSize="md" color="black">
           Don&apos;t have an account?{" "}
           <ChakraLink
@@ -84,7 +88,7 @@ const LogInPage: React.FC = () => {
           </ChakraLink>
         </Text>
       </CustomBox>
-    </VStack>
+    </Flex>
   );
 };
 

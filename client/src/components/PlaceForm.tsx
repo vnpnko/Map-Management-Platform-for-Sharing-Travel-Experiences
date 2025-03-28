@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import { Box, Flex, Spinner } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,9 +7,8 @@ import { IoMdAdd } from "react-icons/io";
 import CustomInput from "./ui/CustomInput.tsx";
 import CustomButton from "./ui/CustomButton.tsx";
 
-const libraries: any = ["places"];
-
 const PlaceForm = () => {
+  const [placeID, setPlaceID] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [placeURL, setPlaceURL] = useState("");
 
@@ -19,11 +18,10 @@ const PlaceForm = () => {
   const handlePlaceSelect = () => {
     if (autocompleteRef.current) {
       const place = autocompleteRef.current.getPlace();
-      if (place && place.name) {
+      if (place && place.place_id && place.name && place.url) {
+        setPlaceID(place.place_id);
         setPlaceName(place.name);
-        if (place.url) {
-          setPlaceURL(place.url);
-        }
+        setPlaceURL(place.url);
       }
     }
   };
@@ -38,7 +36,11 @@ const PlaceForm = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name: placeName, url: placeURL }),
+          body: JSON.stringify({
+            place_id: placeID,
+            name: placeName,
+            url: placeURL,
+          }),
         });
         const data = await res.json();
 
@@ -46,10 +48,11 @@ const PlaceForm = () => {
           throw new Error(data.error || "Something went wrong");
         }
 
+        setPlaceID("");
         setPlaceName("");
         setPlaceURL("");
         return data;
-      } catch (error: any) {
+      } catch (error) {
         throw new Error(error);
       }
     },
@@ -62,28 +65,33 @@ const PlaceForm = () => {
   });
 
   return (
-    <LoadScript
-      googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-      libraries={libraries}
-    >
-      <Flex as="form" onSubmit={createPlace} mb={4}>
-        <Box mr={2} p={0} flex={8}>
+    <Flex as="form" onSubmit={createPlace} textColor={"black"}>
+      <LoadScript
+        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+        libraries={["places"]}
+      >
+        <Box w={"full"} mr={4}>
           <Autocomplete
-            onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
+            onLoad={(autocomplete) => {
+              autocompleteRef.current = autocomplete;
+            }}
             onPlaceChanged={handlePlaceSelect}
           >
             <CustomInput
+              w={"full"}
               placeholder="Search for a place"
               value={placeName}
-              onChange={(e) => setPlaceName(e.target.value)}
+              onChange={(e) => {
+                setPlaceName(e.target.value);
+              }}
             />
           </Autocomplete>
         </Box>
-        <CustomButton type="submit" flex={1}>
-          {isCreating ? <Spinner size="xs" /> : <IoMdAdd size={25} />}
-        </CustomButton>
-      </Flex>
-    </LoadScript>
+      </LoadScript>
+      <CustomButton type="submit" w={"min"} ml={"auto"}>
+        {isCreating ? <Spinner size="md" /> : <IoMdAdd size={30} />}
+      </CustomButton>
+    </Flex>
   );
 };
 

@@ -30,7 +30,6 @@ func ConnectDB() *mongo.Client {
 
 	fmt.Println("Connected to MongoDB Atlas")
 
-	// Choose your database name
 	DB = client.Database("golang_db")
 
 	return client

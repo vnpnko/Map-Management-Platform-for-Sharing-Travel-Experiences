@@ -19,6 +19,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
         _hover={{ borderColor: "blue.400" }}
         _focus={{ borderColor: "blue.500" }}
         _placeholder={{ color: "gray.500" }}
+        // isRequired
         {...rest}
       >
         {children}
