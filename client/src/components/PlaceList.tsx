@@ -5,21 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
 import CustomButton from "./ui/CustomButton.tsx";
 
-export type Place = {
-  _id: string;
-  url: string;
-  name: string;
-  likes: number[];
-};
-
-interface User {
-  _id: number;
-  username: string;
-  name: string;
-  followers: number[];
-  following: number[];
-  places: string[];
-}
+import { Place } from "../models/Place";
+import { User } from "../models/User";
 
 interface PlaceListProps {
   user: User;

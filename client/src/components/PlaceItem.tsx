@@ -11,21 +11,8 @@ import { usePlaceActions } from "../hooks/usePlaceActions";
 import { BASE_URL } from "../App";
 import IconBox from "./ui/IconBox.tsx";
 
-export interface Place {
-  _id: string;
-  url: string;
-  name: string;
-  likes: number[];
-}
-
-interface User {
-  _id: number;
-  username: string;
-  name: string;
-  followers: number[];
-  following: number[];
-  places: string[];
-}
+import { Place } from "../models/Place";
+import { User } from "../models/User";
 
 interface PlaceItemProps {
   user: User;
