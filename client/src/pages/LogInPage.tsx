@@ -5,7 +5,7 @@ import CustomButton from "../components/ui/CustomButton.tsx";
 import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
-import useLogin from "../hooks/useLogin.ts";
+import useLogIn from "../hooks/useLogIn.ts";
 
 const LogInPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -13,11 +13,13 @@ const LogInPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const { login, error } = useLogin();
+  const payload = { email, password };
+  const { login, error } = useLogIn(payload);
   const { setLoggedInUser } = useUser();
 
-  const handleLogin = async (email: string, password: string) => {
-    const userData = await login(email, password);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const userData = await login();
     if (userData) {
       setLoggedInUser(userData);
       navigate(`/${userData.username}`);
@@ -39,15 +41,7 @@ const LogInPage: React.FC = () => {
           Welcome back!
         </Heading>
 
-        <Flex
-          as="form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin(email, password);
-          }}
-          direction={"column"}
-          gap={4}
-        >
+        <Flex as="form" onSubmit={handleLogin} direction={"column"} gap={4}>
           <CustomInput
             placeholder="Email"
             value={email}

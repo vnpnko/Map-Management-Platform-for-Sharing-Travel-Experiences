@@ -22,11 +22,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toast = useToast();
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem("user");
-  //   setLoggedInUser(null);
-  // };
-
   const onFollow = async (profileUser: User) => {
     if (!loggedInUser) {
       toast({

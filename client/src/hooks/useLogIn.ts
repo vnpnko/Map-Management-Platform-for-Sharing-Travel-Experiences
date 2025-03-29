@@ -1,17 +1,22 @@
 import { useState } from "react";
 import { BASE_URL } from "../App.tsx";
 
-const useLogin = () => {
+interface LogInPayload {
+  email: string;
+  password: string;
+}
+
+const useLogIn = (payload: LogInPayload) => {
   const [error, setError] = useState<string | null>(null);
 
-  const login = async (email: string, password: string) => {
+  const login = async () => {
     setError(null);
 
     try {
       const response = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
 
@@ -29,4 +34,4 @@ const useLogin = () => {
   return { login, error };
 };
 
-export default useLogin;
+export default useLogIn;
