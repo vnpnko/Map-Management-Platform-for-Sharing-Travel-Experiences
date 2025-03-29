@@ -23,7 +23,7 @@ const ProfilePage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const { loggedInUser, handleLogout, onFollow, onUnfollow } = useUser();
+  const { loggedInUser, onFollow, onUnfollow } = useUser();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -152,7 +152,7 @@ const ProfilePage: React.FC = () => {
                       border="1px"
                       _hover={{ bg: "red.400" }}
                       onClick={() => {
-                        handleLogout();
+                        // handleLogout();
                         navigate(`/`);
                       }}
                     >

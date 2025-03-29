@@ -3,19 +3,15 @@ import { User } from "../models/User.ts";
 import { useToast } from "@chakra-ui/react";
 import { BASE_URL } from "../App.tsx";
 
-// Define the type for the context value
 interface UserContextType {
   loggedInUser: User | null;
-  handleLogin: (userData: User) => void;
-  handleLogout: () => void;
+  setLoggedInUser: React.Dispatch<React.SetStateAction<User | null>>;
   onFollow: (profileUser: User) => void;
   onUnfollow: (profileUser: User) => void;
 }
 
-// Create the context with a default value
 export const UserContext = createContext<UserContextType | null>(null);
 
-// UserProvider component to provide context to the app
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -26,15 +22,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toast = useToast();
 
-  const handleLogin = (userData: User) => {
-    setLoggedInUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setLoggedInUser(null);
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("user");
+  //   setLoggedInUser(null);
+  // };
 
   const onFollow = async (profileUser: User) => {
     if (!loggedInUser) {
@@ -71,10 +62,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           ...loggedInUser,
           following: [...loggedInUser.following, profileUser._id],
         });
-        // setProfileUser({
-        //   ...profileUser,
-        //   followers: [...profileUser.followers, loggedInUser._id], // Add the follower to the profileUser's followers
-        // });
         localStorage.setItem("user", JSON.stringify(loggedInUser));
         toast({
           title: "Success",
@@ -123,12 +110,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             (id) => id !== profileUser._id,
           ),
         });
-        // setProfileUser({
-        //   ...profileUser,
-        //   followers: profileUser.followers.filter(
-        //     (id) => id !== loggedInUser._id,
-        //   ),
-        // });
         localStorage.setItem("user", JSON.stringify(loggedInUser));
         toast({
           title: "Success",
@@ -151,8 +132,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     <UserContext.Provider
       value={{
         loggedInUser,
-        handleLogin,
-        handleLogout,
+        setLoggedInUser,
         onFollow,
         onUnfollow,
       }}
@@ -162,7 +142,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-// Custom hook to access the UserContext
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {

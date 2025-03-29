@@ -2,39 +2,25 @@ import React, { useState } from "react";
 import CustomBox from "../components/ui/CustomBox.tsx";
 import CustomInput from "../components/ui/CustomInput.tsx";
 import CustomButton from "../components/ui/CustomButton.tsx";
-import { Flex, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
+import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import useLogin from "../hooks/useLogin.ts";
 
 const LogInPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { handleLogin } = useUser();
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    const payload = { email, password };
-    try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Login failed");
-      } else {
-        handleLogin(data);
-        navigate(`/${data.username}`);
-      }
-    } catch {
-      setError("Network error");
+  const { login, error } = useLogin();
+  const { setLoggedInUser } = useUser();
+
+  const handleLogin = async (email: string, password: string) => {
+    const userData = await login(email, password);
+    if (userData) {
+      setLoggedInUser(userData);
+      navigate(`/${userData.username}`);
     }
   };
 
@@ -55,7 +41,10 @@ const LogInPage: React.FC = () => {
 
         <Flex
           as="form"
-          onSubmit={handleLoginSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin(email, password);
+          }}
           direction={"column"}
           gap={4}
         >
@@ -85,14 +74,14 @@ const LogInPage: React.FC = () => {
       <CustomBox p={8} w={"sm"}>
         <Text fontSize="md" color="black">
           Don&apos;t have an account?{" "}
-          <ChakraLink
+          <Link
             as={RouterLink}
             to="/signup"
             color="blue.500"
             fontWeight={"bold"}
           >
             Sign up
-          </ChakraLink>
+          </Link>
         </Text>
       </CustomBox>
     </Flex>
