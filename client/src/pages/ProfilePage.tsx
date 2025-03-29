@@ -129,13 +129,13 @@ const ProfilePage: React.FC = () => {
               size="2xl"
             />
             <Flex direction="column" gap={4}>
-              <Flex gap={4}>
+              <Flex justifyContent={"space-between"} gap={4}>
                 <Text color="black" fontSize="2xl">
                   {profileUser.username}
                 </Text>
 
                 {loggedInUser?._id === profileUser._id ? (
-                  <Flex gap={4}>
+                  <Flex w={"full"} gap={4}>
                     <CustomButton
                       fontSize="md"
                       color="black"
