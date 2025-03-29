@@ -71,6 +71,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
           ...loggedInUser,
           following: [...loggedInUser.following, profileUser._id],
         });
+        // setProfileUser({
+        //   ...profileUser,
+        //   followers: [...profileUser.followers, loggedInUser._id], // Add the follower to the profileUser's followers
+        // });
         localStorage.setItem("user", JSON.stringify(loggedInUser));
         toast({
           title: "Success",
@@ -119,6 +123,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
             (id) => id !== profileUser._id,
           ),
         });
+        // setProfileUser({
+        //   ...profileUser,
+        //   followers: profileUser.followers.filter(
+        //     (id) => id !== loggedInUser._id,
+        //   ),
+        // });
         localStorage.setItem("user", JSON.stringify(loggedInUser));
         toast({
           title: "Success",

@@ -21,9 +21,9 @@ const ProfilePage: React.FC = () => {
   const [message, setMessage] = useState<string>("");
   const [profileUser, setProfileUser] = useState<User | null>(null);
 
-  const { loggedInUser, handleLogout, onFollow, onUnfollow } = useUser(); // Access user actions from context
-
   const navigate = useNavigate();
+
+  const { loggedInUser, handleLogout, onFollow, onUnfollow } = useUser();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -44,7 +44,27 @@ const ProfilePage: React.FC = () => {
     fetchProfile();
   }, [username]);
 
-  const isOwner = loggedInUser && loggedInUser._id === profileUser?._id;
+  const handleFollow = () => {
+    if (loggedInUser && profileUser) {
+      onFollow(profileUser);
+      setProfileUser({
+        ...profileUser,
+        followers: [...profileUser.followers, loggedInUser._id],
+      });
+    }
+  };
+
+  const handleUnfollow = () => {
+    if (loggedInUser && profileUser) {
+      onUnfollow(profileUser);
+      setProfileUser({
+        ...profileUser,
+        followers: profileUser.followers.filter(
+          (id) => id !== loggedInUser._id,
+        ),
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -114,7 +134,7 @@ const ProfilePage: React.FC = () => {
                   {profileUser.username}
                 </Text>
 
-                {isOwner ? (
+                {loggedInUser?._id === profileUser._id ? (
                   <Flex gap={4}>
                     <CustomButton
                       fontSize="md"
@@ -139,13 +159,13 @@ const ProfilePage: React.FC = () => {
                       Logout
                     </CustomButton>
                   </Flex>
-                ) : loggedInUser?.following.includes(profileUser._id) ? (
+                ) : profileUser.followers.includes(loggedInUser!._id) ? (
                   <CustomButton
                     fontSize="md"
                     color={"black"}
                     bg={"blackAlpha.300"}
                     _hover={{ bg: "blackAlpha.400" }}
-                    onClick={() => onUnfollow(profileUser)}
+                    onClick={() => handleUnfollow()}
                   >
                     Unfollow
                   </CustomButton>
@@ -155,7 +175,7 @@ const ProfilePage: React.FC = () => {
                     color={"black"}
                     bg={"blackAlpha.300"}
                     _hover={{ bg: "blackAlpha.400" }}
-                    onClick={() => onFollow(profileUser)}
+                    onClick={() => handleFollow()}
                   >
                     Follow
                   </CustomButton>
