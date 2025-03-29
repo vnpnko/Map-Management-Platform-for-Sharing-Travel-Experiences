@@ -6,6 +6,7 @@ import {
   AlertIcon,
   Text,
   Avatar,
+  useToast,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BASE_URL } from "../App";
@@ -14,6 +15,9 @@ import Status from "../components/profile/Status";
 import CustomBox from "../components/ui/CustomBox";
 import { useUser } from "../context/UserContext";
 import { User } from "../models/User";
+import useLogOut from "../hooks/useLogOut.ts";
+import useFollow from "../hooks/useFollow.ts";
+import useUnfollow from "../hooks/useUnfollow.ts";
 
 const ProfilePage: React.FC = () => {
   const { username } = useParams<{ username: string }>();
@@ -22,8 +26,13 @@ const ProfilePage: React.FC = () => {
   const [profileUser, setProfileUser] = useState<User | null>(null);
 
   const navigate = useNavigate();
+  const toast = useToast();
 
-  const { loggedInUser, onFollow, onUnfollow } = useUser();
+  const { logout, error } = useLogOut();
+  const { loggedInUser, setLoggedInUser } = useUser();
+
+  const { follow } = useFollow();
+  const { unfollow } = useUnfollow();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -44,25 +53,44 @@ const ProfilePage: React.FC = () => {
     fetchProfile();
   }, [username]);
 
-  const handleFollow = () => {
+  const handleLogout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await logout();
+    setLoggedInUser(null);
+    navigate("/");
+  };
+
+  const handleFollow = async () => {
     if (loggedInUser && profileUser) {
-      onFollow(profileUser);
-      setProfileUser({
-        ...profileUser,
-        followers: [...profileUser.followers, loggedInUser._id],
-      });
+      const payload = {
+        followerId: loggedInUser?._id,
+        followeeId: profileUser?._id,
+      };
+      const data = await follow(payload);
+      if (data) {
+        setProfileUser({
+          ...profileUser,
+          followers: [...profileUser.followers, loggedInUser._id],
+        });
+      }
     }
   };
 
-  const handleUnfollow = () => {
+  const handleUnfollow = async () => {
     if (loggedInUser && profileUser) {
-      onUnfollow(profileUser);
-      setProfileUser({
-        ...profileUser,
-        followers: profileUser.followers.filter(
-          (id) => id !== loggedInUser._id,
-        ),
-      });
+      const payload = {
+        followerId: loggedInUser?._id,
+        followeeId: profileUser?._id,
+      };
+      const data = await unfollow(payload);
+      if (data) {
+        setProfileUser({
+          ...profileUser,
+          followers: profileUser.followers.filter(
+            (id) => id !== loggedInUser._id,
+          ),
+        });
+      }
     }
   };
 
@@ -110,6 +138,15 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  if (error) {
+    toast({
+      title: "Failed to logout",
+      description: error,
+      status: "error",
+      isClosable: true,
+    });
+  }
+
   return (
     <Flex
       minH="100vh"
@@ -151,10 +188,7 @@ const ProfilePage: React.FC = () => {
                       bg={"gray.50"}
                       border="1px"
                       _hover={{ bg: "red.400" }}
-                      onClick={() => {
-                        // handleLogout();
-                        navigate(`/`);
-                      }}
+                      onClick={handleLogout}
                     >
                       Logout
                     </CustomButton>
