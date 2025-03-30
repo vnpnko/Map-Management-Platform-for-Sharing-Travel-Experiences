@@ -8,9 +8,12 @@ interface FollowPayload {
 
 const useFollow = () => {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const follow = async (payload: FollowPayload) => {
     setError(null);
+    setIsLoading(true);
+
     try {
       const response = await fetch(`${BASE_URL}/follow`, {
         method: "PATCH",
@@ -24,10 +27,12 @@ const useFollow = () => {
       return data;
     } catch {
       setError("Network error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { follow, error };
+  return { follow, isLoading, error };
 };
 
 export default useFollow;

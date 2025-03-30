@@ -4,11 +4,11 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type User struct {
 	ID        primitive.ObjectID   `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name      string               `json:"name"`
-	Email     string               `json:"email"`
-	Username  string               `json:"username"`
-	Password  string               `json:"password"`
-	Followers []primitive.ObjectID `json:"followers"`
-	Following []primitive.ObjectID `json:"following"`
-	Places    []string             `json:"places"`
+	Name      string               `json:"name" bson:"name"`
+	Email     string               `json:"email" bson:"email"`
+	Username  string               `json:"username" bson:"username"`
+	Password  string               `json:"password" bson:"password"`
+	Followers []primitive.ObjectID `json:"followers" bson:"followers"`
+	Following []primitive.ObjectID `json:"following" bson:"following"`
+	Places    []string             `json:"places" bson:"places"`
 }

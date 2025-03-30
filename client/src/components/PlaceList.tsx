@@ -1,11 +1,8 @@
-import { Flex, Spinner, Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 
 import PlaceItem from "./PlaceItem.tsx";
-import { useQuery } from "@tanstack/react-query";
-import { BASE_URL } from "../App";
 import CustomButton from "./ui/CustomButton.tsx";
 
-import { Place } from "../models/Place";
 import { User } from "../models/User";
 
 interface PlaceListProps {
@@ -13,26 +10,9 @@ interface PlaceListProps {
 }
 
 const PlaceList: React.FC<PlaceListProps> = ({ user }) => {
-  const { data: places, isLoading } = useQuery<Place[]>({
-    queryKey: ["places"],
-    queryFn: async () => {
-      try {
-        const res = await fetch(BASE_URL + "/places");
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-        return data || [];
-      } catch (error) {
-        console.log(error);
-      }
-    },
-  });
-
-  if (!isLoading && places?.length === 0) {
+  if (user.places.length === 0) {
     return <Text color={"green"}>you have no saved places yet</Text>;
-  } else if (!isLoading && places?.length !== 0) {
+  } else {
     return (
       <Flex direction={"column"} gap={4}>
         <Flex justifyContent={"space-between"} gap={4}>
@@ -42,16 +22,10 @@ const PlaceList: React.FC<PlaceListProps> = ({ user }) => {
           <CustomButton>maps</CustomButton>
         </Flex>
         <Flex direction={"column"} gap={2}>
-          {places?.map((place) => (
-            <PlaceItem key={user._id} user={user} place={place} />
+          {user.places.map((place_id) => (
+            <PlaceItem key={place_id} place_id={place_id} />
           ))}
         </Flex>
-      </Flex>
-    );
-  } else {
-    return (
-      <Flex justifyContent={"center"}>
-        <Spinner color={"black"} size={"xl"} />
       </Flex>
     );
   }

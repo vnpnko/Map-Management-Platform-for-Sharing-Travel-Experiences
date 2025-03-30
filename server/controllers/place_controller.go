@@ -74,7 +74,9 @@ func CreatePlace(c *fiber.Ctx) error {
 	}
 
 	if place.Likes == nil {
-		place.Likes = []primitive.ObjectID{}
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Place likes are required",
+		})
 	}
 
 	_, err := config.DB.Collection("places").

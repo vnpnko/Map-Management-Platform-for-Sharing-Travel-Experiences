@@ -1,18 +1,23 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import { Box, Flex, Spinner } from "@chakra-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { BASE_URL } from "../App";
 import { IoMdAdd } from "react-icons/io";
 import CustomInput from "./ui/CustomInput.tsx";
 import CustomButton from "./ui/CustomButton.tsx";
+import useCreatePlace from "../hooks/useCreatePlace.ts";
+import useAddPlace from "../hooks/useAddPlace.ts";
+import { useUser } from "../context/UserContext.tsx";
+
+const libraries: "places"[] = ["places"];
 
 const PlaceForm = () => {
   const [placeID, setPlaceID] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [placeURL, setPlaceURL] = useState("");
 
-  const queryClient = useQueryClient();
+  const { loggedInUser } = useUser();
+  const { addPlace } = useAddPlace();
+  const { createPlace, isCreating } = useCreatePlace();
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   const handlePlaceSelect = () => {
@@ -26,49 +31,19 @@ const PlaceForm = () => {
     }
   };
 
-  const { mutate: createPlace, isPending: isCreating } = useMutation({
-    mutationKey: ["createPlace"],
-    mutationFn: async (e: React.FormEvent) => {
-      e.preventDefault();
-      try {
-        const res = await fetch(BASE_URL + `/createPlace`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            place_id: placeID,
-            name: placeName,
-            url: placeURL,
-          }),
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Something went wrong");
-        }
-
-        setPlaceID("");
-        setPlaceName("");
-        setPlaceURL("");
-        return data;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["places"] });
-    },
-    onError: (error: any) => {
-      alert(error.message);
-    },
-  });
+  const handleCreatePlace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loggedInUser) {
+      await createPlace(placeID, placeName, placeURL);
+      await addPlace(placeID, loggedInUser._id);
+    }
+  };
 
   return (
-    <Flex as="form" onSubmit={createPlace} textColor={"black"}>
+    <Flex as="form" onSubmit={handleCreatePlace} textColor={"black"}>
       <LoadScript
         googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-        libraries={["places"]}
+        libraries={libraries}
       >
         <Box w={"full"} mr={4}>
           <Autocomplete

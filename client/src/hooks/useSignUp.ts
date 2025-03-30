@@ -10,9 +10,11 @@ interface SignUpPayload {
 
 const useSignUp = (payload: SignUpPayload) => {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const signup = async () => {
     setError(null);
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${BASE_URL}/signup`, {
@@ -30,10 +32,12 @@ const useSignUp = (payload: SignUpPayload) => {
       }
     } catch {
       setError("Network error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { signup, error };
+  return { signup, isLoading, error };
 };
 
 export default useSignUp;

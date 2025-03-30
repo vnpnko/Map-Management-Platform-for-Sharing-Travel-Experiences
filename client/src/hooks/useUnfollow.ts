@@ -8,9 +8,12 @@ interface UnfollowPayload {
 
 const useUnfollow = () => {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const unfollow = async (payload: UnfollowPayload) => {
     setError(null);
+    setIsLoading(true);
+
     try {
       const response = await fetch(`${BASE_URL}/unfollow`, {
         method: "PATCH",
@@ -24,10 +27,12 @@ const useUnfollow = () => {
       return data;
     } catch {
       setError("Network error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { unfollow, error };
+  return { unfollow, isLoading, error };
 };
 
 export default useUnfollow;

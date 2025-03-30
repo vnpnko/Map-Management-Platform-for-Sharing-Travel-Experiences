@@ -7,23 +7,41 @@ import {
   IoIosRemoveCircle,
 } from "react-icons/io";
 import CustomBox from "./ui/CustomBox";
-import { usePlaceActions } from "../hooks/usePlaceActions";
-import { BASE_URL } from "../App";
 import IconBox from "./ui/IconBox.tsx";
 
-import { Place } from "../models/Place";
-import { User } from "../models/User";
+import useAddPlace from "../hooks/useAddPlace.ts";
+import useRemovePlace from "../hooks/useRemovePlace.ts";
+import { useUser } from "../context/UserContext.tsx";
+import useGetPlace from "../hooks/useGetPlace.ts";
 
 interface PlaceItemProps {
-  user: User;
-  place: Place;
+  place_id: string;
 }
 
-const PlaceItem: React.FC<PlaceItemProps> = ({ user, place }) => {
-  const { isAdding, isRemoving, handleAddPlace, handleRemovePlace } =
-    usePlaceActions({ baseUrl: BASE_URL });
+const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
+  const { addPlace, isAdding } = useAddPlace();
+  const { removePlace, isRemoving } = useRemovePlace();
+  const { loggedInUser } = useUser();
+  const { place, isLoading, error } = useGetPlace(place_id);
 
-  const alreadyHasPlace = user.places.includes(place._id.toString());
+  const alreadyHasPlace =
+    loggedInUser && loggedInUser.places.includes(place_id);
+
+  const handleAddPlace = async () => {
+    if (place && loggedInUser && !alreadyHasPlace) {
+      await addPlace(place._id, loggedInUser._id);
+    }
+  };
+
+  const handleRemovePlace = async () => {
+    if (place && loggedInUser && alreadyHasPlace) {
+      await removePlace(place._id, loggedInUser._id);
+    }
+  };
+
+  if (!place) {
+    return;
+  }
 
   return (
     <Flex gap={2}>
@@ -56,7 +74,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ user, place }) => {
           cursor="pointer"
           color="gray.500"
           _hover={{ color: "red.600" }}
-          onClick={() => handleRemovePlace(place)}
+          onClick={handleRemovePlace}
         >
           {isRemoving ? <Spinner size="lg" /> : <IoIosRemoveCircle size={40} />}
         </IconBox>
@@ -66,7 +84,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ user, place }) => {
           cursor="pointer"
           color="green.500"
           _hover={{ color: "green.600" }}
-          onClick={() => handleAddPlace(place)}
+          onClick={handleAddPlace}
         >
           {isAdding ? <Spinner size="lg" /> : <IoIosAddCircle size={40} />}
         </IconBox>

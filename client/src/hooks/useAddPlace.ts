@@ -1,32 +1,30 @@
 import { useState } from "react";
-import { BASE_URL } from "../App.tsx";
+import { BASE_URL } from "../App";
 
-interface LogInPayload {
-  email: string;
-  password: string;
+interface AddPlacePayload {
+  placeId: string;
+  userId: number;
 }
 
-const useLogIn = (payload: LogInPayload) => {
+const useAddPlace = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const login = async () => {
+  const addPlace = async (payload: AddPlacePayload) => {
     setError(null);
     setIsLoading(true);
+
     try {
-      const response = await fetch(`${BASE_URL}/login`, {
-        method: "POST",
+      const response = await fetch(`${BASE_URL}/users/addPlace`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-
       if (!response.ok) {
-        setError(data.error || "Login failed");
-      } else {
-        localStorage.setItem("user", JSON.stringify(data));
-        return data;
+        setError(data.error || "Failed to add place");
       }
+      return data;
     } catch {
       setError("Network error");
     } finally {
@@ -34,7 +32,7 @@ const useLogIn = (payload: LogInPayload) => {
     }
   };
 
-  return { login, isLoading, error };
+  return { addPlace, isLoading, error };
 };
 
-export default useLogIn;
+export default useAddPlace;
