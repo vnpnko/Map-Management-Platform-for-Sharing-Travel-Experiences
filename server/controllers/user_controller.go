@@ -313,15 +313,6 @@ func DeleteUser(c *fiber.Ctx) error {
 	})
 }
 
-//func handleError(c *fiber.Ctx, status int, msg string, err error) error {
-//	if err == nil {
-//		err = errors.New(msg)
-//	}
-//	return c.Status(status).JSON(fiber.Map{
-//		"error": msg,
-//	})
-//}
-
 func AddPlaceToUser(c *fiber.Ctx) error {
 	var body struct {
 		UserID  primitive.ObjectID `json:"userId"`
@@ -351,7 +342,6 @@ func AddPlaceToUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Optionally, retrieve and return the updated user
 	var updatedUser models.User
 	err = config.DB.Collection("users").
 		FindOne(context.Background(), filter).
@@ -394,7 +384,6 @@ func RemovePlaceFromUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Optionally, retrieve and return the updated user
 	var updatedUser models.User
 	err = config.DB.Collection("users").
 		FindOne(context.Background(), filter).

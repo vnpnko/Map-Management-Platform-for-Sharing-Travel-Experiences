@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Spinner, Text } from "@chakra-ui/react";
+import { Flex, Spinner, Text, useToast } from "@chakra-ui/react";
 import {
   IoIosMap,
   IoIosAddCircle,
@@ -10,38 +10,78 @@ import CustomBox from "./ui/CustomBox";
 import IconBox from "./ui/IconBox.tsx";
 
 import useAddPlace from "../hooks/useAddPlace.ts";
-import useRemovePlace from "../hooks/useRemovePlace.ts";
 import { useUser } from "../context/UserContext.tsx";
-import useGetPlace from "../hooks/useGetPlace.ts";
+import useFetchPlace from "../hooks/useFetchPlace.ts";
+import useRemovePlace from "../hooks/useRemovePlace.ts";
+import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
+import useRemovePlaceLike from "../hooks/useRemovePlaceLike.ts";
 
 interface PlaceItemProps {
   place_id: string;
 }
 
 const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
-  const { addPlace, isAdding } = useAddPlace();
-  const { removePlace, isRemoving } = useRemovePlace();
-  const { loggedInUser } = useUser();
-  const { place, isLoading, error } = useGetPlace(place_id);
+  const toast = useToast();
+  const { loggedInUser, setLoggedInUser } = useUser();
+  const { place } = useFetchPlace({ place_id });
+  const { addPlace, isAddingPlace } = useAddPlace();
+  const { removePlace, isRemovingPlace } = useRemovePlace();
+  const { addPlaceLike } = useAddPlaceLike();
+  const { removePlaceLike } = useRemovePlaceLike();
 
   const alreadyHasPlace =
     loggedInUser && loggedInUser.places.includes(place_id);
 
+  if (!place) {
+    return;
+  }
+
   const handleAddPlace = async () => {
+    if (!loggedInUser) {
+      toast({
+        title: "Not Authorized",
+        description: "Please log in to like a place.",
+        status: "error",
+        isClosable: true,
+      });
+      return;
+    }
     if (place && loggedInUser && !alreadyHasPlace) {
-      await addPlace(place._id, loggedInUser._id);
+      try {
+        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const updatedUser = await addPlace(payload);
+        setLoggedInUser(updatedUser);
+        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        place.likes.push(loggedInUser._id);
+      } catch (error) {
+        toast({
+          title: "Error Adding Place",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
+      }
     }
   };
 
   const handleRemovePlace = async () => {
     if (place && loggedInUser && alreadyHasPlace) {
-      await removePlace(place._id, loggedInUser._id);
+      try {
+        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const updatedUser = await removePlace(payload);
+        setLoggedInUser(updatedUser);
+        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        place.likes = place.likes.filter((id) => id !== loggedInUser._id);
+      } catch (error) {
+        toast({
+          title: "Error Removing Place",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
+      }
     }
   };
-
-  if (!place) {
-    return;
-  }
 
   return (
     <Flex gap={2}>
@@ -76,7 +116,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
           _hover={{ color: "red.600" }}
           onClick={handleRemovePlace}
         >
-          {isRemoving ? <Spinner size="lg" /> : <IoIosRemoveCircle size={40} />}
+          {isRemovingPlace ? (
+            <Spinner size="lg" />
+          ) : (
+            <IoIosRemoveCircle size={40} />
+          )}
         </IconBox>
       ) : (
         <IconBox
@@ -86,7 +130,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
           _hover={{ color: "green.600" }}
           onClick={handleAddPlace}
         >
-          {isAdding ? <Spinner size="lg" /> : <IoIosAddCircle size={40} />}
+          {isAddingPlace ? <Spinner size="lg" /> : <IoIosAddCircle size={40} />}
         </IconBox>
       )}
     </Flex>

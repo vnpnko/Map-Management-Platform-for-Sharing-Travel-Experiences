@@ -12,19 +12,24 @@ const SignUpPage: React.FC = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const SignUpPayload = { email, name, username, password };
+
+  const [error, setError] = useState<Error | null>(null);
 
   const navigate = useNavigate();
 
-  const payload = { email, name, username, password };
-  const { signup, error } = useSignUp(payload);
+  const { signup, isSigningUp } = useSignUp();
   const { setLoggedInUser } = useUser();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    const userData = await signup();
-    if (userData) {
-      setLoggedInUser(userData);
-      navigate(`/${userData.username}`);
+    try {
+      const user = await signup(SignUpPayload);
+      setLoggedInUser(user);
+      navigate(`/${user.username}`);
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError(error as Error);
     }
   };
 
@@ -48,18 +53,21 @@ const SignUpPage: React.FC = () => {
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            isDisabled={isSigningUp}
           />
 
           <CustomInput
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            isDisabled={isSigningUp}
           />
 
           <CustomInput
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            isDisabled={isSigningUp}
           />
 
           <CustomInput
@@ -67,14 +75,17 @@ const SignUpPage: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            isDisabled={isSigningUp}
           />
 
-          <CustomButton>Sign up</CustomButton>
+          <CustomButton type="submit" isDisabled={isSigningUp}>
+            {isSigningUp ? "Signing up..." : "Sign up"}
+          </CustomButton>
         </Flex>
 
         {error && (
           <Text mt={4} color="red.500">
-            {error}
+            {error.message}
           </Text>
         )}
       </CustomBox>

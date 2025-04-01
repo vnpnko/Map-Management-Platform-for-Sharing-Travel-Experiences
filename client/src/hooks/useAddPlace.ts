@@ -1,38 +1,43 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
+import { User } from "../models/User.ts";
 
 interface AddPlacePayload {
   placeId: string;
   userId: number;
 }
 
+type AddPlaceResponse = User;
+
+const addPlaceRequest = async (
+  payload: AddPlacePayload,
+): Promise<AddPlaceResponse> => {
+  const response = await fetch(`${BASE_URL}/users/addPlace`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to add place");
+  }
+  return data;
+};
+
 const useAddPlace = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { mutateAsync, isPending, error } = useMutation<
+    AddPlaceResponse,
+    Error,
+    AddPlacePayload
+  >({
+    mutationFn: addPlaceRequest,
+  });
 
-  const addPlace = async (payload: AddPlacePayload) => {
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${BASE_URL}/users/addPlace`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Failed to add place");
-      }
-      return data;
-    } catch {
-      setError("Network error");
-    } finally {
-      setIsLoading(false);
-    }
+  return {
+    addPlace: mutateAsync,
+    isAddingPlace: isPending,
+    addPlaceError: error,
   };
-
-  return { addPlace, isLoading, error };
 };
 
 export default useAddPlace;

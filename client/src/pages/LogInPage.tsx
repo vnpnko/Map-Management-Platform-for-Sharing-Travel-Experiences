@@ -10,19 +10,24 @@ import useLogIn from "../hooks/useLogIn.ts";
 const LogInPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const LogInPayload = { email, password };
+
+  const [error, setError] = useState<Error | null>(null);
 
   const navigate = useNavigate();
 
-  const payload = { email, password };
-  const { login, error } = useLogIn(payload);
+  const { login, isLoggingIn } = useLogIn();
   const { setLoggedInUser } = useUser();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const userData = await login();
-    if (userData) {
-      setLoggedInUser(userData);
-      navigate(`/${userData.username}`);
+    try {
+      const user = await login(LogInPayload);
+      setLoggedInUser(user);
+      navigate(`/${user.username}`);
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError(error as Error);
     }
   };
 
@@ -46,6 +51,7 @@ const LogInPage: React.FC = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            isDisabled={isLoggingIn}
           />
 
           <CustomInput
@@ -53,14 +59,17 @@ const LogInPage: React.FC = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            isDisabled={isLoggingIn}
           />
 
-          <CustomButton>Log in</CustomButton>
+          <CustomButton type="submit" isDisabled={isLoggingIn}>
+            {isLoggingIn ? "Logging in..." : "Log in"}
+          </CustomButton>
         </Flex>
 
         {error && (
           <Text mt={4} color="red.500">
-            {error}
+            {error.message}
           </Text>
         )}
       </CustomBox>

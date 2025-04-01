@@ -1,12 +1,13 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 import { User } from "../models/User.ts";
 
-interface UserContextType {
+interface UserContextProps {
   loggedInUser: User | null;
-  setLoggedInUser: React.Dispatch<React.SetStateAction<User | null>>;
+  setLoggedInUser: (user: User | null) => void;
 }
-
-export const UserContext = createContext<UserContextType | null>(null);
+export const UserContext = createContext<UserContextProps | undefined>(
+  undefined,
+);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -15,6 +16,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
+
+  useEffect(() => {
+    if (loggedInUser) {
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [loggedInUser]);
 
   return (
     <UserContext.Provider

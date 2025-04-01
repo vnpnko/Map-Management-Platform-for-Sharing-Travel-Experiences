@@ -1,40 +1,43 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../App.tsx";
+import { User } from "../models/User";
 
 interface LogInPayload {
   email: string;
   password: string;
 }
 
-const useLogIn = (payload: LogInPayload) => {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+type LogInResponse = User;
 
-  const login = async () => {
-    setError(null);
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${BASE_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
+const useLogInRequest = async (
+  payload: LogInPayload,
+): Promise<LogInResponse> => {
+  const response = await fetch(`${BASE_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to log in");
+  }
+  return data;
+};
 
-      if (!response.ok) {
-        setError(data.error || "Login failed");
-      } else {
-        localStorage.setItem("user", JSON.stringify(data));
-        return data;
-      }
-    } catch {
-      setError("Network error");
-    } finally {
-      setIsLoading(false);
-    }
+const useLogIn = () => {
+  const { mutateAsync, isPending, error } = useMutation<
+    LogInResponse,
+    Error,
+    LogInPayload
+  >({
+    mutationFn: useLogInRequest,
+  });
+
+  return {
+    login: mutateAsync,
+    isLoggingIn: isPending,
+    loginError: error,
   };
-
-  return { login, isLoading, error };
 };
 
 export default useLogIn;

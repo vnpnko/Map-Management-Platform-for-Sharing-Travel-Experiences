@@ -1,23 +1,15 @@
-import { useState } from "react";
+import { useCallback } from "react";
 
 const useLogOut = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const logout = async () => {
-    setError(null);
-    setIsLoading(true);
-
+  const logout = useCallback(() => {
     try {
       localStorage.removeItem("user");
-    } catch {
-      setError("Network error");
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
-  };
+  }, []);
 
-  return { logout, isLoading, error };
+  return { logout };
 };
 
 export default useLogOut;

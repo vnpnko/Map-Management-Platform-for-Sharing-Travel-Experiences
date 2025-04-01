@@ -2,23 +2,29 @@ import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
 import { User } from "../models/User";
 
-const useGetUser = (username: string) => {
+interface FetchUserPayload {
+  username: string;
+}
+
+const useFetchUser = (payload: FetchUserPayload) => {
   const { data, isLoading, error } = useQuery<User>({
-    queryKey: ["user", username],
+    queryKey: ["user", payload.username],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/users/username/${username}`);
+      const response = await fetch(
+        `${BASE_URL}/users/username/${payload.username}`,
+      );
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch user");
       }
       return response.json();
     },
-    enabled: !!username,
+    enabled: !!payload.username,
     retry: false,
     refetchOnWindowFocus: false,
   });
 
-  return { user: data, isLoading, error };
+  return { user: data, isFetchingUser: isLoading, userError: error };
 };
 
-export default useGetUser;
+export default useFetchUser;

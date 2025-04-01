@@ -72,11 +72,8 @@ func CreatePlace(c *fiber.Ctx) error {
 			"error": "Place URL is required",
 		})
 	}
-
 	if place.Likes == nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Place likes are required",
-		})
+		place.Likes = []primitive.ObjectID{}
 	}
 
 	_, err := config.DB.Collection("places").
@@ -98,7 +95,6 @@ func DeletePlace(c *fiber.Ctx) error {
 		})
 	}
 
-	// Delete the place from the DB
 	filter := bson.M{"_id": placeID}
 	_, err := config.DB.Collection("places").DeleteOne(context.Background(), filter)
 	if err != nil {
@@ -130,7 +126,6 @@ func AddPlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	// Add the user's ID to the place's Likes array (if not already present)
 	filter := bson.M{"_id": body.PlaceID}
 	update := bson.M{
 		"$addToSet": bson.M{

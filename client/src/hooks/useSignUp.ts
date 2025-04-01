@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../App.tsx";
+import { User } from "../models/User.ts";
 
 interface SignUpPayload {
   email: string;
@@ -8,36 +9,37 @@ interface SignUpPayload {
   password: string;
 }
 
-const useSignUp = (payload: SignUpPayload) => {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+type SignUpResponse = User;
 
-  const signup = async () => {
-    setError(null);
-    setIsLoading(true);
+const useSignUpRequest = async (
+  payload: SignUpPayload,
+): Promise<SignUpResponse> => {
+  const response = await fetch(`${BASE_URL}/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to sign up");
+  }
+  return data;
+};
 
-    try {
-      const response = await fetch(`${BASE_URL}/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
+const useSignUp = () => {
+  const { mutateAsync, isPending, error } = useMutation<
+    SignUpResponse,
+    Error,
+    SignUpPayload
+  >({
+    mutationFn: useSignUpRequest,
+  });
 
-      if (!response.ok) {
-        setError(data.error || "Signup failed");
-      } else {
-        localStorage.setItem("user", JSON.stringify(data));
-        return data;
-      }
-    } catch {
-      setError("Network error");
-    } finally {
-      setIsLoading(false);
-    }
+  return {
+    signup: mutateAsync,
+    isSigningUp: isPending,
+    signUpError: error,
   };
-
-  return { signup, isLoading, error };
 };
 
 export default useSignUp;

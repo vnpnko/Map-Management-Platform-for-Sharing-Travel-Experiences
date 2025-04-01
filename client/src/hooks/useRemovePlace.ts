@@ -1,12 +1,17 @@
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
+import { User } from "../models/User.ts";
 
 interface RemovePlacePayload {
   placeId: string;
   userId: number;
 }
 
-const removePlaceRequest = async (payload: RemovePlacePayload) => {
+type RemovePlaceResponse = User;
+
+const removePlaceRequest = async (
+  payload: RemovePlacePayload,
+): Promise<RemovePlaceResponse> => {
   const response = await fetch(`${BASE_URL}/users/removePlace`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -20,7 +25,19 @@ const removePlaceRequest = async (payload: RemovePlacePayload) => {
 };
 
 const useRemovePlace = () => {
-  return useMutation(removePlaceRequest);
+  const { mutateAsync, isPending, error } = useMutation<
+    RemovePlaceResponse,
+    Error,
+    RemovePlacePayload
+  >({
+    mutationFn: removePlaceRequest,
+  });
+
+  return {
+    removePlace: mutateAsync,
+    isRemovingPlace: isPending,
+    removePlaceError: error,
+  };
 };
 
 export default useRemovePlace;

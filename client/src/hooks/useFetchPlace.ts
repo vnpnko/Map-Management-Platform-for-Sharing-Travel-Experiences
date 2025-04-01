@@ -2,27 +2,27 @@ import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
 import { Place } from "../models/Place";
 
-interface GetPlacePlace {
+interface FetchPlacePayload {
   place_id: string;
 }
 
-const useGetPlace = (place_id: string) => {
+const useFetchPlace = (payload: FetchPlacePayload) => {
   const { data, isLoading, error } = useQuery<Place>({
-    queryKey: ["place", place_id],
+    queryKey: ["place", payload.place_id],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/places/${place_id}`);
+      const response = await fetch(`${BASE_URL}/places/${payload.place_id}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch place");
       }
       return response.json();
     },
-    enabled: !!place_id,
+    enabled: !!payload.place_id,
     retry: false,
     refetchOnWindowFocus: false,
   });
 
-  return { place: data, isLoading, error };
+  return { place: data, isFetchingPlace: isLoading, placeError: error };
 };
 
-export default useGetPlace;
+export default useFetchPlace;

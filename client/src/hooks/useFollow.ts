@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../App.tsx";
 
 interface FollowPayload {
@@ -6,33 +6,35 @@ interface FollowPayload {
   followeeId: number;
 }
 
+interface FollowResponse {
+  success: boolean;
+}
+
+const followRequest = async (
+  payload: FollowPayload,
+): Promise<FollowResponse> => {
+  const response = await fetch(`${BASE_URL}/follow`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to follow user");
+  }
+  return data;
+};
+
 const useFollow = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { mutateAsync, isPending, error } = useMutation<
+    FollowResponse,
+    Error,
+    FollowPayload
+  >({
+    mutationFn: followRequest,
+  });
 
-  const follow = async (payload: FollowPayload) => {
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch(`${BASE_URL}/follow`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Failed to follow user");
-      }
-      return data;
-    } catch {
-      setError("Network error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { follow, isLoading, error };
+  return { follow: mutateAsync, isFollowing: isPending, followError: error };
 };
 
 export default useFollow;

@@ -18,37 +18,29 @@ import useFollow from "../hooks/useFollow.ts";
 import useUnfollow from "../hooks/useUnfollow.ts";
 import PlaceForm from "../components/PlaceForm.tsx";
 import PlaceList from "../components/PlaceList.tsx";
-import useGetUser from "../hooks/useGetUser.ts";
+import useFetchUser from "../hooks/useFetchUser.ts";
 
-const ProfilePage = () => {
-  const { username } = useParams<{ username: string }>();
-
+const ProfilePage: React.FC = () => {
+  const { username = "" } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { loggedInUser, setLoggedInUser } = useUser();
-  const { user: profileUser, isLoading, error } = useGetUser(username!);
+  const { loggedInUser } = useUser();
+  const {
+    user: profileUser,
+    isFetchingUser,
+    userError,
+  } = useFetchUser({ username });
 
-  const { logout, error: logoutError } = useLogOut();
-  const { follow, error: followError } = useFollow();
-  const { unfollow, error: unfollowError } = useUnfollow();
-
-  useEffect(() => {
-    if (logoutError) {
-      toast({
-        title: "Logout Failed",
-        description: logoutError,
-        status: "error",
-        isClosable: true,
-      });
-    }
-  }, [logoutError, toast]);
+  const { follow, isFollowing, followError } = useFollow();
+  const { unfollow, isUnfollowing, unfollowError } = useUnfollow();
+  const { logout } = useLogOut();
 
   useEffect(() => {
     if (followError) {
       toast({
         title: "Follow Failed",
-        description: followError,
+        description: followError.message,
         status: "error",
         isClosable: true,
       });
@@ -59,29 +51,41 @@ const ProfilePage = () => {
     if (unfollowError) {
       toast({
         title: "Unfollow Failed",
-        description: unfollowError,
+        description: unfollowError.message,
         status: "error",
         isClosable: true,
       });
     }
   }, [unfollowError, toast]);
 
-  const handleLogout = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await logout();
-    setLoggedInUser(null);
+  const handleLogout = () => {
+    logout();
     navigate("/");
   };
 
   const handleFollow = async () => {
+    if (!loggedInUser) {
+      toast({
+        title: "Not Authorized",
+        description: "Please log in to follow a user.",
+        status: "error",
+        isClosable: true,
+      });
+      return;
+    }
+
     if (loggedInUser && profileUser) {
       const payload = {
         followerId: loggedInUser._id,
         followeeId: profileUser._id,
       };
-      const data = await follow(payload);
-      if (data) {
-        profileUser.followers.push(loggedInUser._id);
+      try {
+        const data = await follow(payload);
+        if (data) {
+          profileUser.followers.push(loggedInUser._id);
+        }
+      } catch (error) {
+        console.error("Follow failed:", error);
       }
     }
   };
@@ -92,16 +96,20 @@ const ProfilePage = () => {
         followerId: loggedInUser._id,
         followeeId: profileUser._id,
       };
-      const data = await unfollow(payload);
-      if (data) {
-        profileUser.followers = profileUser.followers.filter(
-          (id) => id !== loggedInUser._id,
-        );
+      try {
+        const data = await unfollow(payload);
+        if (data) {
+          profileUser.followers = profileUser.followers.filter(
+            (id) => id !== loggedInUser._id,
+          );
+        }
+      } catch (error) {
+        console.error("Unfollow failed:", error);
       }
     }
   };
 
-  if (isLoading) {
+  if (isFetchingUser) {
     return (
       <Flex
         minH="100vh"
@@ -117,7 +125,7 @@ const ProfilePage = () => {
     );
   }
 
-  if (error || !profileUser) {
+  if (userError || !profileUser) {
     return (
       <Flex
         minH="100vh"
@@ -138,14 +146,15 @@ const ProfilePage = () => {
         >
           <AlertIcon boxSize={10} color="red.500" />
           <Text color="red.500" fontSize="2xl" fontWeight="bold">
-            {error ? error.message : "User not found"}
+            {userError?.message || "Failed to fetch user"}
           </Text>
         </Alert>
       </Flex>
     );
   }
 
-  const isOwnProfile = loggedInUser && loggedInUser._id === profileUser._id;
+  const isOwnProfile = loggedInUser?._id === profileUser._id;
+  const userForDisplay = isOwnProfile ? loggedInUser : profileUser;
 
   return (
     <Flex
@@ -201,6 +210,7 @@ const ProfilePage = () => {
                     bg={"blackAlpha.300"}
                     _hover={{ bg: "blackAlpha.400" }}
                     onClick={handleUnfollow}
+                    isDisabled={isUnfollowing}
                   >
                     Unfollow
                   </CustomButton>
@@ -211,6 +221,7 @@ const ProfilePage = () => {
                     bg={"blackAlpha.300"}
                     _hover={{ bg: "blackAlpha.400" }}
                     onClick={handleFollow}
+                    isDisabled={isFollowing}
                   >
                     Follow
                   </CustomButton>
@@ -230,7 +241,7 @@ const ProfilePage = () => {
           </Flex>
           <Flex direction={"column"} gap={4}>
             {isOwnProfile && <PlaceForm />}
-            <PlaceList user={profileUser} />
+            <PlaceList user={userForDisplay} />
           </Flex>
         </Flex>
       </CustomBox>

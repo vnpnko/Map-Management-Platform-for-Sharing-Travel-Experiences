@@ -1,45 +1,40 @@
+import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../App";
-import { useUser } from "../context/UserContext";
+import { Place } from "../models/Place.ts";
 
-import { useState } from "react";
+type CreatePlacePayload = Place;
+
+type CreatePlaceResponse = Place;
+
+const createPlaceRequest = async (
+  payload: CreatePlacePayload,
+): Promise<CreatePlaceResponse> => {
+  const response = await fetch(`${BASE_URL}/createPlace`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to create place");
+  }
+  return data;
+};
 
 const useCreatePlace = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const { loggedInUser } = useUser();
+  const { mutateAsync, isPending, error } = useMutation<
+    CreatePlaceResponse,
+    Error,
+    CreatePlacePayload
+  >({
+    mutationFn: createPlaceRequest,
+  });
 
-  const createPlace = async (
-    placeID: string,
-    placeName: string,
-    placeURL: string,
-  ) => {
-    setError(null);
-    setIsCreating(true);
-    try {
-      const response = await fetch(`${BASE_URL}/createPlace`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          _id: placeID,
-          name: placeName,
-          url: placeURL,
-          likes: [loggedInUser!._id],
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error || "Failed to create place");
-      }
-      return data;
-    } catch {
-      setError("Network error");
-    } finally {
-      setIsCreating(false);
-    }
+  return {
+    createPlace: mutateAsync,
+    isCreatingPlace: isPending,
+    createPlaceError: error,
   };
-
-  return { createPlace, isCreating, error };
 };
 
 export default useCreatePlace;
