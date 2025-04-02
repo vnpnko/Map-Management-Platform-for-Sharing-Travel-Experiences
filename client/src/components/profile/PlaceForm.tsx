@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { LoadScript, Autocomplete } from "@react-google-maps/api";
-import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
+import React, { useState, useRef } from "react";
+import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
+import { Box, Text, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../ui/CustomInput.tsx";
 import CustomButton from "../ui/CustomButton.tsx";
@@ -32,6 +32,23 @@ const PlaceForm = () => {
   const { addPlaceLike } = useAddPlaceLike();
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries,
+  });
+
+  if (loadError) {
+    return <Text color="red.500">Error loading Google Maps API</Text>;
+  }
+
+  if (!isLoaded) {
+    return (
+      <Flex align="center" justify="center" minH="200px">
+        <Spinner size="lg" />
+      </Flex>
+    );
+  }
 
   const handlePlaceSelect = () => {
     if (autocompleteRef.current) {
@@ -78,28 +95,23 @@ const PlaceForm = () => {
 
   return (
     <Flex as="form" onSubmit={handleCreatePlace} textColor={"black"}>
-      <LoadScript
-        googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-        libraries={libraries}
-      >
-        <Box w={"full"} mr={4}>
-          <Autocomplete
-            onLoad={(autocomplete) => {
-              autocompleteRef.current = autocomplete;
+      <Box w={"full"} mr={4}>
+        <Autocomplete
+          onLoad={(autocomplete) => {
+            autocompleteRef.current = autocomplete;
+          }}
+          onPlaceChanged={handlePlaceSelect}
+        >
+          <CustomInput
+            w={"full"}
+            placeholder="Search for a place"
+            value={placeName}
+            onChange={(e) => {
+              setPlaceName(e.target.value);
             }}
-            onPlaceChanged={handlePlaceSelect}
-          >
-            <CustomInput
-              w={"full"}
-              placeholder="Search for a place"
-              value={placeName}
-              onChange={(e) => {
-                setPlaceName(e.target.value);
-              }}
-            />
-          </Autocomplete>
-        </Box>
-      </LoadScript>
+          />
+        </Autocomplete>
+      </Box>
       <CustomButton type="submit" w={"min"} ml={"auto"} isSelected={false}>
         {isCreatingPlace || isAddingPlace ? (
           <Spinner size="md" />
