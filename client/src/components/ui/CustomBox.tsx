@@ -7,8 +7,8 @@ const CustomBox: React.FC<CustomBoxProps> = ({ children, ...rest }) => {
   return (
     <Box
       border="2px"
-      borderRadius="md"
       borderColor="gray.200"
+      borderRadius="md"
       boxShadow={"md"}
       textAlign="center"
       {...rest}

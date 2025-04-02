@@ -1,18 +1,22 @@
 import React from "react";
-import { Box, Flex, Avatar, Text, useToast } from "@chakra-ui/react";
+import { Flex, Avatar, Text, useToast } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton";
 import { User } from "../../models/User";
 import { useUser } from "../../context/UserContext";
 import useFollow from "../../hooks/useFollow";
 import useUnfollow from "../../hooks/useUnfollow";
+import CustomBox from "../ui/CustomBox.tsx";
+import { useNavigate } from "react-router-dom";
 
 interface UserItemProps {
   user: User;
 }
 
 const UserItem: React.FC<UserItemProps> = ({ user }) => {
-  const { loggedInUser } = useUser();
   const toast = useToast();
+  const navigate = useNavigate();
+
+  const { loggedInUser } = useUser();
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 
@@ -60,20 +64,38 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
   };
 
   return (
-    <Flex alignItems="center" gap={4} p={4} boxShadow="md" borderRadius="md">
-      <Avatar name={user.username} src="" />
-      <Box flex="1">
-        <Text fontSize="md" fontWeight="medium " color="black">
-          {user.username}
-        </Text>
-        <Text fontSize="md" color="blackAlpha.700">
-          {user.name}
-        </Text>
-      </Box>
+    <CustomBox
+      display={"flex"}
+      alignItems="center"
+      justifyContent={"space-between"}
+      p={4}
+    >
+      <Flex gap={4} alignItems="center">
+        <Avatar
+          name={user.username}
+          src=""
+          onClick={() => navigate(`/${user.username}`)}
+          _hover={{ cursor: "pointer" }}
+        />
+        <Flex direction={"column"} justifyContent="center">
+          <Text
+            fontSize="xl"
+            fontWeight="medium"
+            color="black"
+            onClick={() => navigate(`/${user.username}`)}
+            _hover={{ cursor: "pointer" }}
+          >
+            {user.username}
+          </Text>
+          <Text fontSize="md" color="blackAlpha.700">
+            {user.name}
+          </Text>
+        </Flex>
+      </Flex>
       {!isOwnUser &&
         (isFollowed ? (
           <CustomButton
-            flex="2"
+            w={"min"}
             onClick={handleUnfollow}
             isDisabled={isUnfollowing}
             color="black"
@@ -84,14 +106,14 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
           </CustomButton>
         ) : (
           <CustomButton
-            flex="2"
+            w={"min"}
             onClick={handleFollow}
             isDisabled={isFollowing}
           >
             Follow
           </CustomButton>
         ))}
-    </Flex>
+    </CustomBox>
   );
 };
 
