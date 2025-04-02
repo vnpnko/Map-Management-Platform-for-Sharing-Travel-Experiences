@@ -10,14 +10,14 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../components/ui/CustomButton";
-import Status from "../components/profile/Status";
+import Status from "../components/ui/profile/Status";
 import CustomBox from "../components/ui/CustomBox";
 import { useUser } from "../context/UserContext";
 import useLogOut from "../hooks/useLogOut.ts";
 import useFollow from "../hooks/useFollow.ts";
 import useUnfollow from "../hooks/useUnfollow.ts";
-import PlaceForm from "../components/PlaceForm.tsx";
-import PlaceList from "../components/PlaceList.tsx";
+import PlaceForm from "../components/profile/PlaceForm.tsx";
+import PlaceList from "../components/profile/PlaceList.tsx";
 import useFetchUser from "../hooks/useFetchUser.ts";
 
 const ProfilePage: React.FC = () => {
@@ -110,46 +110,23 @@ const ProfilePage: React.FC = () => {
   };
 
   if (isFetchingUser) {
-    return (
-      <Flex
-        minH="100vh"
-        bg="gray.50"
-        direction="column"
-        align="center"
-        justify="center"
-        gap={2}
-        py={10}
-      >
-        <Spinner color="black" />
-      </Flex>
-    );
+    return <Spinner color="black" />;
   }
 
   if (userError || !profileUser) {
     return (
-      <Flex
-        minH="100vh"
-        bg="gray.50"
-        direction="column"
-        align="center"
-        justify="center"
-        gap={2}
-        py={10}
+      <Alert
+        p={8}
+        status="error"
+        variant="solid"
+        alignItems="center"
+        justifyContent="center"
       >
-        <Alert
-          w="sm"
-          p={8}
-          status="error"
-          variant="solid"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <AlertIcon boxSize={10} color="red.500" />
-          <Text color="red.500" fontSize="2xl" fontWeight="bold">
-            {userError?.message || "Failed to fetch user"}
-          </Text>
-        </Alert>
-      </Flex>
+        <AlertIcon boxSize={10} color="red.500" />
+        <Text color="red.500" fontSize="2xl" fontWeight="bold">
+          {userError?.message || "Failed to fetch user"}
+        </Text>
+      </Alert>
     );
   }
 
@@ -157,27 +134,19 @@ const ProfilePage: React.FC = () => {
   const userForDisplay = isOwnProfile ? loggedInUser : profileUser;
 
   return (
-    <Flex
-      minH="100vh"
-      bg="gray.50"
-      direction="column"
-      align="center"
-      justify="center"
-      gap={2}
-      py={10}
-    >
+    <Flex direction="column">
       <CustomBox p={8}>
         <Flex direction={"column"} gap={8}>
           <Flex gap={8}>
             <Avatar
-              name={profileUser.username}
+              name={userForDisplay.username}
               src="" // Provide user profile pic URL if available
               size="2xl"
             />
             <Flex direction="column" gap={4}>
               <Flex justifyContent={"space-between"} gap={4}>
-                <Text color="black" fontSize="2xl">
-                  {profileUser.username}
+                <Text color="black" fontSize="2xl" textAlign="left" flex="1">
+                  {userForDisplay.username}
                 </Text>
 
                 {isOwnProfile ? (
@@ -187,7 +156,9 @@ const ProfilePage: React.FC = () => {
                       color="black"
                       bg="blackAlpha.300"
                       _hover={{ bg: "blackAlpha.400" }}
-                      onClick={() => navigate(`/${profileUser.username}/edit`)}
+                      onClick={() =>
+                        navigate(`/${userForDisplay.username}/edit`)
+                      }
                     >
                       Edit Profile
                     </CustomButton>
@@ -203,7 +174,7 @@ const ProfilePage: React.FC = () => {
                     </CustomButton>
                   </Flex>
                 ) : loggedInUser &&
-                  profileUser.followers.includes(loggedInUser._id) ? (
+                  userForDisplay.followers.includes(loggedInUser._id) ? (
                   <CustomButton
                     fontSize="md"
                     color={"black"}
@@ -216,10 +187,8 @@ const ProfilePage: React.FC = () => {
                   </CustomButton>
                 ) : (
                   <CustomButton
+                    flex="2"
                     fontSize="md"
-                    color={"black"}
-                    bg={"blackAlpha.300"}
-                    _hover={{ bg: "blackAlpha.400" }}
                     onClick={handleFollow}
                     isDisabled={isFollowing}
                   >
@@ -229,13 +198,24 @@ const ProfilePage: React.FC = () => {
               </Flex>
 
               <Flex gap={10}>
-                <Status value={profileUser.places.length} name="places" />
-                <Status value={profileUser.followers.length} name="followers" />
-                <Status value={profileUser.following.length} name="following" />
+                <Status value={userForDisplay.places.length} name="places" />
+                <Status
+                  value={userForDisplay.followers.length}
+                  name="followers"
+                />
+                <Status
+                  value={userForDisplay.following.length}
+                  name="following"
+                />
               </Flex>
 
-              <Text color="black" fontSize="lg" textAlign="left">
-                {profileUser.name}
+              <Text
+                color="black"
+                fontSize="lg"
+                fontWeight="medium"
+                textAlign="left"
+              >
+                {userForDisplay.name}
               </Text>
             </Flex>
           </Flex>

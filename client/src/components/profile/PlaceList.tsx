@@ -1,9 +1,9 @@
 import { Flex, Text } from "@chakra-ui/react";
 
 import PlaceItem from "./PlaceItem.tsx";
-import CustomButton from "./ui/CustomButton.tsx";
+import CustomButton from "../ui/CustomButton.tsx";
 
-import { User } from "../models/User";
+import { User } from "../../models/User.ts";
 
 interface PlaceListProps {
   user: User;

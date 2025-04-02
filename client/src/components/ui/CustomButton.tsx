@@ -8,7 +8,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ children, ...rest }) => {
     <Button
       bg={"blue.500"}
       _hover={{ bg: "blue.600" }}
-      fontSize="lg"
+      fontSize="md"
       color="white"
       type="submit"
       w={"full"}
