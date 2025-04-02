@@ -25,7 +25,7 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { loggedInUser } = useUser();
+  const { loggedInUser, setLoggedInUser } = useUser();
   const {
     user: profileUser,
     isFetchingUser,
@@ -60,6 +60,7 @@ const ProfilePage: React.FC = () => {
 
   const handleLogout = () => {
     logout();
+    setLoggedInUser(null);
     navigate("/");
   };
 
