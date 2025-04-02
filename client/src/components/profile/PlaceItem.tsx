@@ -1,11 +1,6 @@
 import React from "react";
 import { Flex, Spinner, Text, useToast } from "@chakra-ui/react";
-import {
-  IoIosMap,
-  IoIosAddCircle,
-  IoIosPeople,
-  IoIosRemoveCircle,
-} from "react-icons/io";
+import { IoIosMap, IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../ui/CustomBox.tsx";
 import IconBox from "../ui/IconBox.tsx";
 
@@ -92,8 +87,14 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
       </CustomBox>
 
       <IconBox color="blue.500" title="Count of likes">
-        <IoIosPeople size={40} />
-        <Text position="absolute" mt={9} color="black" fontSize="sm">
+        <Text
+          color="black"
+          fontSize="sm"
+          w={8}
+          align={"center"}
+          borderColor={"blue.600"}
+          borderWidth={1}
+        >
           {place.likes.length}
         </Text>
       </IconBox>

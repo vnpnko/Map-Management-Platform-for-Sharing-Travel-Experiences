@@ -77,7 +77,11 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
           onClick={() => navigate(`/${user.username}`)}
           _hover={{ cursor: "pointer" }}
         />
-        <Flex direction={"column"} justifyContent="center">
+        <Flex
+          direction={"column"}
+          justifyContent="center"
+          alignItems="flex-start"
+        >
           <Text
             fontSize="xl"
             fontWeight="medium"
