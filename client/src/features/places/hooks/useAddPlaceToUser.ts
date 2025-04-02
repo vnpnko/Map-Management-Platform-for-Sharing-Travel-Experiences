@@ -24,7 +24,7 @@ const addPlaceRequest = async (
   return data;
 };
 
-const useAddPlace = () => {
+const useAddPlaceToUser = () => {
   const { mutateAsync, isPending, error } = useMutation<
     AddPlaceResponse,
     Error,
@@ -40,4 +40,4 @@ const useAddPlace = () => {
   };
 };
 
-export default useAddPlace;
+export default useAddPlaceToUser;
