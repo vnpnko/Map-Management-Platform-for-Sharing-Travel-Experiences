@@ -32,15 +32,7 @@ const EditProfilePage: React.FC = () => {
   }, [navigate]);
 
   return (
-    <Flex
-      minH="100vh"
-      bg="gray.50"
-      direction="column"
-      align="center"
-      justify="center"
-      gap={2}
-      py={10}
-    >
+    <Flex direction="column">
       <CustomBox p={8} w={"sm"}>
         <Heading mb={8} color="black" size="lg">
           Edit Profile
@@ -68,13 +60,23 @@ const EditProfilePage: React.FC = () => {
 
           <Flex gap={4}>
             <CustomButton
-            // onClick={handleSaveProfile}
+              flex={1}
+              isSelected={false}
+              // onClick={handleSaveProfile}
             >
               Save Changes
             </CustomButton>
             <CustomButton
-              bg="blackAlpha.600"
-              _hover={{ bg: "red.600" }}
+              flex={1}
+              bg="gray.50"
+              textColor="black"
+              _hover={{
+                bg: "red.500",
+                textColor: "white",
+              }}
+              borderColor="blackAlpha.300"
+              borderWidth={2}
+              w={"full"}
               // onClick={handleDeleteAccount}
             >
               Delete Account

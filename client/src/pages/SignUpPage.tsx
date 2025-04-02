@@ -34,15 +34,7 @@ const SignUpPage: React.FC = () => {
   };
 
   return (
-    <Flex
-      minH="100vh"
-      bg="gray.50"
-      direction="column"
-      align="center"
-      justify="center"
-      gap={2}
-      py={10}
-    >
+    <Flex direction="column">
       <CustomBox p={8} w={"sm"}>
         <Heading mb={8} color="black" size="lg">
           Join us!
@@ -78,7 +70,11 @@ const SignUpPage: React.FC = () => {
             isDisabled={isSigningUp}
           />
 
-          <CustomButton type="submit" isDisabled={isSigningUp}>
+          <CustomButton
+            type="submit"
+            isSelected={isSigningUp}
+            isDisabled={isSigningUp}
+          >
             {isSigningUp ? "Signing up..." : "Sign up"}
           </CustomButton>
         </Flex>

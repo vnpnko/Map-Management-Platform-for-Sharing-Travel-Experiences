@@ -32,15 +32,7 @@ const LogInPage: React.FC = () => {
   };
 
   return (
-    <Flex
-      minH="100vh"
-      bg="gray.50"
-      direction="column"
-      align="center"
-      justify="center"
-      gap={2}
-      py={10}
-    >
+    <Flex direction="column">
       <CustomBox p={8} w={"sm"}>
         <Heading mb={8} color="black" size="lg">
           Welcome back!
@@ -62,7 +54,11 @@ const LogInPage: React.FC = () => {
             isDisabled={isLoggingIn}
           />
 
-          <CustomButton type="submit" isDisabled={isLoggingIn}>
+          <CustomButton
+            type="submit"
+            isSelected={isLoggingIn}
+            isDisabled={isLoggingIn}
+          >
             {isLoggingIn ? "Logging in..." : "Log in"}
           </CustomButton>
         </Flex>

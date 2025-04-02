@@ -6,15 +6,15 @@ import {
   IoIosPeople,
   IoIosRemoveCircle,
 } from "react-icons/io";
-import CustomBox from "./ui/CustomBox";
-import IconBox from "./ui/IconBox.tsx";
+import CustomBox from "../ui/CustomBox.tsx";
+import IconBox from "../ui/IconBox.tsx";
 
-import useAddPlace from "../hooks/useAddPlace.ts";
-import { useUser } from "../context/UserContext.tsx";
-import useFetchPlace from "../hooks/useFetchPlace.ts";
-import useRemovePlace from "../hooks/useRemovePlace.ts";
-import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
-import useRemovePlaceLike from "../hooks/useRemovePlaceLike.ts";
+import useAddPlace from "../../hooks/useAddPlace.ts";
+import { useUser } from "../../context/UserContext.tsx";
+import useFetchPlace from "../../hooks/useFetchPlace.ts";
+import useRemovePlace from "../../hooks/useRemovePlace.ts";
+import useAddPlaceLike from "../../hooks/useAddPlaceLike.ts";
+import useRemovePlaceLike from "../../hooks/useRemovePlaceLike.ts";
 
 interface PlaceItemProps {
   place_id: string;

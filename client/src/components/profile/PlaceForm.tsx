@@ -2,13 +2,13 @@ import { useState, useRef } from "react";
 import { LoadScript, Autocomplete } from "@react-google-maps/api";
 import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
-import CustomInput from "./ui/CustomInput.tsx";
-import CustomButton from "./ui/CustomButton.tsx";
-import useCreatePlace from "../hooks/useCreatePlace.ts";
-import useAddPlace from "../hooks/useAddPlace.ts";
-import { useUser } from "../context/UserContext.tsx";
-import useFetchPlace from "../hooks/useFetchPlace.ts";
-import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
+import CustomInput from "../ui/CustomInput.tsx";
+import CustomButton from "../ui/CustomButton.tsx";
+import useCreatePlace from "../../hooks/useCreatePlace.ts";
+import useAddPlace from "../../hooks/useAddPlace.ts";
+import { useUser } from "../../context/UserContext.tsx";
+import useFetchPlace from "../../hooks/useFetchPlace.ts";
+import useAddPlaceLike from "../../hooks/useAddPlaceLike.ts";
 
 const libraries: "places"[] = ["places"];
 
@@ -63,17 +63,9 @@ const PlaceForm = () => {
 
       setLoggedInUser(updatedUser);
 
-      toast({
-        title: "Place Added",
-        description: "Place was successfully added.",
-        status: "success",
-        isClosable: true,
-      });
-
       setPlaceId("");
       setPlaceName("");
       setPlaceURL("");
-      // setPlaceLikes([]);
     } catch (error) {
       toast({
         title: "Failed to create place",
@@ -108,7 +100,7 @@ const PlaceForm = () => {
           </Autocomplete>
         </Box>
       </LoadScript>
-      <CustomButton type="submit" w={"min"} ml={"auto"}>
+      <CustomButton type="submit" w={"min"} ml={"auto"} isSelected={false}>
         {isCreatingPlace || isAddingPlace ? (
           <Spinner size="md" />
         ) : (
