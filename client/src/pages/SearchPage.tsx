@@ -16,18 +16,21 @@ const SearchPage: React.FC = () => {
         <ToggleButton
           onClick={() => navigate("/search/users")}
           isSelected={currentPath === "/search/users"}
-          label={"Users"}
-        />
+        >
+          Users
+        </ToggleButton>
         <ToggleButton
           onClick={() => navigate("/search/places")}
           isSelected={currentPath === "/search/places"}
-          label={"Places"}
-        />
+        >
+          Places
+        </ToggleButton>
         <ToggleButton
           onClick={() => navigate("/search/maps")}
           isSelected={currentPath === "/search/maps"}
-          label={"Maps"}
-        />
+        >
+          Maps
+        </ToggleButton>
       </Flex>
       <Outlet />
     </Flex>

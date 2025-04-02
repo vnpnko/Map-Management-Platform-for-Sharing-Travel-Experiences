@@ -8,20 +8,32 @@ export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check if we're on an auth page (login or signup)
   const isAuthPage =
     location.pathname === "/" || location.pathname === "/signup";
 
-  let buttons = null;
+  let buttons;
 
   if (loggedInUser) {
     buttons = (
       <>
-        <CustomButton onClick={() => navigate(`/${loggedInUser.username}`)}>
+        <CustomButton
+          isSelected={location.pathname === `/${loggedInUser.username}`}
+          onClick={() => navigate(`/${loggedInUser.username}`)}
+        >
           Home
         </CustomButton>
-        <CustomButton onClick={() => navigate("/create")}>Create</CustomButton>
-        <CustomButton onClick={() => navigate("/search")}>Search</CustomButton>
+        <CustomButton
+          isSelected={location.pathname.startsWith("/create")}
+          onClick={() => navigate("/create")}
+        >
+          Create
+        </CustomButton>
+        <CustomButton
+          isSelected={location.pathname.startsWith("/search")}
+          onClick={() => navigate("/search")}
+        >
+          Search
+        </CustomButton>
       </>
     );
   } else {
@@ -36,7 +48,10 @@ export function Header() {
           <CustomButton onClick={() => navigate("/signup")}>
             Signup
           </CustomButton>
-          <CustomButton onClick={() => navigate("/search")}>
+          <CustomButton
+            isSelected={location.pathname.startsWith("/search")}
+            onClick={() => navigate("/search")}
+          >
             Search
           </CustomButton>
         </>

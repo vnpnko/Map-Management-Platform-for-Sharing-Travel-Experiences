@@ -16,13 +16,15 @@ const CreatePage: React.FC = () => {
         <ToggleButton
           onClick={() => navigate("/create/places")}
           isSelected={currentPath === "/create/places"}
-          label={"Places"}
-        />
+        >
+          Places
+        </ToggleButton>
         <ToggleButton
           onClick={() => navigate("/create/maps")}
           isSelected={currentPath === "/create/maps"}
-          label={"Maps"}
-        />
+        >
+          Maps
+        </ToggleButton>
       </Flex>
       <Outlet />
     </Flex>
