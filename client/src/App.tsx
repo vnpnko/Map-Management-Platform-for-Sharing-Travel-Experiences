@@ -1,16 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { UserProvider } from "./context/UserContext";
-import SignUpPage from "./pages/SignUpPage";
-import LogInPage from "./pages/LogInPage";
-import ProfilePage from "./pages/ProfilePage";
-import EditProfilePage from "./pages/EditProfilePage";
-import { Layout } from "./pages/Layout/Layout.tsx";
-import SearchPage from "./pages/SearchPage.tsx";
-import AllUsersList from "./components/search/AllUsersList.tsx";
-import AllPlacesList from "./components/search/AllPlacesList.tsx";
+import SignUpPage from "./features/auth/pages/SignUpPage.tsx";
+import LogInPage from "./features/auth/pages/LogInPage.tsx";
+import ProfilePage from "./features/profile/pages/ProfilePage.tsx";
+import EditProfilePage from "./features/profile/pages/EditProfilePage.tsx";
+import { Layout } from "./components/layout/Layout.tsx";
+import SearchPage from "./features/search/pages/SearchPage.tsx";
+import AllUsersList from "./features/search/components/AllUsersList.tsx";
+import AllPlacesList from "./features/search/components/AllPlacesList.tsx";
 import { Text } from "@chakra-ui/react";
-import CreatePage from "./pages/CreatePage.tsx";
-import CreatePlace from "./components/create/CreatePlace.tsx";
+import CreatePage from "./features/create/pages/CreatePage.tsx";
+import CreatePlace from "./features/create/components/CreatePlace.tsx";
+import CreateMap from "./features/create/components/CreateMap.tsx";
 
 export const BASE_URL = "http://localhost:5000/api";
 
@@ -32,12 +33,8 @@ function App() {
             <Route path="/create" element={<CreatePage />}>
               <Route index element={<CreatePlace />} />
               <Route path="places" element={<CreatePlace />} />
-              <Route
-                path="maps"
-                element={<Text color={"black"}>not ready</Text>}
-              />
+              <Route path="maps" element={<CreateMap />} />
             </Route>
-            <Route path="/create" element={<CreatePage />} />
             <Route path="/" element={<LogInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/:username" element={<ProfilePage />} />
