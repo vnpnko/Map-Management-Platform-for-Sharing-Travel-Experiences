@@ -9,6 +9,7 @@ build/
 *.temp
 .vite
 *.tsbuildinfo
+client/.env
 
 # ------------------------------------------------------------------------------
 # Go (server)
@@ -29,4 +30,5 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+server/.env
 
