@@ -11,6 +11,7 @@ import AllPlacesList from "./features/search/components/AllPlacesList.tsx";
 import { Text } from "@chakra-ui/react";
 import CreatePage from "./features/create/pages/CreatePage.tsx";
 import CreatePlace from "./features/create/components/CreatePlace.tsx";
+import CreateMap from "./features/create/components/CreateMap.tsx";
 
 export const BASE_URL = "http://localhost:5000/api";
 
@@ -32,10 +33,7 @@ function App() {
             <Route path="/create" element={<CreatePage />}>
               <Route index element={<CreatePlace />} />
               <Route path="places" element={<CreatePlace />} />
-              <Route
-                path="maps"
-                element={<Text color={"black"}>not ready</Text>}
-              />
+              <Route path="maps" element={<CreateMap />} />
             </Route>
             <Route path="/" element={<LogInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
