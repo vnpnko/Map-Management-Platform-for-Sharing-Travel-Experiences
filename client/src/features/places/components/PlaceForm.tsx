@@ -5,7 +5,7 @@ import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../../../components/common/CustomInput.tsx";
 import CustomButton from "../../../components/common/CustomButton.tsx";
 import useCreatePlace from "../../create/hooks/useCreatePlace.ts";
-import useAddPlace from "../hooks/useAddPlace.ts";
+import useAddPlaceToUser from "../hooks/useAddPlaceToUser.ts";
 import { useUser } from "../../../context/UserContext.tsx";
 import useFetchPlace from "../hooks/useFetchPlace.ts";
 import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
@@ -27,7 +27,7 @@ const PlaceForm = () => {
   const { loggedInUser, setLoggedInUser } = useUser();
   const { place } = useFetchPlace({ place_id: placeId });
 
-  const { addPlace, isAddingPlace } = useAddPlace();
+  const { addPlace, isAddingPlace } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
   const { addPlaceLike } = useAddPlaceLike();
 
