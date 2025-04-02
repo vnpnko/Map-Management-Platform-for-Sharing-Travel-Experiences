@@ -17,7 +17,6 @@ import { useUser } from "../context/UserContext";
 import useLogOut from "../hooks/useLogOut.ts";
 import useFollow from "../hooks/useFollow.ts";
 import useUnfollow from "../hooks/useUnfollow.ts";
-import PlaceForm from "../components/profile/PlaceForm.tsx";
 import PlaceList from "../components/profile/PlaceList.tsx";
 import useFetchUser from "../hooks/useFetchUser.ts";
 
@@ -221,10 +220,7 @@ const ProfilePage: React.FC = () => {
               </Text>
             </Flex>
           </Flex>
-          <Flex direction={"column"} gap={4}>
-            {isOwnProfile && <PlaceForm />}
-            <PlaceList user={userForDisplay} />
-          </Flex>
+          <PlaceList user={userForDisplay} />
         </Flex>
       </CustomBox>
     </Flex>
