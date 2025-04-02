@@ -35,4 +35,6 @@ func SetupRoutes(app *fiber.App) {
 	api.Delete("/maps/:id", controllers.DeleteMap)
 	api.Patch("/maps/addMapLike", controllers.AddMapLike)
 	api.Patch("/maps/removeMapLike", controllers.RemoveMapLike)
+	api.Patch("/maps/addPlace", controllers.AddPlaceToMap)
+	api.Patch("/maps/removePlace", controllers.RemovePlaceFromMap)
 }
