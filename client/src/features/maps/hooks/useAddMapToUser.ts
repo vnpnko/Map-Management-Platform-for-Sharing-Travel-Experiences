@@ -3,7 +3,7 @@ import { BASE_URL } from "../../../App.tsx";
 import { User } from "../../../models/User.ts";
 
 interface AddMapPayload {
-  mapId: string;
+  mapId: number;
   userId: number;
 }
 

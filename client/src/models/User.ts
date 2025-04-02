@@ -5,4 +5,5 @@ export interface User {
   followers: number[];
   following: number[];
   places: string[];
+  maps: number[];
 }

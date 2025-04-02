@@ -3,7 +3,7 @@ import { BASE_URL } from "../../../App.tsx";
 import { Map } from "../../../models/Map.ts";
 
 interface FetchMapPayload {
-  mapId: string;
+  mapId: number;
 }
 
 const useFetchMap = (payload: FetchMapPayload) => {
