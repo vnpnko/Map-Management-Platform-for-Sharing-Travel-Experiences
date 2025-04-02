@@ -54,7 +54,11 @@ const LogInPage: React.FC = () => {
             isDisabled={isLoggingIn}
           />
 
-          <CustomButton type="submit" isDisabled={isLoggingIn}>
+          <CustomButton
+            type="submit"
+            isSelected={isLoggingIn}
+            isDisabled={isLoggingIn}
+          >
             {isLoggingIn ? "Logging in..." : "Log in"}
           </CustomButton>
         </Flex>

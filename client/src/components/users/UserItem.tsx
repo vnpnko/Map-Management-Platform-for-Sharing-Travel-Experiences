@@ -36,7 +36,6 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
     try {
       const data = await follow(payload);
       if (data) {
-        // Optionally update local state or context here
         user.followers.push(loggedInUser._id);
       }
     } catch (error) {

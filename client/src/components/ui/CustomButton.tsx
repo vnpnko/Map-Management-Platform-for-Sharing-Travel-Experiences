@@ -1,18 +1,26 @@
 import React from "react";
 import { Button, ButtonProps } from "@chakra-ui/react";
 
-type CustomButtonProps = ButtonProps;
+interface CustomButtonProps extends ButtonProps {
+  isSelected?: boolean;
+  children?: React.ReactNode;
+}
 
-const CustomButton: React.FC<CustomButtonProps> = ({ children, ...rest }) => {
+const CustomButton: React.FC<CustomButtonProps> = ({
+  isSelected,
+  children,
+  ...props
+}) => {
   return (
     <Button
-      bg={"blue.500"}
-      _hover={{ bg: "blue.600" }}
-      fontSize="md"
-      color="white"
-      type="submit"
+      _hover={{
+        bg: isSelected ? "blackAlpha.400" : "blue.600",
+      }}
+      textColor={isSelected ? "black" : "white"}
+      bg={isSelected ? "blackAlpha.300" : "blue.500"}
+      borderWidth={2}
       w={"full"}
-      {...rest}
+      {...props}
     >
       {children}
     </Button>

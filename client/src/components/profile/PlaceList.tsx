@@ -1,9 +1,7 @@
 import { Flex, Text } from "@chakra-ui/react";
-
 import PlaceItem from "./PlaceItem.tsx";
-import CustomButton from "../ui/CustomButton.tsx";
-
 import { User } from "../../models/User.ts";
+import ToggleButton from "../ui/ToggleButton.tsx";
 
 interface PlaceListProps {
   user: User;
@@ -16,10 +14,8 @@ const PlaceList: React.FC<PlaceListProps> = ({ user }) => {
     return (
       <Flex direction={"column"} gap={4}>
         <Flex justifyContent={"space-between"} gap={4}>
-          <CustomButton bg={"blackAlpha.600"} _hover={{ bg: "blackAlpha.600" }}>
-            places
-          </CustomButton>
-          <CustomButton>maps</CustomButton>
+          <ToggleButton label={"places"} isSelected={true} onClick={() => {}} />
+          <ToggleButton label={"maps"} isSelected={false} onClick={() => {}} />
         </Flex>
         <Flex direction={"column"} gap={2}>
           {user.places.map((place_id) => (

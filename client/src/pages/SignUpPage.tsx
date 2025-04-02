@@ -70,7 +70,11 @@ const SignUpPage: React.FC = () => {
             isDisabled={isSigningUp}
           />
 
-          <CustomButton type="submit" isDisabled={isSigningUp}>
+          <CustomButton
+            type="submit"
+            isSelected={isSigningUp}
+            isDisabled={isSigningUp}
+          >
             {isSigningUp ? "Signing up..." : "Sign up"}
           </CustomButton>
         </Flex>

@@ -1,21 +1,35 @@
 import React from "react";
 import { Flex } from "@chakra-ui/react";
-import CustomButton from "../components/ui/CustomButton.tsx";
-import AllUsersList from "../components/search/AllUsersList.tsx";
-// import AllPlacesList from "../components/search/AllPlacesList.tsx";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import ToggleButton from "../components/ui/ToggleButton.tsx";
 
 const SearchPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentPath =
+    location.pathname === "/search" ? "/search/users" : location.pathname;
+
   return (
-    <Flex direction="column" gap={4} w={"md"}>
+    <Flex direction="column" gap={4} w="md" mx="auto" mt={8}>
       <Flex justifyContent="space-between" gap={4}>
-        <CustomButton>Users</CustomButton>
-        <CustomButton bg="blackAlpha.600" _hover={{ bg: "blackAlpha.600" }}>
-          Places
-        </CustomButton>
-        <CustomButton>Maps</CustomButton>
+        <ToggleButton
+          onClick={() => navigate("/search/users")}
+          isSelected={currentPath === "/search/users"}
+          label={"Users"}
+        />
+        <ToggleButton
+          onClick={() => navigate("/search/places")}
+          isSelected={currentPath === "/search/places"}
+          label={"Places"}
+        />
+        <ToggleButton
+          onClick={() => navigate("/search/maps")}
+          isSelected={currentPath === "/search/maps"}
+          label={"Maps"}
+        />
       </Flex>
-      {/*<AllPlacesList />;*/}
-      <AllUsersList />;
+      <Outlet />
     </Flex>
   );
 };

@@ -7,6 +7,7 @@ import {
   Text,
   Avatar,
   useToast,
+  Button,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../components/ui/CustomButton";
@@ -123,7 +124,7 @@ const ProfilePage: React.FC = () => {
         justifyContent="center"
       >
         <AlertIcon boxSize={10} color="red.500" />
-        <Text color="red.500" fontSize="2xl" fontWeight="bold">
+        <Text color="red.500" fontSize="xl" fontWeight="bold">
           {userError?.message || "Failed to fetch user"}
         </Text>
       </Alert>
@@ -150,36 +151,37 @@ const ProfilePage: React.FC = () => {
                 </Text>
 
                 {isOwnProfile ? (
-                  <Flex w={"full"} gap={4}>
+                  <Flex w={"full"} gap={4} flex={1}>
                     <CustomButton
-                      fontSize="md"
-                      color="black"
-                      bg="blackAlpha.300"
-                      _hover={{ bg: "blackAlpha.400" }}
+                      flex={1}
+                      isSelected={true}
                       onClick={() =>
                         navigate(`/${userForDisplay.username}/edit`)
                       }
                     >
                       Edit Profile
                     </CustomButton>
-                    <CustomButton
-                      fontSize="md"
-                      color="black"
-                      bg={"gray.50"}
-                      border="1px"
-                      _hover={{ bg: "red.400" }}
+                    <Button
+                      flex={1}
+                      bg="gray.50"
+                      textColor="black"
+                      _hover={{
+                        bg: "red.500",
+                        textColor: "white",
+                      }}
+                      borderColor="blackAlpha.300"
+                      borderWidth={2}
+                      w={"full"}
                       onClick={handleLogout}
                     >
                       Logout
-                    </CustomButton>
+                    </Button>
                   </Flex>
                 ) : loggedInUser &&
                   userForDisplay.followers.includes(loggedInUser._id) ? (
                   <CustomButton
-                    fontSize="md"
-                    color={"black"}
-                    bg={"blackAlpha.300"}
-                    _hover={{ bg: "blackAlpha.400" }}
+                    flex={1}
+                    isSelected={true}
                     onClick={handleUnfollow}
                     isDisabled={isUnfollowing}
                   >
@@ -187,8 +189,8 @@ const ProfilePage: React.FC = () => {
                   </CustomButton>
                 ) : (
                   <CustomButton
-                    flex="2"
-                    fontSize="md"
+                    flex={1}
+                    isSelected={false}
                     onClick={handleFollow}
                     isDisabled={isFollowing}
                   >

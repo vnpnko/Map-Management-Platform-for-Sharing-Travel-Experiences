@@ -63,17 +63,9 @@ const PlaceForm = () => {
 
       setLoggedInUser(updatedUser);
 
-      toast({
-        title: "Place Added",
-        description: "Place was successfully added.",
-        status: "success",
-        isClosable: true,
-      });
-
       setPlaceId("");
       setPlaceName("");
       setPlaceURL("");
-      // setPlaceLikes([]);
     } catch (error) {
       toast({
         title: "Failed to create place",
@@ -108,7 +100,7 @@ const PlaceForm = () => {
           </Autocomplete>
         </Box>
       </LoadScript>
-      <CustomButton type="submit" w={"min"} ml={"auto"}>
+      <CustomButton type="submit" w={"min"} ml={"auto"} isSelected={false}>
         {isCreatingPlace || isAddingPlace ? (
           <Spinner size="md" />
         ) : (
