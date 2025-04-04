@@ -1,7 +1,8 @@
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex, Image, Text } from "@chakra-ui/react";
 import CustomButton from "../common/CustomButton.tsx";
 import { useUser } from "../../context/UserContext.tsx";
 import { useLocation, useNavigate } from "react-router-dom";
+import logo from "../../assets/favmaps_logo.png";
 
 export function Header() {
   const { loggedInUser } = useUser();
@@ -66,10 +67,19 @@ export function Header() {
       justify="space-between"
       boxShadow="md"
       px={4}
+      py={1}
     >
-      <Text fontSize="xl" fontWeight="medium" color="black">
-        Map Management Platform for Sharing Travel Experiences
-      </Text>
+      <Flex align="center">
+        <Image src={logo} alt="favmaps logo" boxSize={12} mr={2} />
+        <Text
+          fontSize="xl"
+          fontWeight="medium"
+          color="black"
+          fontFamily="heading"
+        >
+          favmaps
+        </Text>
+      </Flex>
 
       <Flex gap={4} my={2}>
         {buttons}
