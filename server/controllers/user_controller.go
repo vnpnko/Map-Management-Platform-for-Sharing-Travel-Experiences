@@ -105,6 +105,9 @@ func CreateUser(c *fiber.Ctx) error {
 	if user.Places == nil {
 		user.Places = []string{}
 	}
+	if user.Maps == nil {
+		user.Maps = []primitive.ObjectID{}
+	}
 
 	res, err := config.DB.Collection("users").InsertOne(context.Background(), user)
 	if err != nil {

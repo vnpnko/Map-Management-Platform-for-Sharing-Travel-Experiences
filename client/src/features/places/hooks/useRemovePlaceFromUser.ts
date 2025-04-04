@@ -24,7 +24,7 @@ const removePlaceRequest = async (
   return data;
 };
 
-const useRemovePlace = () => {
+const useRemovePlaceFromUser = () => {
   const { mutateAsync, isPending, error } = useMutation<
     RemovePlaceResponse,
     Error,
@@ -40,4 +40,4 @@ const useRemovePlace = () => {
   };
 };
 
-export default useRemovePlace;
+export default useRemovePlaceFromUser;

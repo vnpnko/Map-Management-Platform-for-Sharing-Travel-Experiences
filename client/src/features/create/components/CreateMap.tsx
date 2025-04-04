@@ -1,10 +1,18 @@
 import React from "react";
-import { Text } from "@chakra-ui/react";
+import MapForm from "../../maps/components/MapForm.tsx";
+import MapList from "../../maps/components/MapList.tsx";
+import { useUser } from "../../../context/UserContext.tsx";
 
 const CreateMap: React.FC = () => {
+  const { loggedInUser } = useUser();
+  if (!loggedInUser) {
+    return;
+  }
+
   return (
     <>
-      <Text color={"black"}>Create a map</Text>
+      <MapForm />
+      <MapList user={loggedInUser} />
     </>
   );
 };

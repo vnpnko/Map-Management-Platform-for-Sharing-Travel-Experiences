@@ -1,0 +1,134 @@
+import React from "react";
+import {
+  Box,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Badge,
+  useToast,
+  Spinner,
+} from "@chakra-ui/react";
+import useFetchMap from "../hooks/useFetchMap.ts";
+import { useUser } from "../../../context/UserContext.tsx";
+import useAddMapToUser from "../hooks/useAddMapToUser.ts";
+import useRemoveMapFromUser from "../hooks/useRemoveMapFromUser.ts";
+import useAddMapLike from "../hooks/useAddMapLike.ts";
+import useRemoveMapLike from "../hooks/useRemoveMapLike.ts";
+import IconBox from "../../../components/common/IconBox.tsx";
+import { IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
+
+interface MapItemProps {
+  map_id: number;
+}
+
+const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
+  const toast = useToast();
+  const { loggedInUser, setLoggedInUser } = useUser();
+  const { map } = useFetchMap({ mapId: map_id });
+  const { addMap, isAddingMap } = useAddMapToUser();
+  const { removeMap, isRemovingMap } = useRemoveMapFromUser();
+  const { addMapLike } = useAddMapLike();
+  const { removeMapLike } = useRemoveMapLike();
+
+  const alreadyHasPlace = loggedInUser && loggedInUser.maps.includes(map_id);
+
+  if (!map) {
+    return;
+  }
+
+  const handleAddMap = async () => {
+    if (!loggedInUser) {
+      toast({
+        title: "Not Authorized",
+        description: "Please log in to like a map.",
+        status: "error",
+        isClosable: true,
+      });
+      return;
+    }
+    if (map && loggedInUser && !alreadyHasPlace) {
+      try {
+        const payload = { mapId: map._id, userId: loggedInUser._id };
+        const updatedUser = await addMap(payload);
+        setLoggedInUser(updatedUser);
+        await addMapLike({ mapId: map._id, userId: loggedInUser._id });
+        map.likes.push(loggedInUser._id);
+      } catch (error) {
+        toast({
+          title: "Error Adding Map",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
+      }
+    }
+  };
+
+  const handleRemoveMap = async () => {
+    if (map && loggedInUser && alreadyHasPlace) {
+      try {
+        const payload = { mapId: map._id, userId: loggedInUser._id };
+        const updatedUser = await removeMap(payload);
+        setLoggedInUser(updatedUser);
+        await removeMapLike({ mapId: map._id, userId: loggedInUser._id });
+        map.likes = map.likes.filter((id) => id !== loggedInUser._id);
+      } catch (error) {
+        toast({
+          title: "Error Removing Map",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
+      }
+    }
+  };
+
+  return (
+    <Box borderWidth="1px" borderRadius="md" p={4}>
+      <Heading size="md">{map.name}</Heading>
+      <Text mt={2}>{map.description}</Text>
+      <VStack mt={3} align="start">
+        <Heading size="sm">Places:</Heading>
+        {map.places.length === 0 ? (
+          <Text>No places added</Text>
+        ) : (
+          <HStack spacing={2}>
+            {map.places.map((place, index) => (
+              <Badge key={index} colorScheme="purple">
+                {place}
+              </Badge>
+            ))}
+          </HStack>
+        )}
+      </VStack>
+      {alreadyHasPlace ? (
+        <IconBox
+          title="Remove from saved maps"
+          cursor="pointer"
+          color="gray.500"
+          _hover={{ color: "red.600" }}
+          onClick={handleRemoveMap}
+        >
+          {isRemovingMap ? (
+            <Spinner size="lg" />
+          ) : (
+            <IoIosRemoveCircle size={40} />
+          )}
+        </IconBox>
+      ) : (
+        <IconBox
+          title="Add to saved places"
+          cursor="pointer"
+          color="green.500"
+          _hover={{ color: "green.600" }}
+          onClick={handleAddMap}
+        >
+          {isAddingMap ? <Spinner size="lg" /> : <IoIosAddCircle size={40} />}
+        </IconBox>
+      )}
+    </Box>
+  );
+};
+
+export default MapItem;

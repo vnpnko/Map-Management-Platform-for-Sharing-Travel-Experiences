@@ -11,4 +11,5 @@ type User struct {
 	Followers []primitive.ObjectID `json:"followers" bson:"followers"`
 	Following []primitive.ObjectID `json:"following" bson:"following"`
 	Places    []string             `json:"places" bson:"places"`
+	Maps      []primitive.ObjectID `json:"maps" bson:"maps"`
 }

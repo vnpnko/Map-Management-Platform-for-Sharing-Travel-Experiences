@@ -19,12 +19,12 @@ const addPlaceRequest = async (
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Failed to add place");
+    throw new Error(data.error || "Failed to add place to user");
   }
   return data;
 };
 
-const useAddPlace = () => {
+const useAddPlaceToUser = () => {
   const { mutateAsync, isPending, error } = useMutation<
     AddPlaceResponse,
     Error,
@@ -40,4 +40,4 @@ const useAddPlace = () => {
   };
 };
 
-export default useAddPlace;
+export default useAddPlaceToUser;

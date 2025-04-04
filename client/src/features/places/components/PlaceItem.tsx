@@ -4,10 +4,10 @@ import { IoIosMap, IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox.tsx";
 import IconBox from "../../../components/common/IconBox.tsx";
 
-import useAddPlace from "../hooks/useAddPlace.ts";
+import useAddPlaceToUser from "../hooks/useAddPlaceToUser.ts";
 import { useUser } from "../../../context/UserContext.tsx";
 import useFetchPlace from "../hooks/useFetchPlace.ts";
-import useRemovePlace from "../hooks/useRemovePlace.ts";
+import useRemovePlaceFromUser from "../hooks/useRemovePlaceFromUser.ts";
 import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "../hooks/useRemovePlaceLike.ts";
 
@@ -19,8 +19,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
   const { place } = useFetchPlace({ place_id });
-  const { addPlace, isAddingPlace } = useAddPlace();
-  const { removePlace, isRemovingPlace } = useRemovePlace();
+  const { addPlace, isAddingPlace } = useAddPlaceToUser();
+  const { removePlace, isRemovingPlace } = useRemovePlaceFromUser();
   const { addPlaceLike } = useAddPlaceLike();
   const { removePlaceLike } = useRemovePlaceLike();
 
