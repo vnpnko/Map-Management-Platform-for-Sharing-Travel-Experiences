@@ -13,7 +13,7 @@ type UpdateUserDataResponse = User;
 const updateUserRequest = async (
   payload: UpdateUserDataPayload,
 ): Promise<UpdateUserDataResponse> => {
-  const response = await fetch(`${BASE_URL}/users/${payload.id}`, {
+  const response = await fetch(`${BASE_URL}/users/${payload.id}/update`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

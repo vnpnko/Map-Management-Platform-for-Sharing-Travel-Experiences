@@ -15,8 +15,7 @@ const EditProfilePage: React.FC = () => {
   );
   const [updatedName, setUpdatedName] = useState(loggedInUser!.name);
   const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
-  const { updateUserData, isUpdatingUserData, updateUserDataError } =
-    useUpdateUser();
+  const { updateUserData, isUpdatingUserData } = useUpdateUser();
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -34,39 +33,41 @@ const EditProfilePage: React.FC = () => {
 
   const handleDeleteUser = async () => {
     if (loggedInUser) {
-      const data = await deleteUser({ _id: loggedInUser._id });
-      if (data) {
-        setLoggedInUser(null);
-        navigate("/");
+      try {
+        const data = await deleteUser({ _id: loggedInUser._id });
+        if (data) {
+          setLoggedInUser(null);
+          navigate("/");
+        }
+      } catch (error) {
+        toast({
+          title: "Delete Failed",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
       }
     }
   };
 
-  useEffect(() => {
-    if (updateUserDataError) {
-      toast({
-        title: "Update Failed",
-        description: updateUserDataError.message,
-        status: "error",
-        isClosable: true,
-      });
-    }
-  }, [updateUserDataError, toast]);
-
   const handleUpdateUserData = async () => {
     if (loggedInUser) {
-      const data = await updateUserData({
-        id: loggedInUser._id,
-        username: updatedUsername,
-        name: updatedName,
-      });
-      if (data) {
-        setLoggedInUser({
-          ...loggedInUser,
+      try {
+        const payload = {
+          id: loggedInUser._id,
           username: updatedUsername,
           name: updatedName,
-        });
+        };
+        const updatedUser = await updateUserData(payload);
+        setLoggedInUser(updatedUser);
         navigate(`/${updatedUsername}`);
+      } catch (error) {
+        toast({
+          title: "Update Failed",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
       }
     }
   };

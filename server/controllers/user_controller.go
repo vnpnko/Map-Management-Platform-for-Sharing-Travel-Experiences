@@ -315,9 +315,9 @@ func UpdateUserData(c *fiber.Ctx) error {
 			"error": "Invalid request body",
 		})
 	}
-	if body.Username == "" && body.Name == "" {
+	if body.Username == "" || body.Name == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Change at least one field",
+			"error": "Username and name are required",
 		})
 	}
 
