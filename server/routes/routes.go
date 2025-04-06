@@ -16,7 +16,7 @@ func SetupRoutes(app *fiber.App) {
 	api.Post("/signup", controllers.CreateUser)
 	api.Patch("/follow", controllers.UpdateUserFollow)
 	api.Patch("/unfollow", controllers.UpdateUserUnfollow)
-	api.Patch("/users/:id", controllers.UpdateUserData)
+	api.Patch("/users/:id/update", controllers.UpdateUserData)
 	api.Delete("/users/:id", controllers.DeleteUser)
 	api.Patch("/users/addPlace", controllers.AddPlaceToUser)
 	api.Patch("/users/removePlace", controllers.RemovePlaceFromUser)
