@@ -5,6 +5,7 @@ interface UserContextProps {
   loggedInUser: User | null;
   setLoggedInUser: (user: User | null) => void;
 }
+
 export const UserContext = createContext<UserContextProps | undefined>(
   undefined,
 );

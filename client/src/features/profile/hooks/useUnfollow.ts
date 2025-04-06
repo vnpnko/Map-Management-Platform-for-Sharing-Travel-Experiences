@@ -1,14 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
+import { User } from "../../../models/User.ts";
 
 interface UnfollowPayload {
   followerId: number;
   followeeId: number;
 }
 
-interface UnfollowResponse {
-  success: boolean;
-}
+type UnfollowResponse = User;
 
 const unfollowRequest = async (
   payload: UnfollowPayload,
