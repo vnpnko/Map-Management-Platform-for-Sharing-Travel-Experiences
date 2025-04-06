@@ -1,35 +1,75 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Flex, Heading } from "@chakra-ui/react";
+import { Flex, Heading, useToast } from "@chakra-ui/react";
 import CustomButton from "../../../components/common/CustomButton.tsx";
 import CustomBox from "../../../components/common/CustomBox.tsx";
 import CustomInput from "../../../components/common/CustomInput.tsx";
-
-interface User {
-  _id: string;
-  username: string;
-  name: string;
-  email: string;
-}
+import { useUser } from "../../../context/UserContext.tsx";
+import useDeleteUser from "../hooks/useDeleteUser.ts";
+import useUpdateUser from "../hooks/useUpdateUser.ts";
 
 const EditProfilePage: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [updatedName, setUpdatedName] = useState("");
-  const [updatedEmail, setUpdatedEmail] = useState("");
+  const { loggedInUser, setLoggedInUser } = useUser();
+  const [updatedUsername, setUpdatedUsername] = useState(
+    loggedInUser!.username,
+  );
+  const [updatedName, setUpdatedName] = useState(loggedInUser!.name);
+  const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
+  const { updateUserData, isUpdatingUserData, updateUserDataError } =
+    useUpdateUser();
 
   const navigate = useNavigate();
+  const toast = useToast();
 
   useEffect(() => {
-    const storedUserStr = localStorage.getItem("user");
-    if (storedUserStr) {
-      const storedUser = JSON.parse(storedUserStr) as User;
-      setUser(storedUser);
-      setUpdatedName(storedUser.name);
-      setUpdatedEmail(storedUser.email);
-    } else {
-      navigate("/");
+    if (deleteUserError) {
+      toast({
+        title: "Delete Failed",
+        description: deleteUserError.message,
+        status: "error",
+        isClosable: true,
+      });
     }
-  }, [navigate]);
+  }, [deleteUserError, toast]);
+
+  const handleDeleteUser = async () => {
+    if (loggedInUser) {
+      const data = await deleteUser({ _id: loggedInUser._id });
+      if (data) {
+        setLoggedInUser(null);
+        navigate("/");
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (updateUserDataError) {
+      toast({
+        title: "Update Failed",
+        description: updateUserDataError.message,
+        status: "error",
+        isClosable: true,
+      });
+    }
+  }, [updateUserDataError, toast]);
+
+  const handleUpdateUserData = async () => {
+    if (loggedInUser) {
+      const data = await updateUserData({
+        id: loggedInUser._id,
+        username: updatedUsername,
+        name: updatedName,
+      });
+      if (data) {
+        setLoggedInUser({
+          ...loggedInUser,
+          username: updatedUsername,
+          name: updatedName,
+        });
+        navigate(`/${updatedUsername}`);
+      }
+    }
+  };
 
   return (
     <Flex direction="column">
@@ -45,24 +85,25 @@ const EditProfilePage: React.FC = () => {
           gap={4}
         >
           <CustomInput
+            name="Username"
+            placeholder="Username"
+            value={updatedUsername}
+            onChange={(e) => setUpdatedUsername(e.target.value)}
+            isDisabled={isUpdatingUserData}
+          />
+
+          <CustomInput
             name="Name"
             placeholder="Name"
             value={updatedName}
             onChange={(e) => setUpdatedName(e.target.value)}
           />
 
-          <CustomInput
-            name="Email"
-            placeholder="Email"
-            value={updatedEmail}
-            onChange={(e) => setUpdatedEmail(e.target.value)}
-          />
-
           <Flex gap={4}>
             <CustomButton
               flex={1}
               isSelected={false}
-              // onClick={handleSaveProfile}
+              onClick={handleUpdateUserData}
             >
               Save Changes
             </CustomButton>
@@ -77,7 +118,8 @@ const EditProfilePage: React.FC = () => {
               borderColor="blackAlpha.300"
               borderWidth={2}
               w={"full"}
-              // onClick={handleDeleteAccount}
+              onClick={handleDeleteUser}
+              isDisabled={isDeletingUser}
             >
               Delete Account
             </CustomButton>

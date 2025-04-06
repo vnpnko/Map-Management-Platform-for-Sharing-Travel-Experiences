@@ -214,9 +214,17 @@ func UpdateUserFollow(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	var updatedUser models.User
+	filterFollower := bson.M{"_id": followerObjID}
+	err = config.DB.Collection("users").
+		FindOne(context.Background(), filterFollower).
+		Decode(&updatedUser)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "User not found",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
 func UpdateUserUnfollow(c *fiber.Ctx) error {
@@ -283,9 +291,62 @@ func UpdateUserUnfollow(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	var updatedUser models.User
+	filterFollowee := bson.M{"_id": followeeObjID}
+	err = config.DB.Collection("users").
+		FindOne(context.Background(), filterFollowee).
+		Decode(&updatedUser)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "User not found",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
+}
+
+func UpdateUserData(c *fiber.Ctx) error {
+	var body struct {
+		UserID   primitive.ObjectID `json:"id"`
+		Username string             `json:"username"`
+		Name     string             `json:"name"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+	if body.Username == "" && body.Name == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Change at least one field",
+		})
+	}
+
+	filter := bson.M{"_id": body.UserID}
+	update := bson.M{
+		"$set": bson.M{
+			"username": body.Username,
+			"name":     body.Name,
+		},
+	}
+
+	_, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to update user data",
+		})
+	}
+
+	var updatedUser models.User
+	err = config.DB.Collection("users").
+		FindOne(context.Background(), filter).
+		Decode(&updatedUser)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "User not found",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
 func DeleteUser(c *fiber.Ctx) error {

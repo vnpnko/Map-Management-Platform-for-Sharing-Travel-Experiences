@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Flex,
   Spinner,
@@ -27,42 +27,14 @@ const ProfilePage: React.FC = () => {
 
   const { loggedInUser, setLoggedInUser } = useUser();
   const {
-    user: profileUser,
+    fetchedUser: profileUser,
     isFetchingUser,
     userError,
   } = useFetchUser({ username });
 
-  const { follow, isFollowing, followError } = useFollow();
-  const { unfollow, isUnfollowing, unfollowError } = useUnfollow();
+  const { follow, isFollowing } = useFollow();
+  const { unfollow, isUnfollowing } = useUnfollow();
   const { logout } = useLogOut();
-
-  useEffect(() => {
-    if (followError) {
-      toast({
-        title: "Follow Failed",
-        description: followError.message,
-        status: "error",
-        isClosable: true,
-      });
-    }
-  }, [followError, toast]);
-
-  useEffect(() => {
-    if (unfollowError) {
-      toast({
-        title: "Unfollow Failed",
-        description: unfollowError.message,
-        status: "error",
-        isClosable: true,
-      });
-    }
-  }, [unfollowError, toast]);
-
-  const handleLogout = () => {
-    logout();
-    setLoggedInUser(null);
-    navigate("/");
-  };
 
   const handleFollow = async () => {
     if (!loggedInUser) {
@@ -75,39 +47,53 @@ const ProfilePage: React.FC = () => {
       return;
     }
 
-    if (loggedInUser && profileUser) {
-      const payload = {
-        followerId: loggedInUser._id,
-        followeeId: profileUser._id,
-      };
+    if (profileUser) {
       try {
-        const data = await follow(payload);
-        if (data) {
-          profileUser.followers.push(loggedInUser._id);
-        }
+        const payload = {
+          followerId: loggedInUser._id,
+          followeeId: profileUser._id,
+        };
+        const updatedUser = await follow(payload);
+        setLoggedInUser(updatedUser);
+        profileUser.followers.push(loggedInUser._id);
       } catch (error) {
-        console.error("Follow failed:", error);
+        toast({
+          title: "Follow Failed",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
       }
     }
   };
 
   const handleUnfollow = async () => {
     if (loggedInUser && profileUser) {
-      const payload = {
-        followerId: loggedInUser._id,
-        followeeId: profileUser._id,
-      };
       try {
-        const data = await unfollow(payload);
-        if (data) {
-          profileUser.followers = profileUser.followers.filter(
-            (id) => id !== loggedInUser._id,
-          );
-        }
+        const payload = {
+          followerId: loggedInUser._id,
+          followeeId: profileUser._id,
+        };
+        const updatedUser = await unfollow(payload);
+        setLoggedInUser(updatedUser);
+        profileUser.followers = profileUser.followers.filter(
+          (id) => id !== loggedInUser._id,
+        );
       } catch (error) {
-        console.error("Unfollow failed:", error);
+        toast({
+          title: "Unfollow Failed",
+          description: (error as Error).message,
+          status: "error",
+          isClosable: true,
+        });
       }
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setLoggedInUser(null);
+    navigate("/");
   };
 
   if (isFetchingUser) {
@@ -132,7 +118,6 @@ const ProfilePage: React.FC = () => {
   }
 
   const isOwnProfile = loggedInUser?._id === profileUser._id;
-  const userForDisplay = isOwnProfile ? loggedInUser : profileUser;
 
   return (
     <Flex direction="column">
@@ -140,14 +125,14 @@ const ProfilePage: React.FC = () => {
         <Flex direction={"column"} gap={8}>
           <Flex gap={8}>
             <Avatar
-              name={userForDisplay.username}
+              name={profileUser.username}
               src="" // Provide user profile pic URL if available
               size="2xl"
             />
             <Flex direction="column" gap={4}>
               <Flex justifyContent={"space-between"} gap={4}>
                 <Text color="black" fontSize="2xl" textAlign="left" flex="1">
-                  {userForDisplay.username}
+                  {profileUser.username}
                 </Text>
 
                 {isOwnProfile ? (
@@ -155,9 +140,7 @@ const ProfilePage: React.FC = () => {
                     <CustomButton
                       flex={1}
                       isSelected={true}
-                      onClick={() =>
-                        navigate(`/${userForDisplay.username}/edit`)
-                      }
+                      onClick={() => navigate(`/${profileUser.username}/edit`)}
                     >
                       Edit Profile
                     </CustomButton>
@@ -178,7 +161,7 @@ const ProfilePage: React.FC = () => {
                     </Button>
                   </Flex>
                 ) : loggedInUser &&
-                  userForDisplay.followers.includes(loggedInUser._id) ? (
+                  profileUser.followers.includes(loggedInUser._id) ? (
                   <CustomButton
                     flex={1}
                     isSelected={true}
@@ -200,15 +183,9 @@ const ProfilePage: React.FC = () => {
               </Flex>
 
               <Flex gap={10}>
-                <Status value={userForDisplay.places.length} name="places" />
-                <Status
-                  value={userForDisplay.followers.length}
-                  name="followers"
-                />
-                <Status
-                  value={userForDisplay.following.length}
-                  name="following"
-                />
+                <Status value={profileUser.places.length} name="places" />
+                <Status value={profileUser.followers.length} name="followers" />
+                <Status value={profileUser.following.length} name="following" />
               </Flex>
 
               <Text
@@ -217,11 +194,11 @@ const ProfilePage: React.FC = () => {
                 fontWeight="medium"
                 textAlign="left"
               >
-                {userForDisplay.name}
+                {profileUser.name}
               </Text>
             </Flex>
           </Flex>
-          <PlaceList user={userForDisplay} />
+          <PlaceList user={profileUser} />
         </Flex>
       </CustomBox>
     </Flex>

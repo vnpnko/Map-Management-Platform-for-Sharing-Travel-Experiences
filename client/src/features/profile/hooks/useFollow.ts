@@ -1,14 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
+import { User } from "../../../models/User.ts";
 
 interface FollowPayload {
   followerId: number;
   followeeId: number;
 }
 
-interface FollowResponse {
-  success: boolean;
-}
+type FollowResponse = User;
 
 const followRequest = async (
   payload: FollowPayload,
