@@ -27,7 +27,7 @@ const PlaceForm = () => {
   const { loggedInUser, setLoggedInUser } = useUser();
   const { place } = useFetchPlace({ place_id: placeId });
 
-  const { addPlace, isAddingPlace } = useAddPlaceToUser();
+  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
   const { addPlaceLike } = useAddPlaceLike();
 
@@ -67,10 +67,13 @@ const PlaceForm = () => {
     try {
       let updatedUser;
       if (place) {
-        updatedUser = await addPlace({ placeId, userId: loggedInUser!._id });
+        updatedUser = await addPlaceToUser({
+          placeId,
+          userId: loggedInUser!._id,
+        });
       } else {
         await createPlace(payload);
-        updatedUser = await addPlace({
+        updatedUser = await addPlaceToUser({
           placeId,
           userId: loggedInUser!._id,
         });
@@ -113,7 +116,7 @@ const PlaceForm = () => {
         </Autocomplete>
       </Box>
       <CustomButton type="submit" w={"min"} ml={"auto"} isSelected={false}>
-        {isCreatingPlace || isAddingPlace ? (
+        {isCreatingPlace || isAddingPlaceToUser ? (
           <Spinner size="md" />
         ) : (
           <IoMdAdd size={30} />

@@ -412,7 +412,7 @@ func AddPlaceToUser(c *fiber.Ctx) error {
 		Decode(&updatedUser)
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
+			"error": "User not found",
 		})
 	}
 
@@ -454,7 +454,91 @@ func RemovePlaceFromUser(c *fiber.Ctx) error {
 		Decode(&updatedUser)
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
+			"error": "User not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
+}
+
+func AddMapToUser(c *fiber.Ctx) error {
+	var body struct {
+		UserID primitive.ObjectID `json:"userId"`
+		MapID  primitive.ObjectID `json:"mapId"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+	if body.UserID == primitive.NilObjectID || body.MapID == primitive.NilObjectID {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Missing userId or mapId",
+		})
+	}
+
+	filter := bson.M{"_id": body.UserID}
+	update := bson.M{
+		"$addToSet": bson.M{"maps": body.MapID},
+	}
+
+	_, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to update user",
+		})
+	}
+
+	var updatedUser models.User
+	err = config.DB.Collection("users").
+		FindOne(context.Background(), filter).
+		Decode(&updatedUser)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "User not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
+}
+
+func RemoveMapFromUser(c *fiber.Ctx) error {
+	var body struct {
+		MapID  primitive.ObjectID `json:"mapId"`
+		UserID primitive.ObjectID `json:"userId"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+	if body.UserID == primitive.NilObjectID || body.MapID == primitive.NilObjectID {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Missing userId or mapId",
+		})
+	}
+
+	filter := bson.M{"_id": body.UserID}
+	update := bson.M{
+		"$pull": bson.M{"maps": body.MapID},
+	}
+
+	_, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to update user",
+		})
+	}
+
+	var updatedUser models.User
+	err = config.DB.Collection("users").
+		FindOne(context.Background(), filter).
+		Decode(&updatedUser)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "User not found",
 		})
 	}
 

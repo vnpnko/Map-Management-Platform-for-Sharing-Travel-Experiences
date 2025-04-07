@@ -14,7 +14,6 @@ const MapForm = () => {
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
   const payload = {
-    _id: mapId,
     name: mapName,
     description: mapDescription,
     places: [],
@@ -25,7 +24,7 @@ const MapForm = () => {
   const { loggedInUser, setLoggedInUser } = useUser();
   const { map } = useFetchMap({ mapId: mapId });
 
-  const { addMap, isAddingMap } = useAddMapToUser();
+  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { createMap, isCreatingMap } = useCreateMap();
   const { addMapLike } = useAddMapLike();
 
@@ -35,12 +34,13 @@ const MapForm = () => {
     try {
       let updatedUser;
       if (map) {
-        updatedUser = await addMap({ mapId: mapId, userId: loggedInUser!._id });
+        updatedUser = await addMapToUser({
+          mapId: mapId,
+          userId: loggedInUser!._id,
+        });
       } else {
-        setMapId(1234);
-
         await createMap(payload);
-        updatedUser = await addMap({
+        updatedUser = await addMapToUser({
           mapId,
           userId: loggedInUser!._id,
         });
@@ -78,7 +78,7 @@ const MapForm = () => {
             onChange={(e) => setMapDescription(e.target.value)}
           />
           <CustomButton type="submit" ml={"auto"} isSelected={false}>
-            {isCreatingMap || isAddingMap ? (
+            {isCreatingMap || isAddingMapToUser ? (
               <Spinner size="md" />
             ) : (
               <Text>Create Map</Text>

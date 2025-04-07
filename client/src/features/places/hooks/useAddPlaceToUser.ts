@@ -34,9 +34,9 @@ const useAddPlaceToUser = () => {
   });
 
   return {
-    addPlace: mutateAsync,
-    isAddingPlace: isPending,
-    addPlaceError: error,
+    addPlaceToUser: mutateAsync,
+    isAddingPlaceToUser: isPending,
+    addPlaceToUserError: error,
   };
 };
 

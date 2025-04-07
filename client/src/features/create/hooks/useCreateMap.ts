@@ -2,7 +2,10 @@ import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 import { Map } from "../../../models/Map.ts";
 
-type CreateMapPayload = Map;
+interface CreateMapPayload {
+  name: string;
+  description: string;
+}
 
 type CreateMapResponse = Map;
 
