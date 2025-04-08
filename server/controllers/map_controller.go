@@ -151,9 +151,17 @@ func AddMapLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	var updatedMap models.User
+	err = config.DB.Collection("maps").
+		FindOne(context.Background(), filter).
+		Decode(&updatedMap)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "Map not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
 func RemoveMapLike(c *fiber.Ctx) error {
@@ -187,9 +195,17 @@ func RemoveMapLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	var updatedMap models.User
+	err = config.DB.Collection("maps").
+		FindOne(context.Background(), filter).
+		Decode(&updatedMap)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "Map not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
 func AddPlaceToMap(c *fiber.Ctx) error {

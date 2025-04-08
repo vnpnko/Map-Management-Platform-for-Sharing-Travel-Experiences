@@ -12,6 +12,7 @@ import CreatePage from "./features/create/pages/CreatePage.tsx";
 import CreatePlace from "./features/create/components/CreatePlace.tsx";
 import CreateMap from "./features/create/components/CreateMap.tsx";
 import AllMapsList from "./features/search/components/AllMapsList.tsx";
+import { DraftMapProvider } from "./context/DraftMapContext.tsx";
 
 export const BASE_URL = "http://localhost:5000/api";
 
@@ -29,8 +30,23 @@ function App() {
             </Route>
             <Route path="/create" element={<CreatePage />}>
               <Route index element={<CreatePlace />} />
-              <Route path="places" element={<CreatePlace />} />
-              <Route path="maps" element={<CreateMap />} />
+              <Route
+                path="places"
+                element={
+                  <DraftMapProvider>
+                    <CreatePlace />
+                  </DraftMapProvider>
+                }
+              />
+
+              <Route
+                path="maps"
+                element={
+                  <DraftMapProvider>
+                    <CreateMap />
+                  </DraftMapProvider>
+                }
+              />
             </Route>
             <Route path="/" element={<LogInPage />} />
             <Route path="/signup" element={<SignUpPage />} />

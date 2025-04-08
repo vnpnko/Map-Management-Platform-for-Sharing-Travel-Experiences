@@ -1,42 +1,49 @@
 import React, { useState } from "react";
-import { Box, Text, Flex, Spinner, useToast, VStack } from "@chakra-ui/react";
-import CustomInput from "../../../components/common/CustomInput.tsx";
-import CustomTextarea from "../../../components/common/CustomTextarea.tsx";
-import { useUser } from "../../../context/UserContext.tsx";
-import useAddMapToUser from "../hooks/useAddMapToUser.ts";
-import useAddMapLike from "../hooks/useAddMapLike.ts";
-import useCreateMap from "../../create/hooks/useCreateMap.ts";
-import CustomButton from "../../../components/common/CustomButton.tsx";
+import { Text, Flex, Spinner, useToast } from "@chakra-ui/react";
+import CustomInput from "../../../components/common/CustomInput";
+import CustomTextarea from "../../../components/common/CustomTextarea";
+import CustomButton from "../../../components/common/CustomButton";
+import PlaceForm from "../../places/components/PlaceForm";
+import PlaceList from "../../places/components/PlaceList";
+import { useUser } from "../../../context/UserContext";
+import { useDraftMap } from "../../../context/DraftMapContext";
+import useCreateMap from "../../create/hooks/useCreateMap";
+import useAddMapToUser from "../hooks/useAddMapToUser";
+import useAddMapLike from "../hooks/useAddMapLike";
+import CustomBox from "../../../components/common/CustomBox";
 
-const MapForm = () => {
+const MapForm: React.FC = () => {
+  const toast = useToast();
+  const { loggedInUser, setLoggedInUser } = useUser();
+  const { draftMap, setDraftMap } = useDraftMap();
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
-  const payload = {
-    name: mapName,
-    description: mapDescription,
-    places: [],
-    likes: [],
-  };
 
-  const toast = useToast();
-
-  const { loggedInUser, setLoggedInUser } = useUser();
   const { createMap, isCreatingMap } = useCreateMap();
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { addMapLike } = useAddMapLike();
+
+  const payload = {
+    name: mapName,
+    description: mapDescription,
+    places: draftMap ? draftMap.places : [],
+    likes: [],
+  };
 
   const handleCreateMap = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const map = await createMap(payload);
+      const createdMap = await createMap(payload);
+      setDraftMap(createdMap);
+
       const updatedUser = await addMapToUser({
-        mapId: map._id,
+        mapId: createdMap._id,
         userId: loggedInUser!._id,
       });
-      await addMapLike({ mapId: map._id, userId: loggedInUser!._id });
-
+      await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
+
       setMapName("");
       setMapDescription("");
     } catch (error) {
@@ -50,29 +57,38 @@ const MapForm = () => {
   };
 
   return (
-    <Flex as="form" onSubmit={handleCreateMap} textColor={"black"}>
-      <Box w={"full"}>
-        <VStack spacing={3} align="stretch">
-          <CustomInput
-            placeholder="Map Name"
-            value={mapName}
-            onChange={(e) => setMapName(e.target.value)}
-          />
-          <CustomTextarea
-            placeholder="Map Description"
-            value={mapDescription}
-            onChange={(e) => setMapDescription(e.target.value)}
-          />
-          <CustomButton type="submit" ml={"auto"} isSelected={false}>
-            {isCreatingMap || isAddingMapToUser ? (
-              <Spinner size="md" />
-            ) : (
-              <Text>Create Map</Text>
-            )}
-          </CustomButton>
-        </VStack>
-      </Box>
-    </Flex>
+    <CustomBox w={"full"} p={4}>
+      <Flex
+        as="form"
+        onSubmit={handleCreateMap}
+        textColor={"black"}
+        direction="column"
+        gap={4}
+      >
+        <CustomInput
+          placeholder="Map Name"
+          value={mapName}
+          onChange={(e) => setMapName(e.target.value)}
+        />
+        <CustomTextarea
+          placeholder="Map Description"
+          value={mapDescription}
+          onChange={(e) => setMapDescription(e.target.value)}
+        />
+        <CustomButton type="submit" ml={"auto"} isSelected={false}>
+          {isCreatingMap || isAddingMapToUser ? (
+            <Spinner size="md" />
+          ) : (
+            <Text>Create Map</Text>
+          )}
+        </CustomButton>
+      </Flex>
+      <Flex direction="column" gap={4} mt={4}>
+        {/* Here, we pass our callback to PlaceForm */}
+        <PlaceForm onPlaceCreated={true} />
+        {draftMap && <PlaceList places={draftMap.places} />}
+      </Flex>
+    </CustomBox>
   );
 };
 

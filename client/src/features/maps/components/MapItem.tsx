@@ -1,14 +1,5 @@
 import React from "react";
-import {
-  Heading,
-  Text,
-  VStack,
-  HStack,
-  Badge,
-  useToast,
-  Spinner,
-  Flex,
-} from "@chakra-ui/react";
+import { Text, useToast, Spinner, Flex } from "@chakra-ui/react";
 import useFetchMap from "../hooks/useFetchMap.ts";
 import { useUser } from "../../../context/UserContext.tsx";
 import useAddMapToUser from "../hooks/useAddMapToUser.ts";
@@ -16,8 +7,9 @@ import useRemoveMapFromUser from "../hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "../hooks/useAddMapLike.ts";
 import useRemoveMapLike from "../hooks/useRemoveMapLike.ts";
 import IconBox from "../../../components/common/IconBox.tsx";
-import { IoIosAddCircle, IoIosMap, IoIosRemoveCircle } from "react-icons/io";
+import { IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox.tsx";
+import PlaceList from "../../places/components/PlaceList.tsx";
 
 interface MapItemProps {
   map_id: number;
@@ -86,78 +78,57 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   };
 
   return (
-    <Flex direction={"column"} gap={2} bg={"blackAlpha.400"}>
-      <CustomBox flex={1} p={2} border="1px" borderColor="blue.600">
-        <Flex justifyContent={"space-between"} alignItems="center">
-          <Flex direction={"column"} gap={2}>
-            <Heading color="black" size="md">
+    <CustomBox p={4}>
+      <Flex direction={"column"} gap={4}>
+        <Flex justifyContent={"space-between"}>
+          <Flex direction={"column"} gap={4} textAlign={"left"}>
+            <Text color="black" fontSize={"lg"} fontWeight={"medium"}>
               {map.name}
-            </Heading>
-            {/*<Text color="black" mt={2}>*/}
-            {/*  {map.description}*/}
-            {/*</Text>*/}
-          </Flex>
-          <Flex gap={2}>
-            <IconBox
-              title="Open in Google Maps"
-              cursor="pointer"
-              color="yellow.500"
-              _hover={{ color: "yellow.600" }}
-              // onClick={() => window.open(map.url, "_blank")}
-            >
-              <IoIosMap size={40} />
-            </IconBox>
-            {alreadyHasMap ? (
-              <IconBox
-                title="Remove from saved maps"
-                cursor="pointer"
-                color="gray.500"
-                _hover={{ color: "red.600" }}
-                onClick={handleRemoveMap}
-              >
-                {isRemovingMap ? (
-                  <Spinner size="lg" />
-                ) : (
-                  <IoIosRemoveCircle size={40} />
-                )}
-              </IconBox>
-            ) : (
-              <IconBox
-                title="Add to saved places"
-                cursor="pointer"
-                color="green.500"
-                _hover={{ color: "green.600" }}
-                onClick={handleAddMap}
-              >
-                {isAddingMapToUser ? (
-                  <Spinner size="lg" />
-                ) : (
-                  <IoIosAddCircle size={40} />
-                )}
-              </IconBox>
-            )}
-          </Flex>
-        </Flex>
-        <VStack mt={3} align="start">
-          <Text color="black" fontSize="lg" textAlign="left">
-            Places:
-          </Text>
-          {map.places.length === 0 ? (
-            <Text color="black" textAlign="left">
-              No places added
             </Text>
+            <Text color="black" fontSize={"md"} noOfLines={3}>
+              {map.description}
+            </Text>
+          </Flex>
+          {alreadyHasMap ? (
+            <IconBox
+              title="Remove from saved maps"
+              cursor="pointer"
+              color="gray.500"
+              _hover={{ color: "red.600" }}
+              onClick={handleRemoveMap}
+            >
+              {isRemovingMap ? (
+                <Spinner size="lg" />
+              ) : (
+                <IoIosRemoveCircle size={40} />
+              )}
+            </IconBox>
           ) : (
-            <HStack spacing={2}>
-              {map.places.map((place, index) => (
-                <Badge key={index} colorScheme="purple">
-                  {place}
-                </Badge>
-              ))}
-            </HStack>
+            <IconBox
+              title="Add to saved places"
+              cursor="pointer"
+              color="green.500"
+              _hover={{ color: "green.600" }}
+              onClick={handleAddMap}
+            >
+              {isAddingMapToUser ? (
+                <Spinner size="lg" />
+              ) : (
+                <IoIosAddCircle size={40} />
+              )}
+            </IconBox>
           )}
-        </VStack>
-      </CustomBox>
-    </Flex>
+        </Flex>
+
+        {map.places.length === 0 ? (
+          <Text color="black" textAlign="left">
+            No places added
+          </Text>
+        ) : (
+          <PlaceList places={map.places} />
+        )}
+      </Flex>
+    </CustomBox>
   );
 };
 
