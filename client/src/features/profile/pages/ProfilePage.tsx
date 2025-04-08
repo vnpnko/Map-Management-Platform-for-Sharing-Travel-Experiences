@@ -199,9 +199,9 @@ const ProfilePage: React.FC = () => {
             </Flex>
           </Flex>
           {isOwnProfile ? (
-            <PlaceList user={loggedInUser} />
+            <PlaceList places={loggedInUser.places} />
           ) : (
-            <PlaceList user={profileUser} />
+            <PlaceList places={profileUser.places} />
           )}
         </Flex>
       </CustomBox>
