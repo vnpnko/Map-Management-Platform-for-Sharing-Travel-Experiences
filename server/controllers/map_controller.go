@@ -230,7 +230,7 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 		Decode(&updatedMap)
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
+			"error": "Could not add place to map",
 		})
 	}
 
@@ -273,7 +273,7 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 		Decode(&updatedMap)
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
+			"error": "Could not remove place to map",
 		})
 	}
 
