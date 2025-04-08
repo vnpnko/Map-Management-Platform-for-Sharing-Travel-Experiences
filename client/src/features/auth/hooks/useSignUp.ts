@@ -5,8 +5,8 @@ import { User } from "../../../models/User.ts";
 interface SignUpPayload {
   email: string;
   name: string;
-  places: string[];
-  likes: number[];
+  username: string;
+  password: string;
 }
 
 type SignUpResponse = User;
