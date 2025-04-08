@@ -8,7 +8,7 @@ interface MapListProps {
 
 const MapList: React.FC<MapListProps> = ({ user }) => {
   if (user.maps.length === 0) {
-    return <Text color={"green"}>you have no saved maps yet</Text>;
+    return <Text color={"green"}>no saved maps</Text>;
   } else {
     return (
       <Flex direction={"column"} gap={2}>

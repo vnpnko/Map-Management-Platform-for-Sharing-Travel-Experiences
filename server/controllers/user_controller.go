@@ -292,9 +292,9 @@ func UpdateUserUnfollow(c *fiber.Ctx) error {
 	}
 
 	var updatedUser models.User
-	filterFollowee := bson.M{"_id": followeeObjID}
+	filterFollower := bson.M{"_id": followerObjID}
 	err = config.DB.Collection("users").
-		FindOne(context.Background(), filterFollowee).
+		FindOne(context.Background(), filterFollower).
 		Decode(&updatedUser)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
