@@ -3,14 +3,12 @@ import { Box, Text, Flex, Spinner, useToast, VStack } from "@chakra-ui/react";
 import CustomInput from "../../../components/common/CustomInput.tsx";
 import CustomTextarea from "../../../components/common/CustomTextarea.tsx";
 import { useUser } from "../../../context/UserContext.tsx";
-import useFetchMap from "../hooks/useFetchMap.ts";
 import useAddMapToUser from "../hooks/useAddMapToUser.ts";
 import useAddMapLike from "../hooks/useAddMapLike.ts";
 import useCreateMap from "../../create/hooks/useCreateMap.ts";
 import CustomButton from "../../../components/common/CustomButton.tsx";
 
 const MapForm = () => {
-  const [mapId, setMapId] = useState(0);
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
   const payload = {
@@ -21,36 +19,24 @@ const MapForm = () => {
   };
 
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useUser();
-  const { map } = useFetchMap({ mapId: mapId });
 
-  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
+  const { loggedInUser, setLoggedInUser } = useUser();
   const { createMap, isCreatingMap } = useCreateMap();
+  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { addMapLike } = useAddMapLike();
 
   const handleCreateMap = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      let updatedUser;
-      if (map) {
-        updatedUser = await addMapToUser({
-          mapId: mapId,
-          userId: loggedInUser!._id,
-        });
-        await addMapLike({ mapId: mapId, userId: loggedInUser!._id });
-      } else {
-        const createdMap = await createMap(payload);
-        setMapId(createdMap._id);
-        updatedUser = await addMapToUser({
-          mapId: createdMap._id,
-          userId: loggedInUser!._id,
-        });
-        await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
-      }
+      const map = await createMap(payload);
+      const updatedUser = await addMapToUser({
+        mapId: map._id,
+        userId: loggedInUser!._id,
+      });
+      await addMapLike({ mapId: map._id, userId: loggedInUser!._id });
 
       setLoggedInUser(updatedUser);
-
       setMapName("");
       setMapDescription("");
     } catch (error) {
