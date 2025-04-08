@@ -123,7 +123,7 @@ func DeleteMap(c *fiber.Ctx) error {
 func AddMapLike(c *fiber.Ctx) error {
 	var body struct {
 		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"placeId"`
+		UserID primitive.ObjectID `json:"userId"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -159,7 +159,7 @@ func AddMapLike(c *fiber.Ctx) error {
 func RemoveMapLike(c *fiber.Ctx) error {
 	var body struct {
 		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"placeId"`
+		UserID primitive.ObjectID `json:"userId"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

@@ -32,7 +32,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   const { addMapLike } = useAddMapLike();
   const { removeMapLike } = useRemoveMapLike();
 
-  const alreadyHasPlace = loggedInUser && loggedInUser.maps.includes(map_id);
+  const alreadyHasMap = loggedInUser && loggedInUser.maps.includes(map_id);
 
   if (!map) {
     return;
@@ -48,7 +48,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
       });
       return;
     }
-    if (map && loggedInUser && !alreadyHasPlace) {
+    if (map && loggedInUser && !alreadyHasMap) {
       try {
         const payload = { mapId: map._id, userId: loggedInUser._id };
         const updatedUser = await addMapToUser(payload);
@@ -67,7 +67,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   };
 
   const handleRemoveMap = async () => {
-    if (map && loggedInUser && alreadyHasPlace) {
+    if (map && loggedInUser && alreadyHasMap) {
       try {
         const payload = { mapId: map._id, userId: loggedInUser._id };
         const updatedUser = await removeMap(payload);
@@ -107,7 +107,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
             >
               <IoIosMap size={40} />
             </IconBox>
-            {alreadyHasPlace ? (
+            {alreadyHasMap ? (
               <IconBox
                 title="Remove from saved maps"
                 cursor="pointer"

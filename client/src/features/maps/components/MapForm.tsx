@@ -38,19 +38,19 @@ const MapForm = () => {
           mapId: mapId,
           userId: loggedInUser!._id,
         });
+        await addMapLike({ mapId: mapId, userId: loggedInUser!._id });
       } else {
-        await createMap(payload);
+        const createdMap = await createMap(payload);
+        setMapId(createdMap._id);
         updatedUser = await addMapToUser({
-          mapId,
+          mapId: createdMap._id,
           userId: loggedInUser!._id,
         });
+        await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
       }
-
-      await addMapLike({ mapId: mapId, userId: loggedInUser!._id });
 
       setLoggedInUser(updatedUser);
 
-      setMapId(0);
       setMapName("");
       setMapDescription("");
     } catch (error) {
