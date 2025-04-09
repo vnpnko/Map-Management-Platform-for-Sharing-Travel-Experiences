@@ -87,6 +87,12 @@ func CreatePlace(c *fiber.Ctx) error {
 		place.Likes = []primitive.ObjectID{}
 	}
 
+	//if place.Location.Lat == 0 || place.Location.Lng == 0 {
+	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	//		"error": "Place location is required",
+	//	})
+	//}
+
 	_, err := config.DB.Collection("places").
 		InsertOne(context.Background(), place)
 	if err != nil {
