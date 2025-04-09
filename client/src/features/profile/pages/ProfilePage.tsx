@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Flex,
   Spinner,
@@ -19,6 +19,8 @@ import useFollow from "../hooks/useFollow.ts";
 import useUnfollow from "../hooks/useUnfollow.ts";
 import PlaceList from "../../places/components/PlaceList.tsx";
 import useFetchUser from "../hooks/useFetchUser.ts";
+import ToggleButton from "../../../components/common/ToggleButton.tsx";
+import MapList from "../../maps/components/MapList.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
@@ -35,6 +37,8 @@ const ProfilePage: React.FC = () => {
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
   const { logout } = useLogOut();
+
+  const [placesSelected, setPlacesSelected] = useState(true);
 
   const handleFollow = async () => {
     if (!loggedInUser) {
@@ -182,7 +186,8 @@ const ProfilePage: React.FC = () => {
                 )}
               </Flex>
 
-              <Flex gap={10}>
+              <Flex gap={8}>
+                <Status value={loggedInUser!.maps.length} name="maps" />
                 <Status value={loggedInUser!.places.length} name="places" />
                 <Status value={profileUser.followers.length} name="followers" />
                 <Status value={profileUser.following.length} name="following" />
@@ -198,10 +203,34 @@ const ProfilePage: React.FC = () => {
               </Text>
             </Flex>
           </Flex>
-          {isOwnProfile ? (
-            <PlaceList places={loggedInUser.places} />
+          <Flex justifyContent="space-between" gap={4}>
+            <ToggleButton
+              onClick={() => {
+                setPlacesSelected(true);
+              }}
+              isSelected={placesSelected}
+            >
+              Places
+            </ToggleButton>
+            <ToggleButton
+              onClick={() => {
+                setPlacesSelected(false);
+              }}
+              isSelected={!placesSelected}
+            >
+              Maps
+            </ToggleButton>
+          </Flex>
+          {placesSelected ? (
+            isOwnProfile ? (
+              <PlaceList places={loggedInUser.places} />
+            ) : (
+              <PlaceList places={profileUser.places} />
+            )
+          ) : isOwnProfile ? (
+            <MapList maps={loggedInUser.maps} />
           ) : (
-            <PlaceList places={profileUser.places} />
+            <MapList maps={profileUser.maps} />
           )}
         </Flex>
       </CustomBox>
