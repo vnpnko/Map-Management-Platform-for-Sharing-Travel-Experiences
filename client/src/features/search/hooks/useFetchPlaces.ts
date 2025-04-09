@@ -2,11 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 import { Place } from "../../../models/Place.ts";
 
-const useFetchPlaces = () => {
+const useFetchPlaces = (searchQuery: string = "") => {
   const { data, isLoading, error } = useQuery<Place[]>({
-    queryKey: ["places"],
+    queryKey: ["places", searchQuery],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/places`);
+      const response = await fetch(
+        `${BASE_URL}/places?search=${encodeURIComponent(searchQuery)}`,
+      );
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch places");

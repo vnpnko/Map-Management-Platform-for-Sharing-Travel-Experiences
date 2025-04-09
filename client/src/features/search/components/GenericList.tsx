@@ -47,7 +47,6 @@ function GenericList<T>({
         <Text color="green" fontSize="xl">
           {emptyMessage}
         </Text>
-        ;
       </Flex>
     );
   }

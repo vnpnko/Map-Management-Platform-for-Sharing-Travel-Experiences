@@ -90,8 +90,13 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         <Text
           color="black"
           fontSize="sm"
-          w={8}
-          align={"center"}
+          w={10}
+          h={10}
+          display="flex"
+          alignItems={"center"}
+          justifyContent={"center"}
+          borderRadius="md"
+          bg="blackAlpha.200"
           borderColor={"blue.600"}
           borderWidth={1}
         >
@@ -102,8 +107,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
       <IconBox
         title="Open in Google Maps"
         cursor="pointer"
-        color="yellow.500"
-        _hover={{ color: "yellow.600" }}
+        color="blue.500"
+        borderRadius="md"
+        _hover={{
+          bg: "blackAlpha.200",
+        }}
         onClick={() => window.open(place.url, "_blank")}
       >
         <IoIosMap size={40} />
