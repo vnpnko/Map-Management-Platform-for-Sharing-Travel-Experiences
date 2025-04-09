@@ -187,8 +187,22 @@ const ProfilePage: React.FC = () => {
               </Flex>
 
               <Flex gap={8}>
-                <Status value={loggedInUser!.maps.length} name="maps" />
-                <Status value={loggedInUser!.places.length} name="places" />
+                <Status
+                  value={
+                    isOwnProfile
+                      ? loggedInUser.maps.length
+                      : profileUser.maps.length
+                  }
+                  name="maps"
+                />
+                <Status
+                  value={
+                    isOwnProfile
+                      ? loggedInUser.places.length
+                      : profileUser.places.length
+                  }
+                  name="places"
+                />
                 <Status value={profileUser.followers.length} name="followers" />
                 <Status value={profileUser.following.length} name="following" />
               </Flex>
