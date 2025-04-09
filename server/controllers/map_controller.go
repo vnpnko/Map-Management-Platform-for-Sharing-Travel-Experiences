@@ -11,8 +11,22 @@ import (
 )
 
 func GetMaps(c *fiber.Ctx) error {
+	searchTerm := c.Query("search")
+
+	var filter bson.M
+	if searchTerm != "" {
+		filter = bson.M{
+			"$or": []bson.M{
+				{"name": bson.M{"$regex": searchTerm, "$options": "i"}},
+				{"description": bson.M{"$regex": searchTerm, "$options": "i"}},
+			},
+		}
+	} else {
+		filter = bson.M{}
+	}
+
 	var maps []models.Map
-	cursor, err := config.DB.Collection("maps").Find(context.Background(), bson.M{})
+	cursor, err := config.DB.Collection("maps").Find(context.Background(), filter)
 	if err != nil {
 		return err
 	}

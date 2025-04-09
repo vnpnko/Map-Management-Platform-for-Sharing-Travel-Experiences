@@ -11,8 +11,19 @@ import (
 )
 
 func GetPlaces(c *fiber.Ctx) error {
+	searchTerm := c.Query("search")
+
+	var filter bson.M
+	if searchTerm != "" {
+		filter = bson.M{
+			"name": bson.M{"$regex": searchTerm, "$options": "i"},
+		}
+	} else {
+		filter = bson.M{}
+	}
+
 	var places []models.Place
-	cursor, err := config.DB.Collection("places").Find(context.Background(), bson.M{})
+	cursor, err := config.DB.Collection("places").Find(context.Background(), filter)
 	if err != nil {
 		return err
 	}
