@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, useToast, Spinner, Flex } from "@chakra-ui/react";
 import useFetchMap from "../hooks/useFetchMap.ts";
 import { useUser } from "../../../context/UserContext.tsx";
@@ -7,7 +7,7 @@ import useRemoveMapFromUser from "../hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "../hooks/useAddMapLike.ts";
 import useRemoveMapLike from "../hooks/useRemoveMapLike.ts";
 import IconBox from "../../../components/common/IconBox.tsx";
-import { IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
+import { IoIosAddCircle, IoIosList, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox.tsx";
 import PlaceList from "../../places/components/PlaceList.tsx";
 
@@ -23,6 +23,8 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   const { removeMap, isRemovingMap } = useRemoveMapFromUser();
   const { addMapLike } = useAddMapLike();
   const { removeMapLike } = useRemoveMapLike();
+
+  const [showPlaces, setShowPlaces] = useState(false);
 
   const alreadyHasMap = loggedInUser && loggedInUser.maps.includes(map_id);
 
@@ -89,44 +91,57 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
               {map.description}
             </Text>
           </Flex>
-          {alreadyHasMap ? (
+          <Flex gap={2}>
             <IconBox
-              title="Remove from saved maps"
+              title="Hide Places"
               cursor="pointer"
-              color="gray.500"
-              _hover={{ color: "red.600" }}
-              onClick={handleRemoveMap}
+              color={showPlaces ? "gray.500" : "blue.500"}
+              _hover={{ color: showPlaces ? "blue.500" : "gray.500" }}
+              onClick={() => setShowPlaces(!showPlaces)}
             >
-              {isRemovingMap ? (
-                <Spinner size="lg" />
-              ) : (
-                <IoIosRemoveCircle size={40} />
-              )}
+              <IoIosList size={40} />
             </IconBox>
-          ) : (
-            <IconBox
-              title="Add to saved places"
-              cursor="pointer"
-              color="green.500"
-              _hover={{ color: "green.600" }}
-              onClick={handleAddMap}
-            >
-              {isAddingMapToUser ? (
-                <Spinner size="lg" />
-              ) : (
-                <IoIosAddCircle size={40} />
-              )}
-            </IconBox>
-          )}
+
+            {alreadyHasMap ? (
+              <IconBox
+                title="Remove from saved maps"
+                cursor="pointer"
+                color="gray.500"
+                _hover={{ color: "red.600" }}
+                onClick={handleRemoveMap}
+              >
+                {isRemovingMap ? (
+                  <Spinner size="lg" />
+                ) : (
+                  <IoIosRemoveCircle size={40} />
+                )}
+              </IconBox>
+            ) : (
+              <IconBox
+                title="Add to saved places"
+                cursor="pointer"
+                color="green.500"
+                _hover={{ color: "green.600" }}
+                onClick={handleAddMap}
+              >
+                {isAddingMapToUser ? (
+                  <Spinner size="lg" />
+                ) : (
+                  <IoIosAddCircle size={40} />
+                )}
+              </IconBox>
+            )}
+          </Flex>
         </Flex>
 
-        {map.places.length === 0 ? (
-          <Text color="black" textAlign="left">
-            No places added
-          </Text>
-        ) : (
-          <PlaceList places={map.places} />
-        )}
+        {showPlaces &&
+          (map.places.length === 0 ? (
+            <Text color="black" textAlign="left">
+              No places added
+            </Text>
+          ) : (
+            <PlaceList places={map.places} />
+          ))}
       </Flex>
     </CustomBox>
   );
