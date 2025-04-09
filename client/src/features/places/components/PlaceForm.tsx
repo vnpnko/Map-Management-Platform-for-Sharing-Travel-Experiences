@@ -127,7 +127,13 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
           />
         </Autocomplete>
       </Box>
-      <CustomButton type="submit" w={"min"} ml={"auto"} isSelected={false}>
+      <CustomButton
+        type="submit"
+        w={"min"}
+        ml={"auto"}
+        isSelected={false}
+        disabled={!placeId}
+      >
         {isCreatingPlace || isAddingPlaceToUser ? (
           <Spinner size="md" />
         ) : (
