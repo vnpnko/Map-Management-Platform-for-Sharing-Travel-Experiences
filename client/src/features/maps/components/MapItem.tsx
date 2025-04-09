@@ -94,6 +94,24 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
             </Text>
           </Flex>
           <Flex gap={2}>
+            <IconBox color="blue.500" title="Count of likes">
+              <Text
+                color="black"
+                fontSize="sm"
+                w={10}
+                h={10}
+                display="flex"
+                alignItems={"center"}
+                justifyContent={"center"}
+                borderRadius="md"
+                bg="blackAlpha.200"
+                borderColor={"blue.600"}
+                borderWidth={1}
+              >
+                {map.likes.length}
+              </Text>
+            </IconBox>
+
             <IconBox
               title={showPlaces ? "Hide Places" : "Show Places"}
               cursor="pointer"
