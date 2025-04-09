@@ -9,15 +9,11 @@ import useAddPlaceToUser from "../hooks/useAddPlaceToUser";
 import useFetchPlace from "../hooks/useFetchPlace";
 import useAddPlaceLike from "../hooks/useAddPlaceLike";
 import { useUser } from "../../../context/UserContext";
-import { useDraftMap } from "../../../context/DraftMapContext.tsx";
-
-interface PlaceFormProps {
-  onPlaceCreated?: (newPlaceId: string) => void;
-}
+import { useDraftMap } from "../../../context/DraftMapContext";
 
 const libraries: "places"[] = ["places"];
 
-const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
+const PlaceForm: React.FC<{ isMapCreating: boolean }> = ({ isMapCreating }) => {
   const [placeId, setPlaceId] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [placeURL, setPlaceURL] = useState("");
@@ -30,14 +26,8 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
 
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
-
-  // const draftMapContext = onPlaceCreated ? useDraftMap() : null;
-  if (onPlaceCreated) {
-    useDraftMap();
-  }
-
+  const { dispatch } = useDraftMap();
   const { place } = useFetchPlace({ place_id: placeId });
-
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
   const { addPlaceLike } = useAddPlaceLike();
@@ -72,7 +62,6 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
 
   const handleCreatePlace = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       let updatedUser;
       if (place) {
@@ -90,9 +79,13 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
       await addPlaceLike({ placeId, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
 
-      if (onPlaceCreated) {
-        onPlaceCreated(placeId);
+      if (isMapCreating) {
+        dispatch({ type: "ADD_PLACE", payload: placeId });
       }
+
+      setPlaceId("");
+      setPlaceName("");
+      setPlaceURL("");
     } catch (error) {
       toast({
         title: "Failed to create place",
@@ -100,22 +93,18 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
         status: "error",
         isClosable: true,
       });
-    } finally {
-      setPlaceId("");
-      setPlaceName("");
-      setPlaceURL("");
     }
   };
 
   return (
-    <Flex as="form" onSubmit={handleCreatePlace} textColor={"black"}>
-      <Box w={"full"} mr={4}>
+    <Flex as="form" onSubmit={handleCreatePlace} textColor="black">
+      <Box w="full" mr={4}>
         <Autocomplete
           onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
           onPlaceChanged={handlePlaceSelect}
         >
           <CustomInput
-            w={"full"}
+            w="full"
             placeholder="Search for a place"
             value={placeName}
             onChange={(e) => setPlaceName(e.target.value)}
@@ -124,8 +113,8 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
       </Box>
       <CustomButton
         type="submit"
-        w={"min"}
-        ml={"auto"}
+        w="min"
+        ml="auto"
         isSelected={false}
         disabled={!placeId}
       >

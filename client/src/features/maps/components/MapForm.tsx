@@ -15,7 +15,7 @@ import CustomBox from "../../../components/common/CustomBox";
 const MapForm: React.FC = () => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
-  const { draftMap, setDraftMap } = useDraftMap();
+  const { draftMap, dispatch } = useDraftMap();
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
 
@@ -30,21 +30,11 @@ const MapForm: React.FC = () => {
     likes: [loggedInUser!._id],
   };
 
-  const handlePlaceCreated = (newPlaceId: string) => {
-    if (draftMap) {
-      setDraftMap({ ...draftMap, places: [...draftMap.places, newPlaceId] });
-    } else {
-      setDraftMap({ ...payload, places: [newPlaceId] });
-    }
-  };
-
   const handleCreateMap = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const createdMap = await createMap(payload);
-      setDraftMap(null);
-
+      dispatch({ type: "SET_MAP", payload: createdMap });
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,
         userId: loggedInUser!._id,
@@ -52,6 +42,7 @@ const MapForm: React.FC = () => {
       await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
 
+      dispatch({ type: "RESET" });
       setMapName("");
       setMapDescription("");
     } catch (error) {
@@ -65,13 +56,13 @@ const MapForm: React.FC = () => {
   };
 
   return (
-    <CustomBox w={"full"} p={4}>
+    <CustomBox w="full" p={4}>
       <Flex
         as="form"
         onSubmit={handleCreateMap}
-        textColor={"black"}
         direction="column"
         gap={4}
+        textColor="black"
       >
         <CustomInput
           placeholder="Map Name"
@@ -83,7 +74,7 @@ const MapForm: React.FC = () => {
           value={mapDescription}
           onChange={(e) => setMapDescription(e.target.value)}
         />
-        <CustomButton type="submit" ml={"auto"} isSelected={false}>
+        <CustomButton type="submit" ml="auto" isSelected={false}>
           {isCreatingMap || isAddingMapToUser ? (
             <Spinner size="md" />
           ) : (
@@ -92,8 +83,11 @@ const MapForm: React.FC = () => {
         </CustomButton>
       </Flex>
       <Flex direction="column" gap={4} mt={4}>
-        <PlaceForm onPlaceCreated={handlePlaceCreated} />
-        {draftMap && <PlaceList places={draftMap.places} />}
+        {/* PlaceForm will now update the draft map directly via its own useDraftMap calls. */}
+        <PlaceForm isMapCreating={true} />
+        {draftMap && draftMap.places.length > 0 && (
+          <PlaceList places={draftMap.places} />
+        )}
       </Flex>
     </CustomBox>
   );
