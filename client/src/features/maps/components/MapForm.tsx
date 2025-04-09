@@ -35,7 +35,7 @@ const MapForm: React.FC = () => {
 
     try {
       const createdMap = await createMap(payload);
-      setDraftMap(createdMap);
+      setDraftMap(null);
 
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,

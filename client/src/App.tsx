@@ -29,7 +29,14 @@ function App() {
               <Route path="maps" element={<AllMapsList />} />
             </Route>
             <Route path="/create" element={<CreatePage />}>
-              <Route index element={<CreatePlace />} />
+              <Route
+                index
+                element={
+                  <DraftMapProvider>
+                    <CreatePlace />
+                  </DraftMapProvider>
+                }
+              />
               <Route
                 path="places"
                 element={
