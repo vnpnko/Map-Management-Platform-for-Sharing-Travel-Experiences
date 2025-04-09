@@ -1,9 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { Map } from "../models/Map.ts";
+
+export interface DraftMap {
+  name: string;
+  description: string;
+  places: string[];
+}
 
 interface DraftMapContextProps {
-  draftMap: Map | null;
-  setDraftMap: (map: Map | null) => void;
+  draftMap: DraftMap | null;
+  setDraftMap: (map: DraftMap | null) => void;
 }
 
 export const DraftMapContext = createContext<DraftMapContextProps | undefined>(
@@ -13,7 +18,7 @@ export const DraftMapContext = createContext<DraftMapContextProps | undefined>(
 export const DraftMapProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [draftMap, setDraftMap] = useState<Map | null>(() => {
+  const [draftMap, setDraftMap] = useState<DraftMap | null>(() => {
     const storedDraft = localStorage.getItem("draftMap");
     return storedDraft ? JSON.parse(storedDraft) : null;
   });

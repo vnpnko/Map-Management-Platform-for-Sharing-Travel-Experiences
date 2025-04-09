@@ -27,7 +27,15 @@ const MapForm: React.FC = () => {
     name: mapName,
     description: mapDescription,
     places: draftMap ? draftMap.places : [],
-    likes: [],
+    likes: [loggedInUser!._id],
+  };
+
+  const handlePlaceCreated = (newPlaceId: string) => {
+    if (draftMap) {
+      setDraftMap({ ...draftMap, places: [...draftMap.places, newPlaceId] });
+    } else {
+      setDraftMap({ ...payload, places: [newPlaceId] });
+    }
   };
 
   const handleCreateMap = async (e: React.FormEvent) => {
@@ -84,8 +92,7 @@ const MapForm: React.FC = () => {
         </CustomButton>
       </Flex>
       <Flex direction="column" gap={4} mt={4}>
-        {/* Here, we pass our callback to PlaceForm */}
-        <PlaceForm onPlaceCreated={true} />
+        <PlaceForm onPlaceCreated={handlePlaceCreated} />
         {draftMap && <PlaceList places={draftMap.places} />}
       </Flex>
     </CustomBox>

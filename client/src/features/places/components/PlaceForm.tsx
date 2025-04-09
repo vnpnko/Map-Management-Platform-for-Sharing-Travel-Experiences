@@ -10,11 +10,9 @@ import useFetchPlace from "../hooks/useFetchPlace";
 import useAddPlaceLike from "../hooks/useAddPlaceLike";
 import { useUser } from "../../../context/UserContext";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
-// import { useDraftMap } from "../../../context/DraftMapContext";
 
-// Define the props; onPlaceCreated is optional.
 interface PlaceFormProps {
-  onPlaceCreated?: boolean;
+  onPlaceCreated?: (newPlaceId: string) => void;
 }
 
 const libraries: "places"[] = ["places"];
@@ -33,9 +31,10 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
 
-  // Only if in map creation mode you'll update draft map.
-  // const draftContext = onPlaceCreated ? useDraftMap() : null;
-  const { draftMap, setDraftMap } = useDraftMap();
+  // const draftMapContext = onPlaceCreated ? useDraftMap() : null;
+  if (onPlaceCreated) {
+    useDraftMap();
+  }
 
   const { place } = useFetchPlace({ place_id: placeId });
 
@@ -91,17 +90,9 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
       await addPlaceLike({ placeId, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
 
-      if (onPlaceCreated && draftMap) {
-        setDraftMap({
-          ...draftMap,
-          places: [...draftMap.places, placeId],
-        });
+      if (onPlaceCreated) {
+        onPlaceCreated(placeId);
       }
-
-      // Reset the local fields
-      setPlaceId("");
-      setPlaceName("");
-      setPlaceURL("");
     } catch (error) {
       toast({
         title: "Failed to create place",
@@ -109,6 +100,10 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
         status: "error",
         isClosable: true,
       });
+    } finally {
+      setPlaceId("");
+      setPlaceName("");
+      setPlaceURL("");
     }
   };
 

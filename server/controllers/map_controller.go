@@ -75,10 +75,15 @@ func CreateMap(c *fiber.Ctx) error {
 	}
 
 	if mapData.Places == nil {
-		mapData.Places = []string{}
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Map places are required",
+		})
 	}
+
 	if mapData.Likes == nil {
-		mapData.Likes = []primitive.ObjectID{}
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Map likes are required",
+		})
 	}
 
 	res, err := config.DB.Collection("maps").InsertOne(context.Background(), mapData)

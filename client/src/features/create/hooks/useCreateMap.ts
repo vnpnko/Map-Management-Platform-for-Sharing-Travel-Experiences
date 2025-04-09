@@ -5,6 +5,8 @@ import { Map } from "../../../models/Map.ts";
 interface CreateMapPayload {
   name: string;
   description: string;
+  places: string[];
+  likes: number[];
 }
 
 type CreateMapResponse = Map;

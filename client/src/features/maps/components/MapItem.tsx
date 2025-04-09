@@ -10,6 +10,7 @@ import IconBox from "../../../components/common/IconBox.tsx";
 import { IoIosAddCircle, IoIosList, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox.tsx";
 import PlaceList from "../../places/components/PlaceList.tsx";
+import { AiOutlineEdit } from "react-icons/ai";
 
 interface MapItemProps {
   map_id: number;
@@ -25,6 +26,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   const { removeMapLike } = useRemoveMapLike();
 
   const [showPlaces, setShowPlaces] = useState(false);
+  const [editMap, setEditMap] = useState(0);
 
   const alreadyHasMap = loggedInUser && loggedInUser.maps.includes(map_id);
 
@@ -93,15 +95,31 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
           </Flex>
           <Flex gap={2}>
             <IconBox
-              title="Hide Places"
+              title={showPlaces ? "Hide Places" : "Show Places"}
               cursor="pointer"
               color={showPlaces ? "gray.500" : "blue.500"}
-              _hover={{ color: showPlaces ? "blue.500" : "gray.500" }}
+              borderRadius="md"
+              _hover={{
+                bg: "blackAlpha.200",
+              }}
               onClick={() => setShowPlaces(!showPlaces)}
             >
               <IoIosList size={40} />
             </IconBox>
-
+            <IconBox
+              title="Edit Map"
+              cursor="pointer"
+              color={editMap ? "gray.500" : "blue.500"}
+              borderRadius="md"
+              _hover={{
+                bg: "blackAlpha.200",
+              }}
+              onClick={() =>
+                editMap === map._id ? setEditMap(0) : setEditMap(map._id)
+              }
+            >
+              <AiOutlineEdit size={40} />
+            </IconBox>
             {alreadyHasMap ? (
               <IconBox
                 title="Remove from saved maps"

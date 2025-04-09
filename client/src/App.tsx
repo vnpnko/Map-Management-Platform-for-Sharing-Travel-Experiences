@@ -32,9 +32,9 @@ function App() {
               <Route
                 index
                 element={
-                  <DraftMapProvider>
-                    <CreatePlace />
-                  </DraftMapProvider>
+                  // <DraftMapProvider>
+                  <CreatePlace />
+                  // </DraftMapProvider>
                 }
               />
               <Route
