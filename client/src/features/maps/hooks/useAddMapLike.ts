@@ -1,14 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
+import { Map } from "../../../models/Map.ts";
 
 interface AddMapLikePayload {
   mapId: number;
   userId: number;
 }
 
-interface AddMapLikeResponse {
-  success: boolean;
-}
+type AddMapLikeResponse = Map;
 
 const addMapLikeRequest = async (
   payload: AddMapLikePayload,

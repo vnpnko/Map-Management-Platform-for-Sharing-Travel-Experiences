@@ -19,7 +19,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
   const { place } = useFetchPlace({ place_id });
-  const { addPlace, isAddingPlace } = useAddPlaceToUser();
+  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { removePlace, isRemovingPlace } = useRemovePlaceFromUser();
   const { addPlaceLike } = useAddPlaceLike();
   const { removePlaceLike } = useRemovePlaceLike();
@@ -44,7 +44,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
     if (place && loggedInUser && !alreadyHasPlace) {
       try {
         const payload = { placeId: place._id, userId: loggedInUser._id };
-        const updatedUser = await addPlace(payload);
+        const updatedUser = await addPlaceToUser(payload);
         setLoggedInUser(updatedUser);
         await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
         place.likes.push(loggedInUser._id);
@@ -131,7 +131,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
           _hover={{ color: "green.600" }}
           onClick={handleAddPlace}
         >
-          {isAddingPlace ? <Spinner size="lg" /> : <IoIosAddCircle size={40} />}
+          {isAddingPlaceToUser ? (
+            <Spinner size="lg" />
+          ) : (
+            <IoIosAddCircle size={40} />
+          )}
         </IconBox>
       )}
     </Flex>

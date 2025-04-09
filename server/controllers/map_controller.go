@@ -75,10 +75,15 @@ func CreateMap(c *fiber.Ctx) error {
 	}
 
 	if mapData.Places == nil {
-		mapData.Places = []string{}
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Map places are required",
+		})
 	}
+
 	if mapData.Likes == nil {
-		mapData.Likes = []primitive.ObjectID{}
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Map likes are required",
+		})
 	}
 
 	res, err := config.DB.Collection("maps").InsertOne(context.Background(), mapData)
@@ -123,7 +128,7 @@ func DeleteMap(c *fiber.Ctx) error {
 func AddMapLike(c *fiber.Ctx) error {
 	var body struct {
 		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"placeId"`
+		UserID primitive.ObjectID `json:"userId"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -151,15 +156,23 @@ func AddMapLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	var updatedMap models.User
+	err = config.DB.Collection("maps").
+		FindOne(context.Background(), filter).
+		Decode(&updatedMap)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "Map not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
 func RemoveMapLike(c *fiber.Ctx) error {
 	var body struct {
 		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"placeId"`
+		UserID primitive.ObjectID `json:"userId"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -187,9 +200,17 @@ func RemoveMapLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	var updatedMap models.User
+	err = config.DB.Collection("maps").
+		FindOne(context.Background(), filter).
+		Decode(&updatedMap)
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "Map not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
 func AddPlaceToMap(c *fiber.Ctx) error {
@@ -230,7 +251,7 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 		Decode(&updatedMap)
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
+			"error": "Could not add place to map",
 		})
 	}
 
@@ -273,7 +294,7 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 		Decode(&updatedMap)
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
+			"error": "Could not remove place to map",
 		})
 	}
 

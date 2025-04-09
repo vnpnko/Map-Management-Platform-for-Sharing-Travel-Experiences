@@ -12,7 +12,7 @@ const CreateMap: React.FC = () => {
   return (
     <>
       <MapForm />
-      <MapList user={loggedInUser} />
+      <MapList maps={loggedInUser.maps} />
     </>
   );
 };

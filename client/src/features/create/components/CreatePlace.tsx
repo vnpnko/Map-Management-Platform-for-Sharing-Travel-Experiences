@@ -12,7 +12,7 @@ const CreatePlace: React.FC = () => {
   return (
     <>
       <PlaceForm />
-      <PlaceList user={loggedInUser} />
+      <PlaceList places={loggedInUser.places} />
     </>
   );
 };

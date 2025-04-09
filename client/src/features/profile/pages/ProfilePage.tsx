@@ -117,7 +117,7 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  const isOwnProfile = loggedInUser?._id === profileUser._id;
+  const isOwnProfile = loggedInUser && loggedInUser._id === profileUser._id;
 
   return (
     <Flex direction="column">
@@ -183,7 +183,7 @@ const ProfilePage: React.FC = () => {
               </Flex>
 
               <Flex gap={10}>
-                <Status value={profileUser.places.length} name="places" />
+                <Status value={loggedInUser!.places.length} name="places" />
                 <Status value={profileUser.followers.length} name="followers" />
                 <Status value={profileUser.following.length} name="following" />
               </Flex>
@@ -198,7 +198,11 @@ const ProfilePage: React.FC = () => {
               </Text>
             </Flex>
           </Flex>
-          <PlaceList user={profileUser} />
+          {isOwnProfile ? (
+            <PlaceList places={loggedInUser.places} />
+          ) : (
+            <PlaceList places={profileUser.places} />
+          )}
         </Flex>
       </CustomBox>
     </Flex>

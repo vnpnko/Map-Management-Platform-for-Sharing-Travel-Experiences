@@ -2,41 +2,41 @@ import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 import { User } from "../../../models/User.ts";
 
-interface AddMapPayload {
+interface AddPlaceToMapPayload {
+  placeId: number;
   mapId: number;
-  userId: number;
 }
 
-type AddMapResponse = User;
+type AddPlaceToMapResponse = User;
 
 const addMapRequest = async (
-  payload: AddMapPayload,
-): Promise<AddMapResponse> => {
-  const response = await fetch(`${BASE_URL}/users/addMap`, {
+  payload: AddPlaceToMapPayload,
+): Promise<AddPlaceToMapResponse> => {
+  const response = await fetch(`${BASE_URL}/maps/addPlace`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Failed to add map to user");
+    throw new Error(data.error || "Failed to add place to map");
   }
   return data;
 };
 
 const useAddMapToUser = () => {
   const { mutateAsync, isPending, error } = useMutation<
-    AddMapResponse,
+    AddPlaceToMapResponse,
     Error,
-    AddMapPayload
+    AddPlaceToMapPayload
   >({
     mutationFn: addMapRequest,
   });
 
   return {
-    addMapToUser: mutateAsync,
-    isAddingMapToUser: isPending,
-    addMapToUserError: error,
+    addPlaceToMap: mutateAsync,
+    isAddingPlaceToMap: isPending,
+    addPlaceToMapError: error,
   };
 };
 

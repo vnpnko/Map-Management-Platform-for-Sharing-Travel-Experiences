@@ -11,6 +11,9 @@ const useFetchPlace = (payload: FetchPlacePayload) => {
     queryKey: ["place", payload.place_id],
     queryFn: async () => {
       const response = await fetch(`${BASE_URL}/places/${payload.place_id}`);
+      if (response.status === 404) {
+        return null;
+      }
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch place");

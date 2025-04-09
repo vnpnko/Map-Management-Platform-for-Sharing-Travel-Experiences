@@ -2,17 +2,22 @@ import React, { useState, useRef } from "react";
 import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 import { Box, Text, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
-import CustomInput from "../../../components/common/CustomInput.tsx";
-import CustomButton from "../../../components/common/CustomButton.tsx";
-import useCreatePlace from "../../create/hooks/useCreatePlace.ts";
-import useAddPlaceToUser from "../hooks/useAddPlaceToUser.ts";
-import { useUser } from "../../../context/UserContext.tsx";
-import useFetchPlace from "../hooks/useFetchPlace.ts";
-import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
+import CustomInput from "../../../components/common/CustomInput";
+import CustomButton from "../../../components/common/CustomButton";
+import useCreatePlace from "../../create/hooks/useCreatePlace";
+import useAddPlaceToUser from "../hooks/useAddPlaceToUser";
+import useFetchPlace from "../hooks/useFetchPlace";
+import useAddPlaceLike from "../hooks/useAddPlaceLike";
+import { useUser } from "../../../context/UserContext";
+import { useDraftMap } from "../../../context/DraftMapContext.tsx";
+
+interface PlaceFormProps {
+  onPlaceCreated?: (newPlaceId: string) => void;
+}
 
 const libraries: "places"[] = ["places"];
 
-const PlaceForm = () => {
+const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
   const [placeId, setPlaceId] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [placeURL, setPlaceURL] = useState("");
@@ -25,14 +30,19 @@ const PlaceForm = () => {
 
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
+
+  // const draftMapContext = onPlaceCreated ? useDraftMap() : null;
+  if (onPlaceCreated) {
+    useDraftMap();
+  }
+
   const { place } = useFetchPlace({ place_id: placeId });
 
-  const { addPlace, isAddingPlace } = useAddPlaceToUser();
+  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
   const { addPlaceLike } = useAddPlaceLike();
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -41,7 +51,6 @@ const PlaceForm = () => {
   if (loadError) {
     return <Text color="red.500">Error loading Google Maps API</Text>;
   }
-
   if (!isLoaded) {
     return (
       <Flex align="center" justify="center" minH="200px">
@@ -52,11 +61,11 @@ const PlaceForm = () => {
 
   const handlePlaceSelect = () => {
     if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      if (place && place.place_id && place.name && place.url) {
-        setPlaceId(place.place_id);
-        setPlaceName(place.name);
-        setPlaceURL(place.url);
+      const selPlace = autocompleteRef.current.getPlace();
+      if (selPlace && selPlace.place_id && selPlace.name && selPlace.url) {
+        setPlaceId(selPlace.place_id);
+        setPlaceName(selPlace.name);
+        setPlaceURL(selPlace.url);
       }
     }
   };
@@ -67,22 +76,23 @@ const PlaceForm = () => {
     try {
       let updatedUser;
       if (place) {
-        updatedUser = await addPlace({ placeId, userId: loggedInUser!._id });
+        updatedUser = await addPlaceToUser({
+          placeId,
+          userId: loggedInUser!._id,
+        });
       } else {
         await createPlace(payload);
-        updatedUser = await addPlace({
+        updatedUser = await addPlaceToUser({
           placeId,
           userId: loggedInUser!._id,
         });
       }
-
-      await addPlaceLike({ placeId: placeId, userId: loggedInUser!._id });
-
+      await addPlaceLike({ placeId, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
 
-      setPlaceId("");
-      setPlaceName("");
-      setPlaceURL("");
+      if (onPlaceCreated) {
+        onPlaceCreated(placeId);
+      }
     } catch (error) {
       toast({
         title: "Failed to create place",
@@ -90,6 +100,10 @@ const PlaceForm = () => {
         status: "error",
         isClosable: true,
       });
+    } finally {
+      setPlaceId("");
+      setPlaceName("");
+      setPlaceURL("");
     }
   };
 
@@ -97,23 +111,25 @@ const PlaceForm = () => {
     <Flex as="form" onSubmit={handleCreatePlace} textColor={"black"}>
       <Box w={"full"} mr={4}>
         <Autocomplete
-          onLoad={(autocomplete) => {
-            autocompleteRef.current = autocomplete;
-          }}
+          onLoad={(autocomplete) => (autocompleteRef.current = autocomplete)}
           onPlaceChanged={handlePlaceSelect}
         >
           <CustomInput
             w={"full"}
             placeholder="Search for a place"
             value={placeName}
-            onChange={(e) => {
-              setPlaceName(e.target.value);
-            }}
+            onChange={(e) => setPlaceName(e.target.value)}
           />
         </Autocomplete>
       </Box>
-      <CustomButton type="submit" w={"min"} ml={"auto"} isSelected={false}>
-        {isCreatingPlace || isAddingPlace ? (
+      <CustomButton
+        type="submit"
+        w={"min"}
+        ml={"auto"}
+        isSelected={false}
+        disabled={!placeId}
+      >
+        {isCreatingPlace || isAddingPlaceToUser ? (
           <Spinner size="md" />
         ) : (
           <IoMdAdd size={30} />
