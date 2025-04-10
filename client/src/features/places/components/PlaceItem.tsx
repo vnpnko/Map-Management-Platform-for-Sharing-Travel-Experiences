@@ -14,6 +14,7 @@ import {
   FaHeart,
   FaRegComment,
   FaRegHeart,
+  FaRegMap,
   FaRegPaperPlane,
 } from "react-icons/fa6";
 
@@ -81,11 +82,21 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
   return (
     <CustomBox p={4}>
       <Flex direction="column" gap={4}>
-        <Flex justifyContent="space-between" alignItems="center" mb={2}>
+        <Flex justifyContent="space-between" alignItems="center">
           <Text color="black" fontSize="lg" textAlign="left">
             {place.name}
           </Text>
           <Flex gap={2}>
+            <IconBox
+              title="Open in Google Maps"
+              cursor="pointer"
+              color="black"
+              borderRadius="md"
+              _hover={{ color: "blackAlpha.700" }}
+              onClick={() => window.open(place.url, "_blank")}
+            >
+              <FaRegMap size={25} />
+            </IconBox>
             <IconBox
               title="Share"
               cursor="pointer"
@@ -161,25 +172,23 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
             </GoogleMap>
           )}
         </Flex>
-        <Flex direction={"column"} gap={4}>
-          <Text
-            color="black"
-            fontSize="md"
-            fontWeight={"semibold"}
-            textAlign={"left"}
-          >
-            {place.likes.length} likes
-          </Text>
-          <Text
-            cursor="pointer"
-            color="blackAlpha.600"
-            fontSize="md"
-            fontWeight={"normal"}
-            textAlign={"left"}
-          >
-            View all 229 comments
-          </Text>
-        </Flex>
+        <Text
+          color="black"
+          fontSize="md"
+          fontWeight={"semibold"}
+          textAlign={"left"}
+        >
+          {place.likes.length} likes
+        </Text>
+        <Text
+          cursor="pointer"
+          color="blackAlpha.600"
+          fontSize="md"
+          fontWeight={"normal"}
+          textAlign={"left"}
+        >
+          View all 229 comments
+        </Text>
       </Flex>
     </CustomBox>
   );
