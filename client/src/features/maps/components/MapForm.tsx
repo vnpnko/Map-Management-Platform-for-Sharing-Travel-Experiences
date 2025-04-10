@@ -84,7 +84,9 @@ const MapForm: React.FC = () => {
       </Flex>
       <Flex direction="column" gap={4} mt={4}>
         {/* PlaceForm will now update the draft map directly via its own useDraftMap calls. */}
-        <PlaceForm isMapCreating={true} />
+        <PlaceForm
+        // fix
+        />
         {draftMap && draftMap.places.length > 0 && (
           <PlaceList places={draftMap.places} />
         )}

@@ -11,6 +11,7 @@ import { IoIosAddCircle, IoIosList, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox.tsx";
 import PlaceList from "../../places/components/PlaceList.tsx";
 import { AiOutlineEdit } from "react-icons/ai";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 
 interface MapItemProps {
   map_id: number;
@@ -169,7 +170,19 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
             )}
           </Flex>
         </Flex>
-
+        <GoogleMap
+          mapContainerStyle={{
+            width: "100%",
+            height: "300px",
+          }}
+          center={{ lat: 50.5, lng: 30.5 }}
+          zoom={6}
+        >
+          <Marker position={{ lat: 50, lng: 30 }} />
+          <Marker position={{ lat: 51, lng: 30 }} />
+          <Marker position={{ lat: 50, lng: 31 }} />
+          <Marker position={{ lat: 51, lng: 31 }} />
+        </GoogleMap>
         {showPlaces &&
           (map.places.length === 0 ? (
             <Text color="black" textAlign="left">
