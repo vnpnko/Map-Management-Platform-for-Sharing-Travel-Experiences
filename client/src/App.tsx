@@ -13,6 +13,7 @@ import CreatePlace from "./features/create/components/CreatePlace.tsx";
 import CreateMap from "./features/create/components/CreateMap.tsx";
 import AllMapsList from "./features/search/components/AllMapsList.tsx";
 import { DraftMapProvider } from "./context/DraftMapContext.tsx";
+import GoogleMapsLoader from "./components/common/GoogleMapsLoader.tsx";
 
 export const BASE_URL = "http://localhost:5000/api";
 
@@ -25,15 +26,31 @@ function App() {
             <Route path="/search" element={<ExplorePage />}>
               <Route index element={<AllUsersList />} />
               <Route path="users" element={<AllUsersList />} />
-              <Route path="places" element={<AllPlacesList />} />
-              <Route path="maps" element={<AllMapsList />} />
+              <Route
+                path="places"
+                element={
+                  <GoogleMapsLoader>
+                    <AllPlacesList />
+                  </GoogleMapsLoader>
+                }
+              />
+              <Route
+                path="maps"
+                element={
+                  <GoogleMapsLoader>
+                    <AllMapsList />
+                  </GoogleMapsLoader>
+                }
+              />
             </Route>
             <Route path="/create" element={<CreatePage />}>
               <Route
                 index
                 element={
                   <DraftMapProvider>
-                    <CreatePlace />
+                    <GoogleMapsLoader>
+                      <CreatePlace />
+                    </GoogleMapsLoader>
                   </DraftMapProvider>
                 }
               />
@@ -41,7 +58,9 @@ function App() {
                 path="places"
                 element={
                   <DraftMapProvider>
-                    <CreatePlace />
+                    <GoogleMapsLoader>
+                      <CreatePlace />
+                    </GoogleMapsLoader>
                   </DraftMapProvider>
                 }
               />

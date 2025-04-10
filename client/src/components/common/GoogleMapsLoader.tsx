@@ -1,4 +1,3 @@
-// GoogleMapsLoader.tsx
 import React from "react";
 import { Spinner, Text, Flex } from "@chakra-ui/react";
 import { useJsApiLoader } from "@react-google-maps/api";
