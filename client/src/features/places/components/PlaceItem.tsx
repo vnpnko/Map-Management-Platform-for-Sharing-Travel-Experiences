@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import { Flex, Spinner, Text, useToast, Box, Image } from "@chakra-ui/react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import React from "react";
+import { Flex, Spinner, Text, useToast, Image } from "@chakra-ui/react";
 import { IoIosMap, IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox";
 import IconBox from "../../../components/common/IconBox";
@@ -11,55 +10,34 @@ import useFetchPlace from "../hooks/useFetchPlace";
 import useRemovePlaceFromUser from "../hooks/useRemovePlaceFromUser";
 import useAddPlaceLike from "../hooks/useAddPlaceLike";
 import useRemovePlaceLike from "../hooks/useRemovePlaceLike";
-import CustomButton from "../../../components/common/CustomButton.tsx";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 
 interface PlaceItemProps {
   place_id: string;
 }
 
-const mapContainerStyle = {
-  width: "100%",
-  height: "200px",
-};
-
 const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
-  const { place, isFetchingPlace: isLoading } = useFetchPlace({ place_id });
+  const { place } = useFetchPlace({ place_id });
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { removePlace, isRemovingPlace } = useRemovePlaceFromUser();
   const { addPlaceLike } = useAddPlaceLike();
   const { removePlaceLike } = useRemovePlaceLike();
 
-  const [showMap, setShowMap] = useState(false);
-  const [showImage, setShowImage] = useState(false);
-
   const alreadyHasPlace =
     loggedInUser && loggedInUser.places.includes(place_id);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-  });
+  if (!place) {
+    return;
+  }
 
-  if (isLoading) return <Spinner color="black" />;
-  if (!place) return <Text color="red.500">Place not found.</Text>;
-  if (loadError)
-    return <Text color="red.500">Error loading Google Maps API.</Text>;
+  const center = { lat: place.location.lat, lng: place.location.lng };
 
-  // Center the map on the place location if available, otherwise default to (0,0)
-  const center = place.location
-    ? { lat: place.location.lat, lng: place.location.lng }
-    : { lat: 0, lng: 0 };
-
-  const randomMarker = {
-    lat: center.lat + 10,
-    lng: center.lng + 10,
-  };
-
-  const toastError = (title: string, error: any) => {
+  const toastError = (title: string, error: Error) => {
     toast({
       title,
-      description: (error as Error).message,
+      description: error.message,
       status: "error",
       isClosable: true,
     });
@@ -76,9 +54,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         const updatedUser = await addPlaceToUser(payload);
         setLoggedInUser(updatedUser);
         await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
-        // Avoid directly mutating likes; ideally the hook or re-fetch updates the state.
       } catch (error) {
-        toastError("Error Adding Place", error);
+        toastError("Error Adding Place", error as Error);
       }
     }
   };
@@ -91,7 +68,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         setLoggedInUser(updatedUser);
         await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
-        toastError("Error Removing Place", error);
+        toastError("Error Removing Place", error as Error);
       }
     }
   };
@@ -162,41 +139,31 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
             )}
           </Flex>
         </Flex>
-        {/* Display place photo if available */}
-        {place.photoUrl && (
-          <Flex mb={4}>
-            <CustomButton onClick={() => setShowImage(!showImage)}>
-              {showImage ? "Hide Image" : "Show Image"}
-            </CustomButton>
-          </Flex>
-        )}
-        {showImage && place.photoUrl && (
-          <Image
-            src={place.photoUrl}
-            alt={`${place.name} photo`}
-            borderRadius="md"
-            mb={4}
-          />
-        )}
-        {/* Button to toggle the embedded map view */}
-        {place.location && (
-          <Flex mb={4}>
-            <CustomButton onClick={() => setShowMap(!showMap)}>
-              {showMap ? "Hide Map" : "Show Map"}
-            </CustomButton>
-          </Flex>
-        )}
-        {/* Render an embedded Google Map with a dot marker */}
-        {showMap && place.location && isLoaded && (
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={3}
-          >
-            <Marker position={center} />
-            <Marker position={randomMarker} />
-          </GoogleMap>
-        )}
+        <Flex gap={4} alignItems="center">
+          {place.photoUrl && (
+            <Image
+              src={place.photoUrl}
+              alt={`${place.name} photo`}
+              borderRadius="md"
+              width={"50%"}
+              height={"300px"}
+              objectFit="cover"
+              objectPosition={"center"}
+            />
+          )}
+          {place.location && (
+            <GoogleMap
+              mapContainerStyle={{
+                width: "50%",
+                height: "300px",
+              }}
+              center={center}
+              zoom={10}
+            >
+              <Marker position={center} />
+            </GoogleMap>
+          )}
+        </Flex>
       </Flex>
     </CustomBox>
   );

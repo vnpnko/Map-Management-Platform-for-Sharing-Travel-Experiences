@@ -3,7 +3,7 @@ import { Flex } from "@chakra-ui/react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import ToggleButton from "../../../components/common/ToggleButton.tsx";
 
-const SearchPage: React.FC = () => {
+const ExplorePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -11,7 +11,7 @@ const SearchPage: React.FC = () => {
     location.pathname === "/search" ? "/search/users" : location.pathname;
 
   return (
-    <Flex direction="column" gap={4} w="md" mx="auto" mt={8}>
+    <Flex direction="column" gap={4} w={"2xl"}>
       <Flex justifyContent="space-between" gap={4}>
         <ToggleButton
           onClick={() => navigate("/search/users")}
@@ -37,4 +37,4 @@ const SearchPage: React.FC = () => {
   );
 };
 
-export default SearchPage;
+export default ExplorePage;

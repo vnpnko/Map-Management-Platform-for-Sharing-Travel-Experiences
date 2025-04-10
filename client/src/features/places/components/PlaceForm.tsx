@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
-import { Autocomplete, useJsApiLoader } from "@react-google-maps/api";
-import { Box, Text, Flex, Spinner, useToast } from "@chakra-ui/react";
+import { Autocomplete } from "@react-google-maps/api";
+import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../../../components/common/CustomInput";
 import CustomButton from "../../../components/common/CustomButton";
@@ -15,39 +15,30 @@ interface PlaceFormProps {
   onPlaceCreated?: (newPlaceId: string) => void;
 }
 
-const libraries: "places"[] = ["places"];
-
 const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
-  // State for required fields
   const [placeId, setPlaceId] = useState("");
   const [placeName, setPlaceName] = useState("");
   const [placeURL, setPlaceURL] = useState("");
-  // New states for extra data
-  const [placeLocation, setPlaceLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
+  const [placeLocation, setPlaceLocation] = useState({ lat: 0, lng: 0 });
   const [formattedAddress, setFormattedAddress] = useState("");
   const [placeTypes, setPlaceTypes] = useState<string[]>([]);
   const [photoURL, setPhotoURL] = useState("");
 
-  // Build payload including the additional fields.
   const payload = {
     _id: placeId,
     name: placeName,
     url: placeURL,
     likes: [],
-    location: placeLocation, // Required for markers on Google Map
-    formattedAddress: formattedAddress, // Human-readable address
-    types: placeTypes, // Place types/categories
-    photoUrl: photoURL, // URL for a photo (if available)
+    location: placeLocation,
+    formattedAddress: formattedAddress,
+    types: placeTypes,
+    photoUrl: photoURL,
   };
 
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
   const { dispatch } = useDraftMap();
 
-  // This hook fetches additional place details if available.
   const { place } = useFetchPlace({ place_id: placeId });
 
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
@@ -55,21 +46,6 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
   const { addPlaceLike } = useAddPlaceLike();
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
-
-  if (loadError) {
-    return <Text color="red.500">Error loading Google Maps API</Text>;
-  }
-  if (!isLoaded) {
-    return (
-      <Flex align="center" justify="center" minH="200px">
-        <Spinner size="lg" />
-      </Flex>
-    );
-  }
 
   const handlePlaceSelect = () => {
     if (autocompleteRef.current) {
@@ -79,14 +55,12 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
         setPlaceName(selPlace.name);
         setPlaceURL(selPlace.url);
 
-        // Get location (lat, lng) if available
         if (selPlace.geometry && selPlace.geometry.location) {
           setPlaceLocation({
             lat: selPlace.geometry.location.lat(),
             lng: selPlace.geometry.location.lng(),
           });
         }
-        // Get formatted address if available
         if (selPlace.formatted_address) {
           setFormattedAddress(selPlace.formatted_address);
         }
@@ -113,7 +87,6 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
           userId: loggedInUser!._id,
         });
       } else {
-        // Create the place with the additional data
         await createPlace(payload);
         updatedUser = await addPlaceToUser({
           placeId,
@@ -123,19 +96,16 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
       await addPlaceLike({ placeId, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
 
-      // Dispatch an action to add the new place to the draft map
       dispatch({ type: "ADD_PLACE", payload: placeId });
 
-      // Call onPlaceCreated callback if provided (for map-creation mode)
       if (onPlaceCreated) {
         onPlaceCreated(placeId);
       }
 
-      // Reset local state.
       setPlaceId("");
       setPlaceName("");
       setPlaceURL("");
-      setPlaceLocation(null);
+      setPlaceLocation({ lat: 0, lng: 0 });
       setFormattedAddress("");
       setPlaceTypes([]);
       setPhotoURL("");

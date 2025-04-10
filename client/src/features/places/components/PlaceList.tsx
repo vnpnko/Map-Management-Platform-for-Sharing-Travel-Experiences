@@ -1,14 +1,12 @@
 import { Flex, Text } from "@chakra-ui/react";
 import PlaceItem from "./PlaceItem.tsx";
-import { useEffect } from "react";
+import React from "react";
 
 interface PlaceListProps {
   places: string[];
 }
 
 const PlaceList: React.FC<PlaceListProps> = ({ places }) => {
-  useEffect(() => {}, []);
-
   if (places.length === 0) {
     return <Text color={"green"}>no saved places</Text>;
   } else {

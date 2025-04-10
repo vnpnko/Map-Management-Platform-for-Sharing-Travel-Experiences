@@ -5,7 +5,7 @@ import LogInPage from "./features/auth/pages/LogInPage.tsx";
 import ProfilePage from "./features/profile/pages/ProfilePage.tsx";
 import EditProfilePage from "./features/profile/pages/EditProfilePage.tsx";
 import { Layout } from "./components/layout/Layout.tsx";
-import SearchPage from "./features/search/pages/SearchPage.tsx";
+import ExplorePage from "./features/search/pages/ExplorePage.tsx";
 import AllUsersList from "./features/search/components/AllUsersList.tsx";
 import AllPlacesList from "./features/search/components/AllPlacesList.tsx";
 import CreatePage from "./features/create/pages/CreatePage.tsx";
@@ -22,7 +22,7 @@ function App() {
       <Router>
         <Routes>
           <Route element={<Layout />}>
-            <Route path="/search" element={<SearchPage />}>
+            <Route path="/search" element={<ExplorePage />}>
               <Route index element={<AllUsersList />} />
               <Route path="users" element={<AllUsersList />} />
               <Route path="places" element={<AllPlacesList />} />

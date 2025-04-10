@@ -21,6 +21,7 @@ import PlaceList from "../../places/components/PlaceList.tsx";
 import useFetchUser from "../hooks/useFetchUser.ts";
 import ToggleButton from "../../../components/common/ToggleButton.tsx";
 import MapList from "../../maps/components/MapList.tsx";
+import GoogleMapsLoader from "../../../components/common/GoogleMapsLoader.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
@@ -124,41 +125,48 @@ const ProfilePage: React.FC = () => {
   const isOwnProfile = loggedInUser && loggedInUser._id === profileUser._id;
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap={8} w={"2xl"}>
       <CustomBox p={8}>
-        <Flex direction={"column"} gap={8}>
+        <Flex direction="column" gap={8}>
           <Flex gap={8}>
             <Avatar
               name={profileUser.username}
               src="" // Provide user profile pic URL if available
-              size="2xl"
+              size={"2xl"}
             />
-            <Flex direction="column" gap={4}>
-              <Flex justifyContent={"space-between"} gap={4}>
-                <Text color="black" fontSize="2xl" textAlign="left" flex="1">
+            <Flex
+              direction="column"
+              justifyContent={"space-between"}
+              w={"full"}
+            >
+              <Flex justifyContent={"space-between"} alignItems={"center"}>
+                <Text
+                  color="black"
+                  fontSize="3xl"
+                  fontWeight={"thin"}
+                  textAlign="left"
+                >
                   {profileUser.username}
                 </Text>
 
                 {isOwnProfile ? (
-                  <Flex w={"full"} gap={4} flex={1}>
+                  <Flex gap={4} alignItems={"center"}>
                     <CustomButton
-                      flex={1}
+                      width={120}
                       isSelected={true}
                       onClick={() => navigate(`/${profileUser.username}/edit`)}
                     >
                       Edit Profile
                     </CustomButton>
                     <Button
-                      flex={1}
-                      bg="gray.50"
+                      width={120}
                       textColor="black"
                       _hover={{
                         bg: "red.500",
                         textColor: "white",
                       }}
-                      borderColor="blackAlpha.300"
                       borderWidth={2}
-                      w={"full"}
+                      borderColor="blackAlpha.300"
                       onClick={handleLogout}
                     >
                       Logout
@@ -167,16 +175,16 @@ const ProfilePage: React.FC = () => {
                 ) : loggedInUser &&
                   profileUser.followers.includes(loggedInUser._id) ? (
                   <CustomButton
-                    flex={1}
+                    width={220}
                     isSelected={true}
                     onClick={handleUnfollow}
                     isDisabled={isUnfollowing}
                   >
-                    Unfollow
+                    Following
                   </CustomButton>
                 ) : (
                   <CustomButton
-                    flex={1}
+                    width={220}
                     isSelected={false}
                     onClick={handleFollow}
                     isDisabled={isFollowing}
@@ -186,7 +194,7 @@ const ProfilePage: React.FC = () => {
                 )}
               </Flex>
 
-              <Flex gap={8}>
+              <Flex justifyContent={"space-between"}>
                 <Status
                   value={
                     isOwnProfile
@@ -210,7 +218,7 @@ const ProfilePage: React.FC = () => {
               <Text
                 color="black"
                 fontSize="lg"
-                fontWeight="medium"
+                fontWeight="normal"
                 textAlign="left"
               >
                 {profileUser.name}
@@ -235,19 +243,22 @@ const ProfilePage: React.FC = () => {
               Maps
             </ToggleButton>
           </Flex>
-          {placesSelected ? (
-            isOwnProfile ? (
-              <PlaceList places={loggedInUser.places} />
-            ) : (
-              <PlaceList places={profileUser.places} />
-            )
-          ) : isOwnProfile ? (
-            <MapList maps={loggedInUser.maps} />
-          ) : (
-            <MapList maps={profileUser.maps} />
-          )}
         </Flex>
       </CustomBox>
+
+      <GoogleMapsLoader>
+        {placesSelected ? (
+          isOwnProfile ? (
+            <PlaceList places={loggedInUser.places} />
+          ) : (
+            <PlaceList places={profileUser.places} />
+          )
+        ) : isOwnProfile ? (
+          <MapList maps={loggedInUser.maps} />
+        ) : (
+          <MapList maps={profileUser.maps} />
+        )}
+      </GoogleMapsLoader>
     </Flex>
   );
 };
