@@ -8,7 +8,7 @@ export function Layout() {
       <Header />
       <Box
         p={4}
-        mt={10}
+        pt={8}
         display="flex"
         alignItems="center"
         justifyContent="center"

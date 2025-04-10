@@ -11,7 +11,7 @@ const CreatePage: React.FC = () => {
     location.pathname === "/create" ? "/create/places" : location.pathname;
 
   return (
-    <Flex direction="column" gap={4} w="md" mx="auto" mt={8}>
+    <Flex direction="column" gap={4} w={"2xl"}>
       <Flex justifyContent="space-between" gap={4}>
         <ToggleButton
           onClick={() => navigate("/create/places")}

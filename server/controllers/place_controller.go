@@ -68,25 +68,6 @@ func CreatePlace(c *fiber.Ctx) error {
 		})
 	}
 
-	if place.ID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Place ID is required",
-		})
-	}
-	if place.Name == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Place name is required",
-		})
-	}
-	if place.URL == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Place URL is required",
-		})
-	}
-	if place.Likes == nil {
-		place.Likes = []primitive.ObjectID{}
-	}
-
 	_, err := config.DB.Collection("places").
 		InsertOne(context.Background(), place)
 	if err != nil {

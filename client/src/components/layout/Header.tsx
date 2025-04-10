@@ -33,14 +33,14 @@ export function Header() {
           isSelected={location.pathname.startsWith("/search")}
           onClick={() => navigate("/search")}
         >
-          Search
+          Explore
         </CustomButton>
       </>
     );
   } else {
     if (isAuthPage) {
       buttons = (
-        <CustomButton onClick={() => navigate("/search")}>Search</CustomButton>
+        <CustomButton onClick={() => navigate("/search")}>Explore</CustomButton>
       );
     } else {
       buttons = (
@@ -53,7 +53,7 @@ export function Header() {
             isSelected={location.pathname.startsWith("/search")}
             onClick={() => navigate("/search")}
           >
-            Search
+            Explore
           </CustomButton>
         </>
       );
