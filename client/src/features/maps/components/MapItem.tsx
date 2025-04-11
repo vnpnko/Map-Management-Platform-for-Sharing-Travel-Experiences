@@ -91,15 +91,10 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   return (
     <CustomBox p={4}>
       <Flex direction={"column"} gap={4}>
-        <Flex justifyContent={"space-between"}>
-          <Flex direction={"column"} gap={4} textAlign={"left"}>
-            <Text color="black" fontSize={"lg"} fontWeight={"medium"}>
-              {map.name}
-            </Text>
-            <Text color="black" fontSize={"md"} noOfLines={3}>
-              {map.description}
-            </Text>
-          </Flex>
+        <Flex justifyContent={"space-between"} alignItems={"center"}>
+          <Text color="black" fontSize={"lg"} fontWeight={"medium"}>
+            {map.name}
+          </Text>
           <Flex gap={2}>
             <IconBox
               title={showPlaces ? "Hide Places" : "Show Places"}
@@ -234,6 +229,21 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
         >
           {map.likes.length} likes
         </Text>
+        <Flex alignItems={"center"} gap={2}>
+          <Text
+            color="black"
+            fontSize={"md"}
+            fontWeight={"medium"}
+            noOfLines={3}
+          >
+            vn.pnko
+          </Text>
+          <Text color="black" fontSize={"md"} noOfLines={3}>
+            {/*{map.description}*/}I thought you were going to Brazil to enjoy
+            Carnival in Rio
+          </Text>
+        </Flex>
+
         <Text
           cursor="pointer"
           color="blackAlpha.600"
