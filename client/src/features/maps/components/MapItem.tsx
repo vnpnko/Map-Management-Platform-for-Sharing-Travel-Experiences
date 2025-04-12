@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Text, useToast, Spinner, Flex } from "@chakra-ui/react";
+import { Text, useToast, Flex } from "@chakra-ui/react";
+import Pin from "../../../assets/favmaps_logo.png";
 import useFetchMap from "../hooks/useFetchMap.ts";
 import { useUser } from "../../../context/UserContext.tsx";
 import useAddMapToUser from "../hooks/useAddMapToUser.ts";
@@ -7,11 +8,17 @@ import useRemoveMapFromUser from "../hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "../hooks/useAddMapLike.ts";
 import useRemoveMapLike from "../hooks/useRemoveMapLike.ts";
 import IconBox from "../../../components/common/IconBox.tsx";
-import { IoIosAddCircle, IoIosList, IoIosRemoveCircle } from "react-icons/io";
 import CustomBox from "../../../components/common/CustomBox.tsx";
 import PlaceList from "../../places/components/PlaceList.tsx";
-import { AiOutlineEdit } from "react-icons/ai";
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import {
+  FaHeart,
+  FaRegComment,
+  FaRegFolderClosed,
+  FaRegFolderOpen,
+  FaRegHeart,
+  FaRegPaperPlane,
+} from "react-icons/fa6";
 
 interface MapItemProps {
   map_id: number;
@@ -21,13 +28,12 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
   const { map } = useFetchMap({ mapId: map_id });
-  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
-  const { removeMap, isRemovingMap } = useRemoveMapFromUser();
+  const { addMapToUser } = useAddMapToUser();
+  const { removeMap } = useRemoveMapFromUser();
   const { addMapLike } = useAddMapLike();
   const { removeMapLike } = useRemoveMapLike();
 
   const [showPlaces, setShowPlaces] = useState(false);
-  const [editMap, setEditMap] = useState(0);
 
   const alreadyHasMap = loggedInUser && loggedInUser.maps.includes(map_id);
 
@@ -85,87 +91,79 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
   return (
     <CustomBox p={4}>
       <Flex direction={"column"} gap={4}>
-        <Flex justifyContent={"space-between"}>
-          <Flex direction={"column"} gap={4} textAlign={"left"}>
-            <Text color="black" fontSize={"lg"} fontWeight={"medium"}>
-              {map.name}
-            </Text>
-            <Text color="black" fontSize={"md"} noOfLines={3}>
-              {map.description}
-            </Text>
-          </Flex>
+        <Flex justifyContent={"space-between"} alignItems={"center"}>
+          <Text color="black" fontSize={"lg"} fontWeight={"medium"}>
+            {map.name}
+          </Text>
           <Flex gap={2}>
-            <IconBox color="blue.500" title="Count of likes">
-              <Text
-                color="black"
-                fontSize="sm"
-                w={10}
-                h={10}
-                display="flex"
-                alignItems={"center"}
-                justifyContent={"center"}
-                borderRadius="md"
-                bg="blackAlpha.200"
-                borderColor={"blue.600"}
-                borderWidth={1}
-              >
-                {map.likes.length}
-              </Text>
-            </IconBox>
-
             <IconBox
               title={showPlaces ? "Hide Places" : "Show Places"}
               cursor="pointer"
-              color={showPlaces ? "gray.500" : "blue.500"}
+              color={"black"}
               borderRadius="md"
-              _hover={{
-                bg: "blackAlpha.200",
-              }}
+              _hover={{ color: "blackAlpha.700" }}
               onClick={() => setShowPlaces(!showPlaces)}
             >
-              <IoIosList size={40} />
+              {showPlaces ? (
+                <FaRegFolderOpen size={25} />
+              ) : (
+                <FaRegFolderClosed size={25} />
+              )}
             </IconBox>
             <IconBox
-              title="Edit Map"
+              title="Share"
               cursor="pointer"
-              color={editMap ? "gray.500" : "blue.500"}
+              color="black"
               borderRadius="md"
-              _hover={{
-                bg: "blackAlpha.200",
-              }}
+              _hover={{ color: "blackAlpha.700" }}
               onClick={() =>
-                editMap === map._id ? setEditMap(0) : setEditMap(map._id)
+                navigator.clipboard.writeText("map.url").then(() => {
+                  toast({
+                    title: "Link copied to clipboard",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
               }
             >
-              <AiOutlineEdit size={40} />
+              <FaRegPaperPlane size={25} />
+            </IconBox>
+            <IconBox
+              title="Comment"
+              cursor="pointer"
+              color="black"
+              borderRadius="md"
+              _hover={{ color: "blackAlpha.700" }}
+              onClick={() =>
+                navigator.clipboard.writeText("map.url").then(() => {
+                  toast({
+                    title: "Redirecting to comments",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
+              }
+            >
+              <FaRegComment size={25} />
             </IconBox>
             {alreadyHasMap ? (
               <IconBox
-                title="Remove from saved maps"
+                title="Unlike"
                 cursor="pointer"
-                color="gray.500"
-                _hover={{ color: "red.600" }}
+                color="red.500"
                 onClick={handleRemoveMap}
               >
-                {isRemovingMap ? (
-                  <Spinner size="lg" />
-                ) : (
-                  <IoIosRemoveCircle size={40} />
-                )}
+                <FaHeart size={25} />
               </IconBox>
             ) : (
               <IconBox
-                title="Add to saved places"
+                title="Like"
                 cursor="pointer"
-                color="green.500"
-                _hover={{ color: "green.600" }}
+                color="black"
+                _hover={{ color: "blackAlpha.700" }}
                 onClick={handleAddMap}
               >
-                {isAddingMapToUser ? (
-                  <Spinner size="lg" />
-                ) : (
-                  <IoIosAddCircle size={40} />
-                )}
+                <FaRegHeart size={25} />
               </IconBox>
             )}
           </Flex>
@@ -178,10 +176,51 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
           center={{ lat: 50.5, lng: 30.5 }}
           zoom={6}
         >
-          <Marker position={{ lat: 50, lng: 30 }} />
-          <Marker position={{ lat: 51, lng: 30 }} />
-          <Marker position={{ lat: 50, lng: 31 }} />
-          <Marker position={{ lat: 51, lng: 31 }} />
+          <Marker
+            position={{ lat: 50, lng: 30 }}
+            onClick={() => {
+              toast({
+                title: "IT WORKS!",
+                description: "location 1 clicked",
+                status: "info",
+                isClosable: true,
+              });
+            }}
+          />
+          <Marker
+            position={{ lat: 51, lng: 30 }}
+            onClick={() => {
+              toast({
+                title: "IT WORKS!",
+                description: "location 2 clicked",
+                status: "info",
+                isClosable: true,
+              });
+            }}
+          />
+          <Marker
+            position={{ lat: 50, lng: 31 }}
+            onClick={() => {
+              toast({
+                title: "IT WORKS!",
+                description: "location 3 clicked",
+                status: "info",
+                isClosable: true,
+              });
+            }}
+          />
+          <Marker
+            position={{ lat: 51, lng: 31 }}
+            onClick={() => {
+              toast({
+                title: "IT WORKS!",
+                description: "location 4 clicked",
+                status: "info",
+                isClosable: true,
+              });
+            }}
+            icon={{ url: Pin, scaledSize: new google.maps.Size(40, 40) }}
+          />
         </GoogleMap>
         {showPlaces &&
           (map.places.length === 0 ? (
@@ -191,6 +230,38 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
           ) : (
             <PlaceList places={map.places} />
           ))}
+        <Text
+          color="black"
+          fontSize="md"
+          fontWeight={"semibold"}
+          textAlign={"left"}
+        >
+          {map.likes.length} likes
+        </Text>
+        <Flex alignItems={"center"} gap={2}>
+          <Text
+            color="black"
+            fontSize={"md"}
+            fontWeight={"medium"}
+            noOfLines={3}
+          >
+            vn.pnko
+          </Text>
+          <Text color="black" fontSize={"md"} noOfLines={3}>
+            {/*{map.description}*/}I thought you were going to Brazil to enjoy
+            Carnival in Rio
+          </Text>
+        </Flex>
+
+        <Text
+          cursor="pointer"
+          color="blackAlpha.600"
+          fontSize="md"
+          fontWeight={"normal"}
+          textAlign={"left"}
+        >
+          View all 229 comments
+        </Text>
       </Flex>
     </CustomBox>
   );

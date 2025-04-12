@@ -1,6 +1,5 @@
 import React from "react";
-import { Flex, Spinner, Text, useToast, Image } from "@chakra-ui/react";
-import { IoIosMap, IoIosAddCircle, IoIosRemoveCircle } from "react-icons/io";
+import { Flex, Text, useToast, Image } from "@chakra-ui/react";
 import CustomBox from "../../../components/common/CustomBox";
 import IconBox from "../../../components/common/IconBox";
 
@@ -11,6 +10,13 @@ import useRemovePlaceFromUser from "../hooks/useRemovePlaceFromUser";
 import useAddPlaceLike from "../hooks/useAddPlaceLike";
 import useRemovePlaceLike from "../hooks/useRemovePlaceLike";
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import {
+  FaHeart,
+  FaRegComment,
+  FaRegHeart,
+  FaRegMap,
+  FaRegPaperPlane,
+} from "react-icons/fa6";
 
 interface PlaceItemProps {
   place_id: string;
@@ -20,8 +26,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
   const { place } = useFetchPlace({ place_id });
-  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
-  const { removePlace, isRemovingPlace } = useRemovePlaceFromUser();
+  const { addPlaceToUser } = useAddPlaceToUser();
+  const { removePlace } = useRemovePlaceFromUser();
   const { addPlaceLike } = useAddPlaceLike();
   const { removePlaceLike } = useRemovePlaceLike();
 
@@ -76,65 +82,76 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
   return (
     <CustomBox p={4}>
       <Flex direction="column" gap={4}>
-        <Flex justifyContent="space-between" alignItems="center" mb={2}>
+        <Flex justifyContent="space-between" alignItems="center">
           <Text color="black" fontSize="lg" textAlign="left">
             {place.name}
           </Text>
           <Flex gap={2}>
-            <IconBox color="blue.500" title="Count of likes">
-              <Text
-                color="black"
-                fontSize="sm"
-                w={10}
-                h={10}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="md"
-                bg="blackAlpha.200"
-                borderColor="blue.600"
-                borderWidth={1}
-              >
-                {place.likes.length}
-              </Text>
-            </IconBox>
             <IconBox
               title="Open in Google Maps"
               cursor="pointer"
-              color="blue.500"
+              color="black"
               borderRadius="md"
-              _hover={{ bg: "blackAlpha.200" }}
+              _hover={{ color: "blackAlpha.700" }}
               onClick={() => window.open(place.url, "_blank")}
             >
-              <IoIosMap size={40} />
+              <FaRegMap size={25} />
             </IconBox>
+            <IconBox
+              title="Share"
+              cursor="pointer"
+              color="black"
+              borderRadius="md"
+              _hover={{ color: "blackAlpha.700" }}
+              onClick={() =>
+                navigator.clipboard.writeText(place.url).then(() => {
+                  toast({
+                    title: "Link copied to clipboard",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
+              }
+            >
+              <FaRegPaperPlane size={25} />
+            </IconBox>
+            <IconBox
+              title="Comment"
+              color="black"
+              cursor="pointer"
+              borderRadius="md"
+              _hover={{ color: "blackAlpha.700" }}
+              onClick={() =>
+                navigator.clipboard.writeText(place.url).then(() => {
+                  toast({
+                    title: "Redirecting to comments",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
+              }
+            >
+              <FaRegComment size={25} />
+            </IconBox>
+
             {alreadyHasPlace ? (
               <IconBox
-                title="Remove from saved places"
+                title="Unlike"
                 cursor="pointer"
-                color="gray.500"
-                _hover={{ color: "red.600" }}
+                color="red.500"
                 onClick={handleRemovePlace}
               >
-                {isRemovingPlace ? (
-                  <Spinner size="lg" />
-                ) : (
-                  <IoIosRemoveCircle size={40} />
-                )}
+                <FaHeart size={25} />
               </IconBox>
             ) : (
               <IconBox
-                title="Add to saved places"
+                title="Like"
                 cursor="pointer"
-                color="green.500"
-                _hover={{ color: "green.600" }}
+                color="black"
+                _hover={{ color: "blackAlpha.700" }}
                 onClick={handleAddPlace}
               >
-                {isAddingPlaceToUser ? (
-                  <Spinner size="lg" />
-                ) : (
-                  <IoIosAddCircle size={40} />
-                )}
+                <FaRegHeart size={25} />
               </IconBox>
             )}
           </Flex>
@@ -164,6 +181,23 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
             </GoogleMap>
           )}
         </Flex>
+        <Text
+          color="black"
+          fontSize="md"
+          fontWeight={"semibold"}
+          textAlign={"left"}
+        >
+          {place.likes.length} likes
+        </Text>
+        <Text
+          cursor="pointer"
+          color="blackAlpha.600"
+          fontSize="md"
+          fontWeight={"normal"}
+          textAlign={"left"}
+        >
+          View all 229 comments
+        </Text>
       </Flex>
     </CustomBox>
   );
