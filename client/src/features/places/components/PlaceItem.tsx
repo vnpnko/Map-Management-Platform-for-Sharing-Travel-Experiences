@@ -121,6 +121,15 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
               cursor="pointer"
               borderRadius="md"
               _hover={{ color: "blackAlpha.700" }}
+              onClick={() =>
+                navigator.clipboard.writeText(place.url).then(() => {
+                  toast({
+                    title: "Redirecting to comments",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
+              }
             >
               <FaRegComment size={25} />
             </IconBox>

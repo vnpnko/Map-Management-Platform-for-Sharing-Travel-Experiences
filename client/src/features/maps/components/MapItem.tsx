@@ -134,6 +134,15 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
               color="black"
               borderRadius="md"
               _hover={{ color: "blackAlpha.700" }}
+              onClick={() =>
+                navigator.clipboard.writeText("map.url").then(() => {
+                  toast({
+                    title: "Redirecting to comments",
+                    status: "success",
+                    isClosable: true,
+                  });
+                })
+              }
             >
               <FaRegComment size={25} />
             </IconBox>
