@@ -3,11 +3,11 @@ import { Flex, Text, useToast, Image } from "@chakra-ui/react";
 import CustomBox from "../ui/CustomBox.tsx";
 import IconBox from "../ui/IconBox.tsx";
 
-import useAddPlaceToUser from "../../hooks/Place/useAddPlaceToUser.ts";
+import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
 import { useUser } from "../../../context/UserContext.tsx";
-import useRemovePlaceFromUser from "../../hooks/Place/useRemovePlaceFromUser.ts";
-import useAddPlaceLike from "../../hooks/Place/useAddPlaceLike.ts";
-import useRemovePlaceLike from "../../hooks/Place/useRemovePlaceLike.ts";
+import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser.ts";
+import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
+import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
 
@@ -44,7 +44,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
         await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
         toast({
-          title: "Error Adding Place",
+          title: "Error Adding hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,
@@ -62,7 +62,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
         await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
         toast({
-          title: "Error Removing Place",
+          title: "Error Removing hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,

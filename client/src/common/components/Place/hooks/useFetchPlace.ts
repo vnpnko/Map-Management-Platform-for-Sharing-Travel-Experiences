@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { BASE_URL } from "../../../App.tsx";
-import { Place } from "../../../models/Place.ts";
+import { BASE_URL } from "../../../../App.tsx";
+import { Place } from "../../../../models/Place.ts";
 
 interface FetchPlacePayload {
   place_id: string;

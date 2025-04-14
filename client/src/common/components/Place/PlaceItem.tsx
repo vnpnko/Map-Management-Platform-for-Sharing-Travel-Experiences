@@ -1,12 +1,12 @@
 import React from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useToast, Image, Flex } from "@chakra-ui/react";
-import useAddPlaceToUser from "../../hooks/Place/useAddPlaceToUser";
+import useAddPlaceToUser from "./hooks/useAddPlaceToUser";
 import { useUser } from "../../../context/UserContext";
-import useFetchPlace from "../../hooks/Place/useFetchPlace";
-import useRemovePlaceFromUser from "../../hooks/Place/useRemovePlaceFromUser";
-import useAddPlaceLike from "../../hooks/Place/useAddPlaceLike";
-import useRemovePlaceLike from "../../hooks/Place/useRemovePlaceLike";
+import useFetchPlace from "./hooks/useFetchPlace";
+import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser";
+import useAddPlaceLike from "./hooks/useAddPlaceLike";
+import useRemovePlaceLike from "./hooks/useRemovePlaceLike";
 import CardItem from "../CardItem";
 
 interface PlaceItemProps {
@@ -55,7 +55,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         setLoggedInUser(updatedUser);
         await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
-        toastError("Error Adding Place", error as Error);
+        toastError("Error Adding hooks", error as Error);
       }
     }
   };
@@ -68,7 +68,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         setLoggedInUser(updatedUser);
         await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
-        toastError("Error Removing Place", error as Error);
+        toastError("Error Removing hooks", error as Error);
       }
     }
   };

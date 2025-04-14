@@ -1,23 +1,62 @@
-import { Flex, Text } from "@chakra-ui/react";
 import React from "react";
+import { Text, Box, Spinner } from "@chakra-ui/react";
+import InfiniteScroll from "react-infinite-scroll-component";
+import useInfiniteFetchPlaces from "./hooks/useInfiniteFetchPlaces";
 import PlaceItem from "./PlaceItem.tsx";
 
-interface PlaceListProps {
+export type PlaceListProps = {
   items: string[];
-}
+};
 
 const PlaceList: React.FC<PlaceListProps> = ({ items }) => {
-  if (items.length === 0) {
-    return <Text color={"green"}>no saved places</Text>;
-  } else {
+  const { places, fetchNextPage, hasNextPage, status, isFetchingNextPage } =
+    useInfiniteFetchPlaces({ placeIds: items, pageSize: 3 });
+
+  if (status === "pending") {
     return (
-      <Flex direction={"column"} gap={2}>
-        {items.map((id) => (
-          <PlaceItem key={id} place_id={id} />
-        ))}
-      </Flex>
+      <Box textAlign="center" color={"black"} p={4}>
+        <Spinner />
+      </Box>
     );
   }
+
+  if (status === "error") {
+    return (
+      <Box textAlign="center" p={4}>
+        <Text color="red.500">Error loading places.</Text>
+      </Box>
+    );
+  }
+
+  return (
+    <InfiniteScroll
+      dataLength={places.length}
+      next={() => fetchNextPage()}
+      hasMore={hasNextPage}
+      loader={
+        <Box textAlign="center" color={"black"} p={4}>
+          <Spinner />
+        </Box>
+      }
+      endMessage={
+        <Box textAlign="center" color={"black"} p={4}>
+          <Text>no more places</Text>
+        </Box>
+      }
+    >
+      {places.map((place, index) => (
+        // <Text color={"black"} key={index} p={2} borderBottom="1px solid #ccc">
+        //   {place.name}
+        // </Text>
+        <PlaceItem place_id={place._id} key={index} />
+      ))}
+      {isFetchingNextPage && (
+        <Box textAlign="center" color={"black"} p={4}>
+          <Spinner />
+        </Box>
+      )}
+    </InfiniteScroll>
+  );
 };
 
 export default PlaceList;

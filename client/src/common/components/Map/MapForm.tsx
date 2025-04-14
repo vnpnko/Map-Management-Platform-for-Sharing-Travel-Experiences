@@ -8,9 +8,9 @@ import PlaceList from "../Place/PlaceList.tsx";
 import { useUser } from "../../../context/UserContext.tsx";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
-import useAddMapToUser from "../../hooks/Map/useAddMapToUser.ts";
-import useAddMapLike from "../../hooks/Map/useAddMapLike.ts";
-import CustomBox from "../ui/CustomBox.tsx";
+import useAddMapToUser from "./hooks/useAddMapToUser";
+import useAddMapLike from "./hooks/useAddMapLike";
+import CustomBox from "../ui/CustomBox";
 
 const MapForm: React.FC = () => {
   const toast = useToast();

@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { Flex, useToast } from "@chakra-ui/react";
-import useFetchMap from "../../hooks/Map/useFetchMap.ts";
+import useFetchMap from "./hooks/useFetchMap.ts";
 import { useUser } from "../../../context/UserContext.tsx";
-import useAddMapToUser from "../../hooks/Map/useAddMapToUser.ts";
-import useRemoveMapFromUser from "../../hooks/Map/useRemoveMapFromUser.ts";
-import useAddMapLike from "../../hooks/Map/useAddMapLike.ts";
-import useRemoveMapLike from "../../hooks/Map/useRemoveMapLike.ts";
+import useAddMapToUser from "./hooks/useAddMapToUser.ts";
+import useRemoveMapFromUser from "./hooks/useRemoveMapFromUser.ts";
+import useAddMapLike from "./hooks/useAddMapLike.ts";
+import useRemoveMapLike from "./hooks/useRemoveMapLike.ts";
 import CardItem from "../CardItem.tsx";
 import { GoogleMap } from "@react-google-maps/api";
 import Carousel from "../Carousel.tsx";
 import SmallPlaceItem from "../Place/SmallPlaceItem.tsx";
-import useFetchPlaces from "../../hooks/Place/useFetchPlaces.ts";
+import useFetchPlaces from "../Place/hooks/useFetchPlaces.ts";
 import CustomMarker from "./CustomMarker.tsx";
 
 interface MapItemProps {
@@ -55,7 +55,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
         map.likes.push(loggedInUser._id);
       } catch (error) {
         toast({
-          title: "Error Adding Map",
+          title: "Error Adding hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,
@@ -74,7 +74,7 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
         map.likes = map.likes.filter((id) => id !== loggedInUser._id);
       } catch (error) {
         toast({
-          title: "Error Removing Map",
+          title: "Error Removing hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,
