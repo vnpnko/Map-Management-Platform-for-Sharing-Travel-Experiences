@@ -243,7 +243,6 @@ const ProfilePage: React.FC = () => {
           </TabList>
         </Tabs>
         {placesSelected ? (
-          // <PlaceList items={user.places} />
           <PlaceList items={user.places} />
         ) : (
           <MapList items={user.maps} />

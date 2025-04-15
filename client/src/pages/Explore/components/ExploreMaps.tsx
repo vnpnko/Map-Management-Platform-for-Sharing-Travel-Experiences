@@ -6,7 +6,7 @@ import { Map } from "../../../models/Map.ts";
 import { Flex } from "@chakra-ui/react";
 import CustomInput from "../../../common/components/ui/CustomInput.tsx";
 
-const AllMapsList: React.FC = () => {
+const ExploreMaps: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { maps, isFetchingMaps, mapsError } = useFetchMaps(searchQuery);
 
@@ -22,10 +22,10 @@ const AllMapsList: React.FC = () => {
         isLoading={isFetchingMaps}
         error={mapsError}
         emptyMessage="No maps available"
-        renderItem={(map) => <MapItem key={map._id} map_id={map._id} />}
+        renderItem={(map) => <MapItem key={map._id} map={map} />}
       />
     </Flex>
   );
 };
 
-export default AllMapsList;
+export default ExploreMaps;

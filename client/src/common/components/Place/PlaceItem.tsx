@@ -3,31 +3,25 @@ import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useToast, Image, Flex } from "@chakra-ui/react";
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser";
 import { useUser } from "../../../context/UserContext";
-import useFetchPlace from "./hooks/useFetchPlace";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser";
 import useAddPlaceLike from "./hooks/useAddPlaceLike";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike";
 import CardItem from "../CardItem";
+import { Place } from "../../../models/Place.ts";
 
 interface PlaceItemProps {
-  place_id: string;
+  place: Place;
 }
 
-const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
+const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
-  const { place } = useFetchPlace({ place_id });
   const { addPlaceToUser } = useAddPlaceToUser();
   const { removePlaceFromUser } = useRemovePlaceFromUser();
   const { addPlaceLike } = useAddPlaceLike();
   const { removePlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace =
-    loggedInUser && loggedInUser.places.includes(place_id);
-
-  if (!place) {
-    return;
-  }
+  const alreadyHasPlace = loggedInUser?.places.includes(place._id);
 
   const center = {
     lat: place.location.lat,
@@ -55,7 +49,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         setLoggedInUser(updatedUser);
         await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
-        toastError("Error Adding hooks", error as Error);
+        toastError("Error Adding Place", error as Error);
       }
     }
   };
@@ -68,7 +62,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
         setLoggedInUser(updatedUser);
         await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
-        toastError("Error Removing hooks", error as Error);
+        toastError("Error Removing PLace", error as Error);
       }
     }
   };
@@ -81,7 +75,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place_id }) => {
       imageUrl={place.photoUrl}
       likesCount={place.likes.length}
       // commentsCount={place.comments.length}
-      likedByUser={loggedInUser?.places.includes(place._id)}
+      likedByUser={alreadyHasPlace}
       onLike={handleAddPlace}
       onUnlike={handleRemovePlace}
     >

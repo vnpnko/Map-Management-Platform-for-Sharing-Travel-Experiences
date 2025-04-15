@@ -6,7 +6,7 @@ import { Place } from "../../../models/Place.ts";
 import CustomInput from "../../../common/components/ui/CustomInput.tsx";
 import { Flex } from "@chakra-ui/react";
 
-const AllPlacesList: React.FC = () => {
+const ExplorePlaces: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { places, isFetchingPlaces, placesError } =
     useFetchPlacesByName(searchQuery);
@@ -23,12 +23,10 @@ const AllPlacesList: React.FC = () => {
         isLoading={isFetchingPlaces}
         error={placesError}
         emptyMessage="No places available"
-        renderItem={(place) => (
-          <PlaceItem key={place._id} place_id={place._id} />
-        )}
+        renderItem={(place) => <PlaceItem key={place._id} place={place} />}
       />
     </Flex>
   );
 };
 
-export default AllPlacesList;
+export default ExplorePlaces;

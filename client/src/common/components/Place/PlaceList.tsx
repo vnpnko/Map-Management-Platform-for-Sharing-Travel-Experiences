@@ -1,20 +1,30 @@
 import React from "react";
 import { Text, Box, Spinner } from "@chakra-ui/react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import useInfiniteFetchPlaces from "./hooks/useInfiniteFetchPlaces";
-import PlaceItem from "./PlaceItem.tsx";
+import { Place } from "../../../models/Place";
+import useInfiniteFetchItems from "../../hooks/useInfiniteFetchItems";
+import PlaceItem from "./PlaceItem";
 
 export type PlaceListProps = {
   items: string[];
 };
 
 const PlaceList: React.FC<PlaceListProps> = ({ items }) => {
-  const { places, fetchNextPage, hasNextPage, status, isFetchingNextPage } =
-    useInfiniteFetchPlaces({ placeIds: items, pageSize: 3 });
+  const {
+    items: places,
+    fetchNextPage,
+    hasNextPage,
+    status,
+    isFetchingNextPage,
+  } = useInfiniteFetchItems<Place, string>({
+    itemIds: items,
+    pageSize: 3,
+    endpoint: "places",
+  });
 
   if (status === "pending") {
     return (
-      <Box textAlign="center" color={"black"} p={4}>
+      <Box textAlign="center" color="black" p={4}>
         <Spinner />
       </Box>
     );
@@ -34,24 +44,22 @@ const PlaceList: React.FC<PlaceListProps> = ({ items }) => {
       next={() => fetchNextPage()}
       hasMore={hasNextPage}
       loader={
-        <Box textAlign="center" color={"black"} p={4}>
+        <Box textAlign="center" color="black" p={4}>
           <Spinner />
         </Box>
       }
       endMessage={
-        <Box textAlign="center" color={"black"} p={4}>
-          <Text>no more places</Text>
+        <Box textAlign="center" color="black" p={4}>
+          <Text>No more places.</Text>
         </Box>
       }
     >
       {places.map((place, index) => (
-        // <Text color={"black"} key={index} p={2} borderBottom="1px solid #ccc">
-        //   {place.name}
-        // </Text>
-        <PlaceItem place_id={place._id} key={index} />
+        <PlaceItem key={index} place={place} />
       ))}
+
       {isFetchingNextPage && (
-        <Box textAlign="center" color={"black"} p={4}>
+        <Box textAlign="center" color="black" p={4}>
           <Spinner />
         </Box>
       )}
