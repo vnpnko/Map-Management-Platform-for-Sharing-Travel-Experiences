@@ -565,9 +565,9 @@ func GetUsersIDs(c *fiber.Ctx) error {
 	var filter interface{}
 	if search != "" {
 		filter = bson.M{
-			"username": bson.M{
-				"$regex":   search,
-				"$options": "i",
+			"$or": []bson.M{
+				{"name": bson.M{"$regex": search, "$options": "i"}},
+				{"username": bson.M{"$regex": search, "$options": "i"}},
 			},
 		}
 	} else {

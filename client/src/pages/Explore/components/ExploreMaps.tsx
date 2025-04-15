@@ -1,29 +1,15 @@
-import React, { useState } from "react";
-import useFetchIds from "../../../common/hooks/useFetchIds.tsx";
-import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
-import MapItem from "../../../common/components/Map/MapItem.tsx";
-import { Map } from "../../../models/Map.ts";
-import CustomInput from "../../../common/components/ui/CustomInput.tsx";
-import { Flex } from "@chakra-ui/react";
+import React from "react";
+import ExploreItems from "../../../common/components/ExploreItems";
+import MapItem from "../../../common/components/Map/MapItem";
+import { Map } from "../../../models/Map";
 
 const ExploreMaps: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { data } = useFetchIds<number>("maps", searchQuery);
-  const mapIds = data || [];
-
   return (
-    <Flex direction="column" gap={4}>
-      <CustomInput
-        placeholder="Search maps by name or description"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-      <GenericVirtualList<Map, number>
-        items={mapIds}
-        type={"maps"}
-        renderItem={(map) => <MapItem key={map._id} map={map} />}
-      />
-    </Flex>
+    <ExploreItems<Map, number>
+      resource="maps"
+      placeholder="Search maps by name or description"
+      renderItem={(map) => <MapItem key={map._id} map={map} />}
+    />
   );
 };
 

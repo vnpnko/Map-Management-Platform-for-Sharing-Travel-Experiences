@@ -1,29 +1,15 @@
-import React, { useState } from "react";
-import useFetchIds from "../../../common/hooks/useFetchIds.tsx";
-import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
-import UserItem from "../../../common/components/User/UserItem.tsx";
-import { User } from "../../../models/User.ts";
-import CustomInput from "../../../common/components/ui/CustomInput.tsx";
-import { Flex } from "@chakra-ui/react";
+import React from "react";
+import ExploreItems from "../../../common/components/ExploreItems";
+import UserItem from "../../../common/components/User/UserItem";
+import { User } from "../../../models/User";
 
 const ExploreUsers: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { data } = useFetchIds<number>("users", searchQuery);
-  const userIds = data || [];
-
   return (
-    <Flex direction="column" gap={4}>
-      <CustomInput
-        placeholder="Search users by name"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-      <GenericVirtualList<User, number>
-        items={userIds}
-        type={"users"}
-        renderItem={(user) => <UserItem key={user._id} user={user} />}
-      />
-    </Flex>
+    <ExploreItems<User, string>
+      resource="users"
+      placeholder="Search users by username or name"
+      renderItem={(user) => <UserItem key={user._id} user={user} />}
+    />
   );
 };
 
