@@ -54,7 +54,9 @@ function GenericVirtualList<T, ID>({
       }
       endMessage={
         <Box textAlign="center" color="black" p={4}>
-          <Text>No more items.</Text>
+          <Text>
+            {items?.length == 0 ? `the list is empty` : `no more ${type}`}
+          </Text>
         </Box>
       }
     >
