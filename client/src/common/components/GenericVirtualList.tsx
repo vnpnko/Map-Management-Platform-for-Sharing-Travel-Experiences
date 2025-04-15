@@ -52,13 +52,6 @@ function GenericVirtualList<T, ID>({
           <Spinner />
         </Box>
       }
-      endMessage={
-        <Box textAlign="center" color="black" p={4}>
-          <Text>
-            {items?.length == 0 ? `the list is empty` : `no more ${type}`}
-          </Text>
-        </Box>
-      }
     >
       {itemObjects.map(renderItem)}
       {isFetchingNextPage && (
