@@ -15,8 +15,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
 import Status from "../../common/components/User/Status.tsx";
-import { useUser } from "../../context/UserContext.tsx";
-import useLogOut from "./hooks/useLogOut.ts";
 import useFollow from "./hooks/useFollow.ts";
 import useUnfollow from "./hooks/useUnfollow.ts";
 import useFetchUser from "./hooks/useFetchUser.ts";
@@ -25,13 +23,14 @@ import PlaceItem from "../../common/components/Place/PlaceItem.tsx";
 import { Place } from "../../models/Place.ts";
 import { Map } from "../../models/Map.ts";
 import MapItem from "../../common/components/Map/MapItem.tsx";
+import { useUserStore } from "../../store/useUserStore.ts";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { loggedInUser, setLoggedInUser } = useUser();
+  const { user, setUser, logout } = useUserStore();
   const {
     fetchedUser: profileUser,
     isFetchingUser,
@@ -40,12 +39,11 @@ const ProfilePage: React.FC = () => {
 
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
-  const { logout } = useLogOut();
 
   const [placesSelected, setPlacesSelected] = useState(true);
 
   const handleFollow = async () => {
-    if (!loggedInUser) {
+    if (user === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to follow a user.",
@@ -58,12 +56,12 @@ const ProfilePage: React.FC = () => {
     if (profileUser) {
       try {
         const payload = {
-          followerId: loggedInUser._id,
+          followerId: user._id,
           followeeId: profileUser._id,
         };
         const updatedUser = await follow(payload);
-        setLoggedInUser(updatedUser);
-        profileUser.followers.push(loggedInUser._id);
+        setUser(updatedUser);
+        profileUser.followers.push(user._id);
       } catch (error) {
         toast({
           title: "Follow Failed",
@@ -76,16 +74,16 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleUnfollow = async () => {
-    if (loggedInUser && profileUser) {
+    if (user && profileUser) {
       try {
         const payload = {
-          followerId: loggedInUser._id,
+          followerId: user._id,
           followeeId: profileUser._id,
         };
         const updatedUser = await unfollow(payload);
-        setLoggedInUser(updatedUser);
+        setUser(updatedUser);
         profileUser.followers = profileUser.followers.filter(
-          (id) => id !== loggedInUser._id,
+          (id) => id !== user._id,
         );
       } catch (error) {
         toast({
@@ -100,7 +98,6 @@ const ProfilePage: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    setLoggedInUser(null);
     navigate("/");
   };
 
@@ -125,17 +122,17 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  const isOwnProfile = loggedInUser && loggedInUser._id === profileUser._id;
-  const user = isOwnProfile ? loggedInUser : profileUser;
+  const isOwnProfile = user && user._id === profileUser._id;
+  const user_data = isOwnProfile ? user : profileUser;
 
   const foll = [
     {
       name: "maps",
-      value: isOwnProfile ? loggedInUser.maps.length : profileUser.maps.length,
+      value: isOwnProfile ? user.maps.length : profileUser.maps.length,
     },
     {
       name: "places",
-      value: user.places.length,
+      value: user_data.places.length,
     },
     {
       name: "followers",
@@ -197,22 +194,22 @@ const ProfilePage: React.FC = () => {
                 </Button>
               </Flex>
             ) : (
-              loggedInUser && (
+              user && (
                 <CustomButton
                   width={220}
                   isSelected={true}
                   onClick={
-                    profileUser.followers.includes(loggedInUser._id)
+                    profileUser.followers.includes(user._id)
                       ? handleUnfollow
                       : handleFollow
                   }
                   isDisabled={
-                    profileUser.followers.includes(loggedInUser._id)
+                    profileUser.followers.includes(user._id)
                       ? isUnfollowing
                       : isFollowing
                   }
                 >
-                  {profileUser.followers.includes(loggedInUser._id)
+                  {profileUser.followers.includes(user._id)
                     ? "Unfollow"
                     : "Follow"}
                 </CustomButton>
@@ -247,13 +244,13 @@ const ProfilePage: React.FC = () => {
         </Tabs>
         {placesSelected ? (
           <GenericVirtualList<Place, string>
-            items={[...user.places].reverse()}
+            items={[...user_data.places].reverse()}
             type={"places"}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
           />
         ) : (
           <GenericVirtualList<Map, number>
-            items={user.maps}
+            items={user_data.maps}
             type={"maps"}
             renderItem={(map) => <MapItem key={map._id} map={map} />}
           />

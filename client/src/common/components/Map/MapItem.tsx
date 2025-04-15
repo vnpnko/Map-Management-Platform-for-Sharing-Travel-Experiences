@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
-import { useUser } from "../../../context/UserContext.tsx";
 import useAddMapToUser from "./hooks/useAddMapToUser.ts";
 import useRemoveMapFromUser from "./hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "./hooks/useAddMapLike.ts";
@@ -12,6 +11,7 @@ import SmallPlaceItem from "../Place/SmallPlaceItem.tsx";
 import useFetchPlaces from "../Place/hooks/useFetchPlaces.ts";
 import CustomMarker from "./CustomMarker.tsx";
 import { Map } from "../../../models/Map.ts";
+import { useUserStore } from "../../../store/useUserStore.ts";
 
 interface MapItemProps {
   map: Map;
@@ -19,20 +19,20 @@ interface MapItemProps {
 
 const MapItem: React.FC<MapItemProps> = ({ map }) => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useUser();
+  const { user, setUser } = useUserStore();
   const { addMapToUser } = useAddMapToUser();
   const { removeMap } = useRemoveMapFromUser();
   const { addMapLike } = useAddMapLike();
   const { removeMapLike } = useRemoveMapLike();
 
-  const alreadyHasMap = loggedInUser?.maps.includes(map._id);
+  const alreadyHasMap = user?.maps.includes(map._id);
   const { places, isLoading } = useFetchPlaces({
     placeIds: map.places,
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleAddMap = async () => {
-    if (!loggedInUser) {
+    if (user === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to like a map.",
@@ -41,13 +41,13 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
       });
       return;
     }
-    if (map && loggedInUser && !alreadyHasMap) {
+    if (map && user && !alreadyHasMap) {
       try {
-        const payload = { mapId: map._id, userId: loggedInUser._id };
+        const payload = { mapId: map._id, userId: user._id };
         const updatedUser = await addMapToUser(payload);
-        setLoggedInUser(updatedUser);
-        await addMapLike({ mapId: map._id, userId: loggedInUser._id });
-        map.likes.push(loggedInUser._id);
+        setUser(updatedUser);
+        await addMapLike({ mapId: map._id, userId: user._id });
+        map.likes.push(user._id);
       } catch (error) {
         toast({
           title: "Error Adding Map",
@@ -60,13 +60,13 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
   };
 
   const handleRemoveMap = async () => {
-    if (map && loggedInUser && alreadyHasMap) {
+    if (map && user && alreadyHasMap) {
       try {
-        const payload = { mapId: map._id, userId: loggedInUser._id };
+        const payload = { mapId: map._id, userId: user._id };
         const updatedUser = await removeMap(payload);
-        setLoggedInUser(updatedUser);
-        await removeMapLike({ mapId: map._id, userId: loggedInUser._id });
-        map.likes = map.likes.filter((id) => id !== loggedInUser._id);
+        setUser(updatedUser);
+        await removeMapLike({ mapId: map._id, userId: user._id });
+        map.likes = map.likes.filter((id) => id !== user._id);
       } catch (error) {
         toast({
           title: "Error Removing Map",

@@ -5,7 +5,7 @@ import CustomBox from "../../common/components/ui/CustomBox.tsx";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import useSignUp from "./hooks/useSignUp.ts";
-import { useUser } from "../../context/UserContext.tsx";
+import { useUserStore } from "../../store/useUserStore.ts";
 
 const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -19,13 +19,13 @@ const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { signup, isSigningUp } = useSignUp();
-  const { setLoggedInUser } = useUser();
+  const { setUser } = useUserStore();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const user = await signup(SignUpPayload);
-      setLoggedInUser(user);
+      setUser(user);
       navigate(`/${user.username}`);
     } catch (error) {
       console.error("Login failed:", error);

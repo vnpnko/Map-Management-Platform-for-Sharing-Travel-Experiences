@@ -1,25 +1,25 @@
 import { Flex, Image, Text } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton.tsx";
-import { useUser } from "../../../context/UserContext.tsx";
+import { useUserStore } from "../../../store/useUserStore.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../../../assets/favmaps_logo.png";
 
 export function Header() {
-  const { loggedInUser } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useUserStore();
 
   const isAuthPage =
     location.pathname === "/" || location.pathname === "/signup";
 
   let buttons;
 
-  if (loggedInUser) {
+  if (user) {
     buttons = (
       <>
         <CustomButton
-          isSelected={location.pathname === `/${loggedInUser.username}`}
-          onClick={() => navigate(`/${loggedInUser.username}`)}
+          isSelected={location.pathname === `/${user.username}`}
+          onClick={() => navigate(`/${user.username}`)}
         >
           Home
         </CustomButton>

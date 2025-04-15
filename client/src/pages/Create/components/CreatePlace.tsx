@@ -1,14 +1,14 @@
 import React from "react";
 import PlaceForm from "../../../common/components/Place/PlaceForm.tsx";
-import { useUser } from "../../../context/UserContext.tsx";
 import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../../../common/components/Place/PlaceItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
+import { useUserStore } from "../../../store/useUserStore.ts";
 
 const CreatePlace: React.FC = () => {
-  const { loggedInUser } = useUser();
+  const { user } = useUserStore();
 
-  if (!loggedInUser) {
+  if (user === null) {
     return;
   }
 
@@ -16,7 +16,7 @@ const CreatePlace: React.FC = () => {
     <>
       <PlaceForm />
       <GenericVirtualList<Place, string>
-        items={[...loggedInUser.places].reverse()}
+        items={[...user.places].reverse()}
         type={"places"}
         renderItem={(place) => <PlaceItem key={place._id} place={place} />}
       />

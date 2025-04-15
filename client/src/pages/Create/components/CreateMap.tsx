@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import MapForm from "../../../common/components/Map/MapForm.tsx";
-import { useUser } from "../../../context/UserContext.tsx";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import { Map } from "../../../models/Map.ts";
 import MapItem from "../../../common/components/Map/MapItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
+import { useUserStore } from "../../../store/useUserStore.ts";
 
 const CreateMap: React.FC = () => {
-  const { loggedInUser } = useUser();
+  const { user } = useUserStore();
   const { dispatch } = useDraftMap();
 
   useEffect(() => {
@@ -16,7 +16,7 @@ const CreateMap: React.FC = () => {
     };
   }, [dispatch]);
 
-  if (!loggedInUser) {
+  if (user === null) {
     return;
   }
 
@@ -24,7 +24,7 @@ const CreateMap: React.FC = () => {
     <>
       <MapForm />
       <GenericVirtualList<Map, number>
-        items={[...loggedInUser.maps].reverse()}
+        items={[...user.maps].reverse()}
         type={"maps"}
         renderItem={(map) => <MapItem key={map._id} map={map} />}
       />

@@ -2,14 +2,13 @@ import React from "react";
 import { Flex, Text, useToast, Image } from "@chakra-ui/react";
 import CustomBox from "../ui/CustomBox.tsx";
 import IconBox from "../ui/IconBox.tsx";
-
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
-import { useUser } from "../../../context/UserContext.tsx";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser.ts";
 import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
+import { useUserStore } from "../../../store/useUserStore.ts";
 
 interface PlaceItemProps {
   place: Place;
@@ -17,17 +16,16 @@ interface PlaceItemProps {
 
 const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useUser();
+  const { user, setUser } = useUserStore();
   const { addPlaceToUser } = useAddPlaceToUser();
   const { removePlaceFromUser } = useRemovePlaceFromUser();
   const { addPlaceLike } = useAddPlaceLike();
   const { removePlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace =
-    loggedInUser && loggedInUser.places.includes(place._id);
+  const alreadyHasPlace = user && user.places.includes(place._id);
 
   const handleAddPlace = async () => {
-    if (!loggedInUser) {
+    if (user === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to like a place.",
@@ -36,12 +34,12 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       });
       return;
     }
-    if (place && loggedInUser && !alreadyHasPlace) {
+    if (place && user && !alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const payload = { placeId: place._id, userId: user._id };
         const updatedUser = await addPlaceToUser(payload);
-        setLoggedInUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        setUser(updatedUser);
+        await addPlaceLike({ placeId: place._id, userId: user._id });
       } catch (error) {
         toast({
           title: "Error Adding hooks",
@@ -54,12 +52,12 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   };
 
   const handleRemovePlace = async () => {
-    if (place && loggedInUser && alreadyHasPlace) {
+    if (place && user && alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const payload = { placeId: place._id, userId: user._id };
         const updatedUser = await removePlaceFromUser(payload);
-        setLoggedInUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        setUser(updatedUser);
+        await removePlaceLike({ placeId: place._id, userId: user._id });
       } catch (error) {
         toast({
           title: "Error Removing hooks",
