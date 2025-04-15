@@ -175,12 +175,25 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 	})
 }
 
-func GetAllPlaceIDs(c *fiber.Ctx) error {
-	ids, err := dbhelpers.GetAllIDs[string](config.DB.Collection("places"))
+func GetPlacesIDs(c *fiber.Ctx) error {
+	search := c.Query("search")
+	var filter interface{}
+	if search != "" {
+		filter = bson.M{
+			"name": bson.M{
+				"$regex":   search,
+				"$options": "i",
+			},
+		}
+	} else {
+		filter = bson.D{}
+	}
+
+	ids, err := dbhelpers.GetItemIDs[string](config.DB.Collection("places"), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to fetch place IDs",
 		})
 	}
-	return c.JSON(fiber.Map{"ids": ids})
+	return c.Status(fiber.StatusOK).JSON(ids)
 }

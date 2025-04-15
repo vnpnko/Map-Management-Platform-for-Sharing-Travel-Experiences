@@ -8,13 +8,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// GetAllIDs fetches the _id field from the given mongo.Collection.
-// It is generic over the ID type, so you can use it for different collections.
-func GetAllIDs[ID any](collection *mongo.Collection) ([]ID, error) {
+func GetItemIDs[ID any](collection *mongo.Collection, filter interface{}) ([]ID, error) {
 	ctx := context.Background()
-	// Only fetch the _id field.
 	projection := bson.D{{Key: "_id", Value: 1}}
-	cursor, err := collection.Find(ctx, bson.D{}, options.Find().SetProjection(projection))
+	cursor, err := collection.Find(ctx, filter, options.Find().SetProjection(projection))
 	if err != nil {
 		return nil, err
 	}

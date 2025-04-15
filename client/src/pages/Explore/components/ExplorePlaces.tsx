@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import GenericList from "./GenericList.tsx";
-import useFetchPlacesByName from "../hooks/useFetchPlacesByName.ts";
+import useFetchIds from "../../../common/hooks/useFetchIds.tsx";
+import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
 import PlaceItem from "../../../common/components/Place/PlaceItem.tsx";
 import { Place } from "../../../models/Place.ts";
 import CustomInput from "../../../common/components/ui/CustomInput.tsx";
@@ -8,8 +8,8 @@ import { Flex } from "@chakra-ui/react";
 
 const ExplorePlaces: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { places, isFetchingPlaces, placesError } =
-    useFetchPlacesByName(searchQuery);
+  const { data } = useFetchIds<string>("places", searchQuery);
+  const placeIds = data || [];
 
   return (
     <Flex direction="column" gap={4}>
@@ -18,11 +18,9 @@ const ExplorePlaces: React.FC = () => {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
-      <GenericList<Place>
-        items={places}
-        isLoading={isFetchingPlaces}
-        error={placesError}
-        emptyMessage="No places available"
+      <GenericVirtualList<Place, string>
+        items={placeIds}
+        type={"places"}
         renderItem={(place) => <PlaceItem key={place._id} place={place} />}
       />
     </Flex>

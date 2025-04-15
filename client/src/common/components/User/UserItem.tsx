@@ -1,11 +1,11 @@
 import React from "react";
 import { Flex, Avatar, Text, useToast } from "@chakra-ui/react";
-import CustomButton from "../../../common/components/ui/CustomButton.tsx";
+import CustomButton from "../ui/CustomButton.tsx";
 import { User } from "../../../models/User.ts";
 import { useUser } from "../../../context/UserContext.tsx";
-import useFollow from "../hooks/useFollow.ts";
-import useUnfollow from "../hooks/useUnfollow.ts";
-import CustomBox from "../../../common/components/ui/CustomBox.tsx";
+import useFollow from "../../../pages/Profile/hooks/useFollow.ts";
+import useUnfollow from "../../../pages/Profile/hooks/useUnfollow.ts";
+import CustomBox from "../ui/CustomBox.tsx";
 import { useNavigate } from "react-router-dom";
 
 interface UserItemProps {
