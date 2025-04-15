@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { BASE_URL } from "../../../App.tsx";
-import { User } from "../../../models/User.ts";
+import { BASE_URL } from "../../../../App.tsx";
+import { User } from "../../../../models/User.ts";
 
 interface RemoveMapPayload {
   mapId: number;

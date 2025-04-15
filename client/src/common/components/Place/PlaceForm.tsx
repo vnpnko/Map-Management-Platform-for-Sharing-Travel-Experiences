@@ -5,9 +5,9 @@ import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../ui/CustomInput.tsx";
 import CustomButton from "../ui/CustomButton.tsx";
 import useCreatePlace from "../../../pages/Create/hooks/useCreatePlace.ts";
-import useAddPlaceToUser from "../../hooks/Place/useAddPlaceToUser.ts";
-import useFetchPlace from "../../hooks/Place/useFetchPlace.ts";
-import useAddPlaceLike from "../../hooks/Place/useAddPlaceLike.ts";
+import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
+import useFetchPlace from "./hooks/useFetchPlace.ts";
+import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import { useUser } from "../../../context/UserContext.tsx";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 

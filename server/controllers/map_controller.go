@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
 
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
@@ -313,4 +314,28 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(updatedMap)
+}
+
+func GetMapsIDs(c *fiber.Ctx) error {
+	search := c.Query("search")
+	var filter interface{}
+	if search != "" {
+		filter = bson.M{
+			"$or": []bson.M{
+				{"name": bson.M{"$regex": search, "$options": "i"}},
+				{"description": bson.M{"$regex": search, "$options": "i"}},
+			},
+		}
+	} else {
+		filter = bson.D{}
+	}
+
+	ids, err := dbhelpers.GetItemIDs[primitive.ObjectID](config.DB.Collection("maps"), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch map IDs",
+		})
+	}
+	// Return a plain array of IDs.
+	return c.Status(fiber.StatusOK).JSON(ids)
 }

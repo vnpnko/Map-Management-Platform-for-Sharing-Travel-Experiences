@@ -10,9 +10,9 @@ import ProfilePage from "./pages/Profile/ProfilePage.tsx";
 import EditProfilePage from "./pages/EditProfile/EditProfilePage.tsx";
 
 import ExplorePage from "./pages/Explore/ExplorePage";
-import AllUsersList from "./pages/Explore/components/AllUsersList";
-import AllPlacesList from "./pages/Explore/components/AllPlacesList";
-import AllMapsList from "./pages/Explore/components/AllMapsList";
+import ExploreUsers from "./pages/Explore/components/ExploreUsers.tsx";
+import ExplorePlaces from "./pages/Explore/components/ExplorePlaces.tsx";
+import ExploreMaps from "./pages/Explore/components/ExploreMaps.tsx";
 
 import CreatePage from "./pages/Create/CreatePage";
 import CreatePlace from "./pages/Create/components/CreatePlace";
@@ -28,13 +28,13 @@ function App() {
           <Route element={<Layout />}>
             {/* Explore Routes */}
             <Route path="/search" element={<ExplorePage />}>
-              <Route index element={<AllUsersList />} />
-              <Route path="users" element={<AllUsersList />} />
+              <Route index element={<ExploreUsers />} />
+              <Route path="users" element={<ExploreUsers />} />
               <Route
                 path="places"
                 element={
                   <GoogleMapsLoader>
-                    <AllPlacesList />
+                    <ExplorePlaces />
                   </GoogleMapsLoader>
                 }
               />
@@ -42,7 +42,7 @@ function App() {
                 path="maps"
                 element={
                   <GoogleMapsLoader>
-                    <AllMapsList />
+                    <ExploreMaps />
                   </GoogleMapsLoader>
                 }
               />

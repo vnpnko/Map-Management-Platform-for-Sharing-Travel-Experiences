@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -557,4 +558,27 @@ func RemoveMapFromUser(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(updatedUser)
+}
+
+func GetUsersIDs(c *fiber.Ctx) error {
+	search := c.Query("search")
+	var filter interface{}
+	if search != "" {
+		filter = bson.M{
+			"$or": []bson.M{
+				{"name": bson.M{"$regex": search, "$options": "i"}},
+				{"username": bson.M{"$regex": search, "$options": "i"}},
+			},
+		}
+	} else {
+		filter = bson.D{}
+	}
+
+	ids, err := dbhelpers.GetItemIDs[primitive.ObjectID](config.DB.Collection("users"), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch user IDs",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(ids)
 }

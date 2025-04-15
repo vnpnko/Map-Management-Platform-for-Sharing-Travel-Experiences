@@ -4,13 +4,15 @@ import CustomInput from "../ui/CustomInput.tsx";
 import CustomTextarea from "../ui/CustomTextarea.tsx";
 import CustomButton from "../ui/CustomButton.tsx";
 import PlaceForm from "../Place/PlaceForm.tsx";
-import PlaceList from "../Place/PlaceList.tsx";
 import { useUser } from "../../../context/UserContext.tsx";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
-import useAddMapToUser from "../../hooks/Map/useAddMapToUser.ts";
-import useAddMapLike from "../../hooks/Map/useAddMapLike.ts";
-import CustomBox from "../ui/CustomBox.tsx";
+import useAddMapToUser from "./hooks/useAddMapToUser";
+import useAddMapLike from "./hooks/useAddMapLike";
+import CustomBox from "../ui/CustomBox";
+import { Place } from "../../../models/Place.ts";
+import PlaceItem from "../Place/PlaceItem.tsx";
+import GenericVirtualList from "../GenericVirtualList.tsx";
 
 const MapForm: React.FC = () => {
   const toast = useToast();
@@ -86,7 +88,11 @@ const MapForm: React.FC = () => {
       <Flex direction="column" gap={4} mt={4}>
         <PlaceForm />
         {draftMap && draftMap.places.length > 0 && (
-          <PlaceList items={draftMap.places} />
+          <GenericVirtualList<Place, string>
+            items={draftMap.places}
+            type={"places"}
+            renderItem={(place) => <PlaceItem key={place._id} place={place} />}
+          />
         )}
       </Flex>
     </CustomBox>

@@ -14,14 +14,17 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
-import Status from "./components/Status.tsx";
+import Status from "../../common/components/User/Status.tsx";
 import { useUser } from "../../context/UserContext.tsx";
 import useLogOut from "./hooks/useLogOut.ts";
 import useFollow from "./hooks/useFollow.ts";
 import useUnfollow from "./hooks/useUnfollow.ts";
-import PlaceList from "../../common/components/Place/PlaceList.tsx";
 import useFetchUser from "./hooks/useFetchUser.ts";
-import MapList from "../../common/components/Map/MapList.tsx";
+import GenericVirtualList from "../../common/components/GenericVirtualList.tsx";
+import PlaceItem from "../../common/components/Place/PlaceItem.tsx";
+import { Place } from "../../models/Place.ts";
+import { Map } from "../../models/Map.ts";
+import MapItem from "../../common/components/Map/MapItem.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
@@ -243,9 +246,17 @@ const ProfilePage: React.FC = () => {
           </TabList>
         </Tabs>
         {placesSelected ? (
-          <PlaceList items={user.places} />
+          <GenericVirtualList<Place, string>
+            items={[...user.places].reverse()}
+            type={"places"}
+            renderItem={(place) => <PlaceItem key={place._id} place={place} />}
+          />
         ) : (
-          <MapList items={user.maps} />
+          <GenericVirtualList<Map, number>
+            items={user.maps}
+            type={"maps"}
+            renderItem={(map) => <MapItem key={map._id} map={map} />}
+          />
         )}
       </Flex>
     </Flex>

@@ -1,40 +1,35 @@
 import React, { useState } from "react";
-import { Flex, useToast } from "@chakra-ui/react";
-import useFetchMap from "../../hooks/Map/useFetchMap.ts";
+import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
 import { useUser } from "../../../context/UserContext.tsx";
-import useAddMapToUser from "../../hooks/Map/useAddMapToUser.ts";
-import useRemoveMapFromUser from "../../hooks/Map/useRemoveMapFromUser.ts";
-import useAddMapLike from "../../hooks/Map/useAddMapLike.ts";
-import useRemoveMapLike from "../../hooks/Map/useRemoveMapLike.ts";
+import useAddMapToUser from "./hooks/useAddMapToUser.ts";
+import useRemoveMapFromUser from "./hooks/useRemoveMapFromUser.ts";
+import useAddMapLike from "./hooks/useAddMapLike.ts";
+import useRemoveMapLike from "./hooks/useRemoveMapLike.ts";
 import CardItem from "../CardItem.tsx";
 import { GoogleMap } from "@react-google-maps/api";
 import Carousel from "../Carousel.tsx";
 import SmallPlaceItem from "../Place/SmallPlaceItem.tsx";
-import useFetchPlaces from "../../hooks/Place/useFetchPlaces.ts";
+import useFetchPlaces from "../Place/hooks/useFetchPlaces.ts";
 import CustomMarker from "./CustomMarker.tsx";
+import { Map } from "../../../models/Map.ts";
 
 interface MapItemProps {
-  map_id: number;
+  map: Map;
 }
 
-const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
+const MapItem: React.FC<MapItemProps> = ({ map }) => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = useUser();
-  const { map } = useFetchMap({ mapId: map_id });
   const { addMapToUser } = useAddMapToUser();
   const { removeMap } = useRemoveMapFromUser();
   const { addMapLike } = useAddMapLike();
   const { removeMapLike } = useRemoveMapLike();
 
-  const alreadyHasMap = loggedInUser && loggedInUser.maps.includes(map_id);
-  const { places } = useFetchPlaces({
-    placeIds: map?.places || [],
+  const alreadyHasMap = loggedInUser?.maps.includes(map._id);
+  const { places, isLoading } = useFetchPlaces({
+    placeIds: map.places,
   });
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  if (!map) {
-    return;
-  }
 
   const handleAddMap = async () => {
     if (!loggedInUser) {
@@ -83,6 +78,14 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <Box textAlign="center" color="black" p={4}>
+        <Spinner />
+      </Box>
+    );
+  }
+
   const bounds = new window.google.maps.LatLngBounds();
   places.forEach((place) => {
     bounds.extend({
@@ -91,13 +94,15 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
     });
   });
 
+  console.log(places[0].location);
+
   return (
     <CardItem
       id={map._id}
       name={map.name}
       likesCount={map.likes.length}
       // commentsCount={place.comments.length}
-      likedByUser={loggedInUser?.maps.includes(map._id)}
+      likedByUser={alreadyHasMap}
       onLike={handleAddMap}
       onUnlike={handleRemoveMap}
     >
@@ -110,7 +115,8 @@ const MapItem: React.FC<MapItemProps> = ({ map_id }) => {
           onLoad={(map) => {
             map.fitBounds(bounds);
           }}
-          center={places[currentIndex].location}
+
+          // center={places[currentIndex].location}
         >
           {places.map((place) => (
             <CustomMarker

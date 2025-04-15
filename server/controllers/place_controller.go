@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gofiber/fiber/v2"
@@ -172,4 +173,27 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 	})
+}
+
+func GetPlacesIDs(c *fiber.Ctx) error {
+	search := c.Query("search")
+	var filter interface{}
+	if search != "" {
+		filter = bson.M{
+			"name": bson.M{
+				"$regex":   search,
+				"$options": "i",
+			},
+		}
+	} else {
+		filter = bson.D{}
+	}
+
+	ids, err := dbhelpers.GetItemIDs[string](config.DB.Collection("places"), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch place IDs",
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(ids)
 }
