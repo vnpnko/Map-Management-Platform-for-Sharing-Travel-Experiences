@@ -24,6 +24,29 @@ func SetupRoutes(app *fiber.App) {
 	api.Patch("/users/addPlace", controllers.AddPlaceToUser)
 	api.Patch("/users/removePlace", controllers.RemovePlaceFromUser)
 
+	//auth := api.Group("/auth")
+	//auth.Post("/login", controllers.LoginUser)
+	//auth.Post("/signup", controllers.CreateUser)
+
+	//users := api.Group("/users")
+	//users.Get("/", controllers.GetUsers)
+	//users.Get("/get/ids", controllers.GetUsersIDs)
+	//users.Get("/id/:id", controllers.GetUserByID)
+	//users.Get("/username/:username", controllers.GetUserByUsername)
+	//users.Patch("/:id", controllers.UpdateUserData)
+	//users.Delete("/:id", controllers.DeleteUser)
+
+	//users.Patch("/follow", controllers.UpdateUserFollow)
+	//users.Patch("/unfollow", controllers.UpdateUserUnfollow)
+
+	//userPlaces := users.Group("/places")
+	//userPlaces.Patch("/add", controllers.AddPlaceToUser)
+	//userPlaces.Patch("/remove", controllers.RemovePlaceFromUser)
+
+	//userMaps := users.Group("/maps")
+	//userMaps.Patch("/add", controllers.AddMapToUser)
+	//userMaps.Patch("/remove", controllers.RemoveMapFromUser)
+
 	// Place routes
 	api.Get("/places", controllers.GetPlaces)
 	api.Get("/places/:id", controllers.GetPlace)
@@ -32,6 +55,15 @@ func SetupRoutes(app *fiber.App) {
 	api.Delete("/places/:id", controllers.DeletePlace)
 	api.Patch("/places/addPlaceLike", controllers.AddPlaceLike)
 	api.Patch("/places/removePlaceLike", controllers.RemovePlaceLike)
+
+	//places := api.Group("/places")
+	//places.Get("/", controllers.GetPlaces)
+	//places.Get("/:id", controllers.GetPlace)
+	//places.Get("/get/ids", controllers.GetPlacesIDs)
+	//places.Post("/", controllers.CreatePlace)
+	//places.Delete("/:id", controllers.DeletePlace)
+	//places.Patch("/:id/addLike", controllers.AddPlaceLike)
+	//places.Patch("/:id/removeLike", controllers.RemovePlaceLike)
 
 	// Map routes
 	api.Get("/maps", controllers.GetMaps)
@@ -43,4 +75,15 @@ func SetupRoutes(app *fiber.App) {
 	api.Patch("/maps/removeMapLike", controllers.RemoveMapLike)
 	api.Patch("/maps/addPlace", controllers.AddPlaceToMap)
 	api.Patch("/maps/removePlace", controllers.RemovePlaceFromMap)
+
+	//maps := api.Group("/maps")
+	//maps.Get("/", controllers.GetMaps)
+	//maps.Get("/:id", controllers.GetMap)
+	//maps.Get("/get/ids", controllers.GetMapsIDs)
+	//maps.Post("/", controllers.CreateMap)
+	//maps.Delete("/:id", controllers.DeleteMap)
+	//maps.Patch("/:id/addLike", controllers.AddMapLike)
+	//maps.Patch("/:id/removeLike", controllers.RemoveMapLike)
+	//maps.Patch("/:id/addPlace", controllers.AddPlaceToMap)
+	//maps.Patch("/:id/removePlace", controllers.RemovePlaceFromMap)
 }
