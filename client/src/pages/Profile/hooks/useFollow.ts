@@ -12,11 +12,12 @@ type FollowResponse = User;
 const followRequest = async (
   payload: FollowPayload,
 ): Promise<FollowResponse> => {
-  const response = await fetch(`${BASE_URL}/users/follow`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const response = await fetch(
+    `${BASE_URL}/users/${payload.followerId}/following/${payload.followeeId}`,
+    {
+      method: "POST",
+    },
+  );
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Failed to follow user");

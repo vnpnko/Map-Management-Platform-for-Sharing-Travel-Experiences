@@ -57,7 +57,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
 
         {children}
 
-        <Flex gap={2} py={4}>
+        <Flex gap={2} py={2}>
           <IconCover>
             <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
               <IconButton

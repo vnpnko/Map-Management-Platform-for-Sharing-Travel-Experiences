@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Text, useToast } from "@chakra-ui/react";
 import useAddMapToUser from "./hooks/useAddMapToUser.ts";
 import useRemoveMapFromUser from "./hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "./hooks/useAddMapLike.ts";
@@ -106,37 +106,43 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
       onLike={handleAddMap}
       onUnlike={handleRemoveMap}
     >
-      <Flex>
-        <GoogleMap
-          mapContainerStyle={{
-            width: "50%",
-            height: "300px",
-          }}
-          onLoad={(map) => {
-            map.fitBounds(bounds);
-          }}
+      <Flex direction={"column"} gap={4}>
+        <Flex>
+          <GoogleMap
+            mapContainerStyle={{
+              width: "50%",
+              height: "300px",
+            }}
+            onLoad={(map) => {
+              map.fitBounds(bounds);
+            }}
 
-          // center={places[currentIndex].location}
-        >
-          {places.map((place) => (
-            <CustomMarker
-              key={place._id}
-              position={place.location}
-              isCurrent={currentIndex === places.indexOf(place)}
-              onClick={() => setCurrentIndex(places.indexOf(place))}
-            />
-          ))}
-        </GoogleMap>
-        <Carousel
-          currentIndex={currentIndex}
-          onIndexChange={setCurrentIndex}
-          width="50%"
-          height="300px"
-        >
-          {places.map((place) => (
-            <SmallPlaceItem place={place} key={place._id} />
-          ))}
-        </Carousel>
+            // center={places[currentIndex].location}
+          >
+            {places.map((place) => (
+              <CustomMarker
+                key={place._id}
+                position={place.location}
+                isCurrent={currentIndex === places.indexOf(place)}
+                onClick={() => setCurrentIndex(places.indexOf(place))}
+              />
+            ))}
+          </GoogleMap>
+          <Carousel
+            currentIndex={currentIndex}
+            onIndexChange={setCurrentIndex}
+            width="50%"
+            height="300px"
+          >
+            {places.map((place) => (
+              <SmallPlaceItem place={place} key={place._id} />
+            ))}
+          </Carousel>
+        </Flex>
+        <Flex color={"black"} textAlign={"left"} gap={2}>
+          <Text fontWeight={"medium"}>username</Text>
+          <Text>{map.description}</Text>
+        </Flex>
       </Flex>
     </CardItem>
   );

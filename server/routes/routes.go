@@ -17,18 +17,18 @@ func SetupRoutes(app *fiber.App) {
 	users.Get("/username/:username", controllers.GetUserByUsername)
 	users.Get("/id/:id", controllers.GetUserByID)
 	users.Get("/get/ids", controllers.GetUsersIDs)
-	users.Patch("/follow", controllers.UpdateUserFollow)
-	users.Patch("/unfollow", controllers.UpdateUserUnfollow)
+
+	users.Post("/:followerId/following/:followeeId", controllers.FollowUser)
+	users.Delete("/:followerId/following/:followeeId", controllers.UnfollowUser)
+
+	users.Post("/:userId/places/:placeId", controllers.AddPlaceToUser)
+	users.Delete("/:userId/places/:placeId", controllers.RemovePlaceFromUser)
+
+	users.Post("/:userId/maps/:mapId", controllers.AddMapToUser)
+	users.Delete("/:userId/maps/:mapId", controllers.RemoveMapFromUser)
+
 	users.Patch("/:id", controllers.UpdateUserData)
 	users.Delete("/:id", controllers.DeleteUser)
-
-	userPlaces := users.Group("/places")
-	userPlaces.Patch("/add", controllers.AddPlaceToUser)
-	userPlaces.Patch("/remove", controllers.RemovePlaceFromUser)
-
-	userMaps := users.Group("/maps")
-	userMaps.Patch("/add", controllers.AddMapToUser)
-	userMaps.Patch("/remove", controllers.RemoveMapFromUser)
 
 	places := api.Group("/places")
 	places.Get("/", controllers.GetPlaces)
@@ -49,5 +49,4 @@ func SetupRoutes(app *fiber.App) {
 	maps.Patch("/removeLike", controllers.RemoveMapLike)
 	maps.Patch("/addPlace", controllers.AddPlaceToMap)
 	maps.Patch("/removePlace", controllers.RemovePlaceFromMap)
-
 }

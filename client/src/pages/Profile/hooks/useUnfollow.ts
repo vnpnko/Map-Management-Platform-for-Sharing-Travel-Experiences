@@ -12,11 +12,13 @@ type UnfollowResponse = User;
 const unfollowRequest = async (
   payload: UnfollowPayload,
 ): Promise<UnfollowResponse> => {
-  const response = await fetch(`${BASE_URL}/users/unfollow`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  // DELETE /users/:followerId/following/:followeeId
+  const response = await fetch(
+    `${BASE_URL}/users/${payload.followerId}/following/${payload.followeeId}`,
+    {
+      method: "DELETE",
+    },
+  );
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Failed to unfollow user");
