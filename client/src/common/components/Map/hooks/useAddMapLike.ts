@@ -12,11 +12,12 @@ type AddMapLikeResponse = Map;
 const addMapLikeRequest = async (
   payload: AddMapLikePayload,
 ): Promise<AddMapLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/maps/addLike`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  const { mapId, userId } = payload;
+
+  const response = await fetch(`${BASE_URL}/maps/${mapId}/likes/${userId}`, {
+    method: "POST",
   });
+
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Failed to add like to map");

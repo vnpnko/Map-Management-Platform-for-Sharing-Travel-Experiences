@@ -140,43 +140,48 @@ func DeleteMap(c *fiber.Ctx) error {
 	})
 }
 
+// AddMapLike - POST /maps/:mapId/likes/:userId
 func AddMapLike(c *fiber.Ctx) error {
-	var body struct {
-		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	// Extract route params
+	mapIDStr := c.Params("mapId")
+	userIDStr := c.Params("userId")
+
+	if mapIDStr == "" || userIDStr == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Both mapId and userId are required",
 		})
 	}
 
-	if body.MapID == primitive.NilObjectID || body.UserID == primitive.NilObjectID {
+	// Convert to ObjectID (assuming your map and user IDs are stored as ObjectIDs)
+	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Both map ID and user ID are required",
+			"error": "Invalid map ID format",
+		})
+	}
+	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
 		})
 	}
 
-	filter := bson.M{"_id": body.MapID}
-	update := bson.M{
-		"$addToSet": bson.M{
-			"likes": body.UserID,
-		},
-	}
+	filter := bson.M{"_id": mapObjID}
+	update := bson.M{"$addToSet": bson.M{"likes": userObjID}}
 
-	_, err := config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
+	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Could not add like to map",
 		})
 	}
 
-	var updatedMap models.User
-	err = config.DB.Collection("maps").
+	// Return the updated map
+	var updatedMap models.Map
+	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
-		Decode(&updatedMap)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		Decode(&updatedMap); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Map not found",
 		})
 	}
@@ -184,43 +189,46 @@ func AddMapLike(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
+// RemoveMapLike - DELETE /maps/:mapId/likes/:userId
 func RemoveMapLike(c *fiber.Ctx) error {
-	var body struct {
-		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	mapIDStr := c.Params("mapId")
+	userIDStr := c.Params("userId")
+
+	if mapIDStr == "" || userIDStr == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Both mapId and userId are required",
 		})
 	}
 
-	if body.MapID == primitive.NilObjectID || body.UserID == primitive.NilObjectID {
+	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Both map ID and user ID are required",
+			"error": "Invalid map ID format",
+		})
+	}
+	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
 		})
 	}
 
-	filter := bson.M{"_id": body.MapID}
-	update := bson.M{
-		"$pull": bson.M{
-			"likes": body.UserID,
-		},
-	}
+	filter := bson.M{"_id": mapObjID}
+	update := bson.M{"$pull": bson.M{"likes": userObjID}}
 
-	_, err := config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
+	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Could not remove like from map",
 		})
 	}
 
-	var updatedMap models.User
-	err = config.DB.Collection("maps").
+	// Return the updated map
+	var updatedMap models.Map
+	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
-		Decode(&updatedMap)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		Decode(&updatedMap); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Map not found",
 		})
 	}

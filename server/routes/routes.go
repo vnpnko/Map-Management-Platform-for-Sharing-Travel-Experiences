@@ -8,10 +8,12 @@ import (
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
+	// Authentication
 	auth := api.Group("/auth")
 	auth.Post("/login", controllers.LoginUser)
 	auth.Post("/signup", controllers.CreateUser)
 
+	// User routes
 	users := api.Group("/users")
 	users.Get("/", controllers.GetUsers)
 	users.Get("/username/:username", controllers.GetUserByUsername)
@@ -30,23 +32,30 @@ func SetupRoutes(app *fiber.App) {
 	users.Patch("/:id", controllers.UpdateUserData)
 	users.Delete("/:id", controllers.DeleteUser)
 
+	// Place routes
 	places := api.Group("/places")
 	places.Get("/", controllers.GetPlaces)
 	places.Get("/:id", controllers.GetPlace)
 	places.Get("/get/ids", controllers.GetPlacesIDs)
+
 	places.Post("/", controllers.CreatePlace)
 	places.Delete("/:id", controllers.DeletePlace)
+
 	places.Post("/:placeId/likes/:userId", controllers.AddPlaceLike)
 	places.Delete("/:placeId/likes/:userId", controllers.RemovePlaceLike)
 
+	// Map routes
 	maps := api.Group("/maps")
 	maps.Get("/", controllers.GetMaps)
 	maps.Get("/:id", controllers.GetMap)
 	maps.Get("/get/ids", controllers.GetMapsIDs)
+
 	maps.Post("/", controllers.CreateMap)
 	maps.Delete("/:id", controllers.DeleteMap)
-	maps.Patch("/addLike", controllers.AddMapLike)
-	maps.Patch("/removeLike", controllers.RemoveMapLike)
+
+	maps.Post("/:mapId/likes/:userId", controllers.AddMapLike)
+	maps.Delete("/:mapId/likes/:userId", controllers.RemoveMapLike)
+
 	maps.Patch("/addPlace", controllers.AddPlaceToMap)
 	maps.Patch("/removePlace", controllers.RemovePlaceFromMap)
 }
