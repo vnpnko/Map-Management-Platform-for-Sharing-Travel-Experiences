@@ -236,75 +236,78 @@ func RemoveMapLike(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
+// AddPlaceToMap - POST /maps/:mapId/places/:placeId
 func AddPlaceToMap(c *fiber.Ctx) error {
-	var body struct {
-		MapID   primitive.ObjectID `json:"mapId"`
-		PlaceID string             `json:"placeId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	mapIDStr := c.Params("mapId")
+	placeIDStr := c.Params("placeId")
+
+	if mapIDStr == "" || placeIDStr == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Both mapId and placeId are required",
 		})
 	}
 
-	if body.MapID == primitive.NilObjectID || body.PlaceID == "" {
+	// Convert mapID to ObjectID if your DB uses ObjectID
+	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Both map ID and place ID are required",
+			"error": "Invalid map ID format",
 		})
 	}
 
-	filter := bson.M{"_id": body.MapID}
+	// If placeId is also an ObjectID, do the same
+	// but from your code snippet, placeId is a string field in your DB.
+	// So we keep it as a string.
+
+	filter := bson.M{"_id": mapObjID}
 	update := bson.M{
-		"$addToSet": bson.M{
-			"places": body.PlaceID,
-		},
+		"$addToSet": bson.M{"places": placeIDStr},
 	}
 
-	_, err := config.DB.Collection("maps").
-		UpdateOne(context.Background(), filter, update)
+	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to update map",
 		})
 	}
 
+	// Return the updated map
 	var updatedMap models.Map
-	err = config.DB.Collection("maps").
+	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
-		Decode(&updatedMap)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"error": "Could not add place to map",
+		Decode(&updatedMap); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Could not add place to map; map not found",
 		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(updatedMap)
 }
 
+// RemovePlaceFromMap - DELETE /maps/:mapId/places/:placeId
 func RemovePlaceFromMap(c *fiber.Ctx) error {
-	var body struct {
-		MapID   primitive.ObjectID `json:"mapId"`
-		PlaceID string             `json:"placeId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	mapIDStr := c.Params("mapId")
+	placeIDStr := c.Params("placeId")
+
+	if mapIDStr == "" || placeIDStr == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Both mapId and placeId are required",
 		})
 	}
 
-	if body.MapID == primitive.NilObjectID || body.PlaceID == "" {
+	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Both map ID and place ID are required",
+			"error": "Invalid map ID format",
 		})
 	}
 
-	filter := bson.M{"_id": body.MapID}
+	filter := bson.M{"_id": mapObjID}
 	update := bson.M{
-		"$pull": bson.M{"places": body.PlaceID},
+		"$pull": bson.M{"places": placeIDStr},
 	}
 
-	_, err := config.DB.Collection("maps").
-		UpdateOne(context.Background(), filter, update)
+	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to update map",
@@ -312,12 +315,11 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 	}
 
 	var updatedMap models.Map
-	err = config.DB.Collection("maps").
+	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
-		Decode(&updatedMap)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"error": "Could not remove place to map",
+		Decode(&updatedMap); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Could not remove place from map; map not found",
 		})
 	}
 

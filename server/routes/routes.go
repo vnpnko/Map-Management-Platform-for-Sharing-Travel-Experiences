@@ -56,6 +56,6 @@ func SetupRoutes(app *fiber.App) {
 	maps.Post("/:mapId/likes/:userId", controllers.AddMapLike)
 	maps.Delete("/:mapId/likes/:userId", controllers.RemoveMapLike)
 
-	maps.Patch("/addPlace", controllers.AddPlaceToMap)
-	maps.Patch("/removePlace", controllers.RemovePlaceFromMap)
+	maps.Post("/:mapId/places/:placeId", controllers.AddPlaceToMap)
+	maps.Delete("/:mapId/places/:placeId", controllers.RemovePlaceFromMap)
 }

@@ -1,22 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../../App.tsx";
+import { Map as MapType } from "../../../../models/Map.ts";
 
 interface AddPlaceToMapPayload {
-  placeId: string;
   mapId: number;
+  placeId: string;
 }
 
-interface AddPlaceToMapResponse {
-  success: boolean;
-}
+type AddPlaceToMapResponse = MapType;
 
 const addPlaceToMapRequest = async (
   payload: AddPlaceToMapPayload,
 ): Promise<AddPlaceToMapResponse> => {
-  const response = await fetch(`${BASE_URL}/maps/addPlace`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  const { mapId, placeId } = payload;
+
+  const response = await fetch(`${BASE_URL}/maps/${mapId}/places/${placeId}`, {
+    method: "POST",
   });
   const data = await response.json();
   if (!response.ok) {
