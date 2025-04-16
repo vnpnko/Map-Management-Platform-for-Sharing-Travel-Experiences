@@ -2,11 +2,11 @@ import React from "react";
 import { Flex, Avatar, Text, useToast } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton.tsx";
 import { User } from "../../../models/User.ts";
-import { useUser } from "../../../context/UserContext.tsx";
 import useFollow from "../../../pages/Profile/hooks/useFollow.ts";
 import useUnfollow from "../../../pages/Profile/hooks/useUnfollow.ts";
 import CustomBox from "../ui/CustomBox.tsx";
 import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../../../store/useUserStore.ts";
 
 interface UserItemProps {
   user: User;
@@ -16,7 +16,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const { loggedInUser } = useUser();
+  const { user: loggedInUser } = useUserStore();
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 

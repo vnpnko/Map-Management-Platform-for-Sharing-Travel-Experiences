@@ -4,7 +4,6 @@ import CustomInput from "../ui/CustomInput.tsx";
 import CustomTextarea from "../ui/CustomTextarea.tsx";
 import CustomButton from "../ui/CustomButton.tsx";
 import PlaceForm from "../Place/PlaceForm.tsx";
-import { useUser } from "../../../context/UserContext.tsx";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
 import useAddMapToUser from "./hooks/useAddMapToUser";
@@ -13,10 +12,11 @@ import CustomBox from "../ui/CustomBox";
 import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../Place/PlaceItem.tsx";
 import GenericVirtualList from "../GenericVirtualList.tsx";
+import { useUserStore } from "../../../store/useUserStore.ts";
 
 const MapForm: React.FC = () => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useUser();
+  const { user, setUser } = useUserStore();
   const { draftMap, dispatch } = useDraftMap();
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
@@ -29,7 +29,7 @@ const MapForm: React.FC = () => {
     name: mapName,
     description: mapDescription,
     places: draftMap ? draftMap.places : [],
-    likes: [loggedInUser!._id],
+    likes: [user!._id],
   };
 
   const handleCreateMap = async (e: React.FormEvent) => {
@@ -39,10 +39,10 @@ const MapForm: React.FC = () => {
       dispatch({ type: "SET_MAP", payload: createdMap });
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,
-        userId: loggedInUser!._id,
+        userId: user!._id,
       });
-      await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
-      setLoggedInUser(updatedUser);
+      await addMapLike({ mapId: createdMap._id, userId: user!._id });
+      setUser(updatedUser);
 
       dispatch({ type: "RESET" });
       setMapName("");

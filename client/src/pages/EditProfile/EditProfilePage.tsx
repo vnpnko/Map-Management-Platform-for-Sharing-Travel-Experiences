@@ -4,16 +4,14 @@ import { Flex, Heading, useToast } from "@chakra-ui/react";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
 import CustomBox from "../../common/components/ui/CustomBox.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
-import { useUser } from "../../context/UserContext.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
+import { useUserStore } from "../../store/useUserStore.ts";
 
 const EditProfilePage: React.FC = () => {
-  const { loggedInUser, setLoggedInUser } = useUser();
-  const [updatedUsername, setUpdatedUsername] = useState(
-    loggedInUser!.username,
-  );
-  const [updatedName, setUpdatedName] = useState(loggedInUser!.name);
+  const { user, setUser } = useUserStore();
+  const [updatedUsername, setUpdatedUsername] = useState(user!.username);
+  const [updatedName, setUpdatedName] = useState(user!.name);
   const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
   const { updateUserData, isUpdatingUserData } = useUpdateUser();
 
@@ -32,11 +30,11 @@ const EditProfilePage: React.FC = () => {
   }, [deleteUserError, toast]);
 
   const handleDeleteUser = async () => {
-    if (loggedInUser) {
+    if (user) {
       try {
-        const data = await deleteUser({ _id: loggedInUser._id });
+        const data = await deleteUser({ _id: user._id });
         if (data) {
-          setLoggedInUser(null);
+          setUser(null);
           navigate("/");
         }
       } catch (error) {
@@ -51,15 +49,15 @@ const EditProfilePage: React.FC = () => {
   };
 
   const handleUpdateUserData = async () => {
-    if (loggedInUser) {
+    if (user) {
       try {
         const payload = {
-          id: loggedInUser._id,
+          id: user._id,
           username: updatedUsername,
           name: updatedName,
         };
         const updatedUser = await updateUserData(payload);
-        setLoggedInUser(updatedUser);
+        setUser(updatedUser);
         navigate(`/${updatedUsername}`);
       } catch (error) {
         toast({

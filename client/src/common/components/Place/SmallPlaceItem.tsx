@@ -1,15 +1,15 @@
 import React from "react";
-import { Flex, Text, useToast, Image } from "@chakra-ui/react";
+import {Flex, Text, useToast, Image, IconButton} from "@chakra-ui/react";
 import CustomBox from "../ui/CustomBox.tsx";
-import IconBox from "../ui/IconBox.tsx";
-
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
-import { useUser } from "../../../context/UserContext.tsx";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser.ts";
 import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
+import { useUserStore } from "../../../store/useUserStore.ts";
+import favmaps_logo from "../../../assets/favmaps_logo.png";
+import IconCover from "../ui/IconCover.tsx";
 
 interface PlaceItemProps {
   place: Place;
@@ -17,17 +17,16 @@ interface PlaceItemProps {
 
 const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useUser();
-  const { addPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser } = useRemovePlaceFromUser();
-  const { addPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike } = useRemovePlaceLike();
+  const { user, setUser } = useUserStore();
+  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
+  const { removePlaceFromUser, isRemovingPlaceFromUser } = useRemovePlaceFromUser();
+  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
+  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace =
-    loggedInUser && loggedInUser.places.includes(place._id);
+  const alreadyHasPlace = user && user.places.includes(place._id);
 
   const handleAddPlace = async () => {
-    if (!loggedInUser) {
+    if (user === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to like a place.",
@@ -36,12 +35,12 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       });
       return;
     }
-    if (place && loggedInUser && !alreadyHasPlace) {
+    if (place && user && !alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const payload = { placeId: place._id, userId: user._id };
         const updatedUser = await addPlaceToUser(payload);
-        setLoggedInUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        setUser(updatedUser);
+        await addPlaceLike({ placeId: place._id, userId: user._id });
       } catch (error) {
         toast({
           title: "Error Adding hooks",
@@ -54,12 +53,12 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   };
 
   const handleRemovePlace = async () => {
-    if (place && loggedInUser && alreadyHasPlace) {
+    if (place && user && alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const payload = { placeId: place._id, userId: user._id };
         const updatedUser = await removePlaceFromUser(payload);
-        setLoggedInUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        setUser(updatedUser);
+        await removePlaceLike({ placeId: place._id, userId: user._id });
       } catch (error) {
         toast({
           title: "Error Removing hooks",
@@ -71,8 +70,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
     }
   };
 
+  const handleLikeToggle = () => (alreadyHasPlace ? handleRemovePlace() : handleAddPlace());
+
+
   return (
-    <CustomBox bg={"blackAlpha.50"} height="300px">
+    <CustomBox  borderTopWidth="2px" borderTopColor={"blackAlpha.300"} height="300px">
       <Flex direction="column">
         <Flex justifyContent="space-between" alignItems="center">
           <Text
@@ -87,47 +89,34 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           >
             {place.name}
           </Text>
-          <Flex gap={2} py={2}>
-            <IconBox
-              title="Open in Google Maps"
-              cursor="pointer"
-              color="black"
-              borderRadius="md"
-              _hover={{ color: "blackAlpha.700" }}
-              onClick={() => window.open(place.url, "_blank")}
-            >
-              <FaRegMap size={25} />
-            </IconBox>
-            {alreadyHasPlace ? (
-              <IconBox
-                title="Unlike"
-                cursor="pointer"
-                color="red.500"
-                onClick={handleRemovePlace}
-              >
-                <FaHeart size={25} />
-              </IconBox>
-            ) : (
-              <IconBox
-                title="Like"
-                cursor="pointer"
-                color="black"
-                _hover={{ color: "blackAlpha.700" }}
-                onClick={handleAddPlace}
-              >
-                <FaRegHeart size={25} />
-              </IconBox>
-            )}
+          <Flex alignItems={"center"} gap={2} py={2}>
+            <IconCover>
+              <IconButton
+                  aria-label={"Open in Google Maps"}
+                  icon={<FaRegMap size={25}/>}
+                  color={"gray.600"}
+                  onClick={() => window.open(place.url, "_blank")}
+              />
+            </IconCover>
+            <IconCover>
+              <IconButton
+                  aria-label={alreadyHasPlace ? "Unlike" : "Like"}
+                  // size={"lg"}
+                  icon={alreadyHasPlace ? <FaHeart size={25}/> : <FaRegHeart size={25}/>}
+                  color={alreadyHasPlace ? "red.500" : "gray.600"}
+                  onClick={handleLikeToggle}
+                  disabled={isAddingPlaceLike || isRemovingPlaceLike || isAddingPlaceToUser || isRemovingPlaceFromUser}
+              />
+            </IconCover>
           </Flex>
         </Flex>
         <Image
-          src={place.photoUrl}
+          src={place.photoUrl || favmaps_logo}
           alt={`${place.name} photo`}
           borderRadius="md"
           width={"100%"}
           height={"200px"}
           objectFit="cover"
-          objectPosition={"center"}
         />
       </Flex>
     </CustomBox>

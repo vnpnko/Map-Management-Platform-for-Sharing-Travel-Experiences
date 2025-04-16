@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { UserProvider } from "./context/UserContext";
 import { DraftMapProvider } from "./context/DraftMapContext";
 import GoogleMapsLoader from "./common/components/GoogleMapsLoader.tsx";
 
@@ -22,80 +21,78 @@ export const BASE_URL = "http://localhost:5000/api";
 
 function App() {
   return (
-    <UserProvider>
-      <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            {/* Explore Routes */}
-            <Route path="/search" element={<ExplorePage />}>
-              <Route index element={<ExploreUsers />} />
-              <Route path="users" element={<ExploreUsers />} />
-              <Route
-                path="places"
-                element={
-                  <GoogleMapsLoader>
-                    <ExplorePlaces />
-                  </GoogleMapsLoader>
-                }
-              />
-              <Route
-                path="maps"
-                element={
-                  <GoogleMapsLoader>
-                    <ExploreMaps />
-                  </GoogleMapsLoader>
-                }
-              />
-            </Route>
-
-            {/* Create Routes */}
-            <Route path="/create" element={<CreatePage />}>
-              <Route
-                index
-                element={
-                  <DraftMapProvider>
-                    <GoogleMapsLoader>
-                      <CreatePlace />
-                    </GoogleMapsLoader>
-                  </DraftMapProvider>
-                }
-              />
-              <Route
-                path="places"
-                element={
-                  <DraftMapProvider>
-                    <GoogleMapsLoader>
-                      <CreatePlace />
-                    </GoogleMapsLoader>
-                  </DraftMapProvider>
-                }
-              />
-              <Route
-                path="maps"
-                element={
-                  <DraftMapProvider>
-                    <CreateMap />
-                  </DraftMapProvider>
-                }
-              />
-            </Route>
-
-            {/* Auth & Profile */}
-            <Route path="/" element={<LogInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+    <Router>
+      <Routes>
+        <Route element={<Layout />}>
+          {/* Explore Routes */}
+          <Route path="/search" element={<ExplorePage />}>
+            <Route index element={<ExploreUsers />} />
+            <Route path="users" element={<ExploreUsers />} />
             <Route
-              path="/:username"
+              path="places"
               element={
                 <GoogleMapsLoader>
-                  <ProfilePage />
+                  <ExplorePlaces />
                 </GoogleMapsLoader>
               }
             />
-            <Route path="/:username/edit" element={<EditProfilePage />} />
+            <Route
+              path="maps"
+              element={
+                <GoogleMapsLoader>
+                  <ExploreMaps />
+                </GoogleMapsLoader>
+              }
+            />
           </Route>
-        </Routes>
-      </Router>
-    </UserProvider>
+
+          {/* Create Routes */}
+          <Route path="/create" element={<CreatePage />}>
+            <Route
+              index
+              element={
+                <DraftMapProvider>
+                  <GoogleMapsLoader>
+                    <CreatePlace />
+                  </GoogleMapsLoader>
+                </DraftMapProvider>
+              }
+            />
+            <Route
+              path="places"
+              element={
+                <DraftMapProvider>
+                  <GoogleMapsLoader>
+                    <CreatePlace />
+                  </GoogleMapsLoader>
+                </DraftMapProvider>
+              }
+            />
+            <Route
+              path="maps"
+              element={
+                <DraftMapProvider>
+                  <CreateMap />
+                </DraftMapProvider>
+              }
+            />
+          </Route>
+
+          {/* Auth & Profile */}
+          <Route path="/" element={<LogInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route
+            path="/:username"
+            element={
+              <GoogleMapsLoader>
+                <ProfilePage />
+              </GoogleMapsLoader>
+            }
+          />
+          <Route path="/:username/edit" element={<EditProfilePage />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

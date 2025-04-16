@@ -3,8 +3,8 @@ import { BASE_URL } from "../../../../App.tsx";
 import { User } from "../../../../models/User.ts";
 
 interface RemovePlacePayload {
+  userId: string | number;
   placeId: string;
-  userId: number;
 }
 
 type RemovePlaceResponse = User;
@@ -12,14 +12,18 @@ type RemovePlaceResponse = User;
 const removePlaceRequest = async (
   payload: RemovePlacePayload,
 ): Promise<RemovePlaceResponse> => {
-  const response = await fetch(`${BASE_URL}/users/removePlace`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const { userId, placeId } = payload;
+
+  const response = await fetch(
+    `${BASE_URL}/users/${userId}/places/${placeId}`,
+    {
+      method: "DELETE",
+    },
+  );
   const data = await response.json();
+
   if (!response.ok) {
-    throw new Error(data.error || "Failed to remove place");
+    throw new Error(data.error || "Failed to remove place from user");
   }
   return data;
 };

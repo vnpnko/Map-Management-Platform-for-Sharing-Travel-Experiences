@@ -13,14 +13,16 @@ interface RemovePlaceLikeResponse {
 const removePlaceLikeRequest = async (
   payload: RemovePlaceLikePayload,
 ): Promise<RemovePlaceLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/places/removePlaceLike`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const { placeId, userId } = payload;
+
+  // DELETE /places/:placeId/likes/:userId
+  const response = await fetch(
+    `${BASE_URL}/places/${placeId}/likes/${userId}`,
+    { method: "DELETE" },
+  );
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Failed to add like to place");
+    throw new Error(data.error || "Failed to remove like from place");
   }
   return data;
 };

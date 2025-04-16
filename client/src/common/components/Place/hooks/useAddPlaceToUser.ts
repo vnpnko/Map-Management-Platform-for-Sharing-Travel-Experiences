@@ -3,8 +3,8 @@ import { BASE_URL } from "../../../../App.tsx";
 import { User } from "../../../../models/User.ts";
 
 interface AddPlacePayload {
-  placeId: string;
   userId: number;
+  placeId: string;
 }
 
 type AddPlaceResponse = User;
@@ -12,12 +12,16 @@ type AddPlaceResponse = User;
 const addPlaceRequest = async (
   payload: AddPlacePayload,
 ): Promise<AddPlaceResponse> => {
-  const response = await fetch(`${BASE_URL}/users/addPlace`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const { userId, placeId } = payload;
+
+  const response = await fetch(
+    `${BASE_URL}/users/${userId}/places/${placeId}`,
+    {
+      method: "POST",
+    },
+  );
   const data = await response.json();
+
   if (!response.ok) {
     throw new Error(data.error || "Failed to add place to user");
   }

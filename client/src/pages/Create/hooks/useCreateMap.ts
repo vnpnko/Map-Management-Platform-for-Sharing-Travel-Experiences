@@ -14,7 +14,7 @@ type CreateMapResponse = Map;
 const createMapRequest = async (
   payload: CreateMapPayload,
 ): Promise<CreateMapResponse> => {
-  const response = await fetch(`${BASE_URL}/createMap`, {
+  const response = await fetch(`${BASE_URL}/maps`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

@@ -1,22 +1,21 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../../App.tsx";
+import { Map as MapType } from "../../../../models/Map.ts";
 
 interface RemovePlaceFromMapPayload {
-  placeId: string;
   mapId: number;
+  placeId: string;
 }
 
-interface RemovePlaceFromMapResponse {
-  success: boolean;
-}
+type RemovePlaceFromMapResponse = MapType;
 
 const removePlaceFromMapRequest = async (
   payload: RemovePlaceFromMapPayload,
 ): Promise<RemovePlaceFromMapResponse> => {
-  const response = await fetch(`${BASE_URL}/maps/removePlace`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  const { mapId, placeId } = payload;
+
+  const response = await fetch(`${BASE_URL}/maps/${mapId}/places/${placeId}`, {
+    method: "DELETE",
   });
   const data = await response.json();
   if (!response.ok) {
@@ -25,7 +24,7 @@ const removePlaceFromMapRequest = async (
   return data;
 };
 
-const useAddPlaceToMap = () => {
+const useRemovePlaceFromMap = () => {
   const { mutateAsync, isPending, error } = useMutation<
     RemovePlaceFromMapResponse,
     Error,
@@ -41,4 +40,4 @@ const useAddPlaceToMap = () => {
   };
 };
 
-export default useAddPlaceToMap;
+export default useRemovePlaceFromMap;

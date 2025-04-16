@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"context"
-	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func GetPlaces(c *fiber.Ctx) error {
@@ -26,14 +25,20 @@ func GetPlaces(c *fiber.Ctx) error {
 	var places []models.Place
 	cursor, err := config.DB.Collection("places").Find(context.Background(), filter)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Database error",
+			Details: err.Error(),
+		})
 	}
 	defer cursor.Close(context.Background())
 
 	for cursor.Next(context.Background()) {
 		var place models.Place
 		if err := cursor.Decode(&place); err != nil {
-			return err
+			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+				Error:   "Failed to decode place",
+				Details: err.Error(),
+			})
 		}
 		places = append(places, place)
 	}
@@ -43,8 +48,8 @@ func GetPlaces(c *fiber.Ctx) error {
 func GetPlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Place ID is required",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Place ID is required",
 		})
 	}
 
@@ -53,8 +58,9 @@ func GetPlace(c *fiber.Ctx) error {
 		FindOne(context.Background(), bson.M{"_id": placeID}).
 		Decode(&place)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Place not found",
+		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+			Error:   "Place not found",
+			Details: err.Error(),
 		})
 	}
 
@@ -64,16 +70,18 @@ func GetPlace(c *fiber.Ctx) error {
 func CreatePlace(c *fiber.Ctx) error {
 	var place models.Place
 	if err := c.BodyParser(&place); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid request body",
+			Details: err.Error(),
 		})
 	}
 
 	_, err := config.DB.Collection("places").
 		InsertOne(context.Background(), place)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Could not create place",
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Could not create place",
+			Details: err.Error(),
 		})
 	}
 
@@ -83,16 +91,17 @@ func CreatePlace(c *fiber.Ctx) error {
 func DeletePlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Place ID is required",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Place ID is required",
 		})
 	}
 
 	filter := bson.M{"_id": placeID}
 	_, err := config.DB.Collection("places").DeleteOne(context.Background(), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Could not delete place",
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Could not delete place",
+			Details: err.Error(),
 		})
 	}
 
@@ -102,24 +111,24 @@ func DeletePlace(c *fiber.Ctx) error {
 }
 
 func AddPlaceLike(c *fiber.Ctx) error {
-	var body struct {
-		PlaceID string `json:"placeId"`
-		UserID  string `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+	placeID := c.Params("placeId")
+	userID := c.Params("userId")
+
+	if placeID == "" || userID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "placeId and userId are required",
 		})
 	}
 
-	userObjID, err := primitive.ObjectIDFromHex(body.UserID)
+	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid user ID format",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid user ID format",
+			Details: err.Error(),
 		})
 	}
 
-	filter := bson.M{"_id": body.PlaceID}
+	filter := bson.M{"_id": placeID}
 	update := bson.M{
 		"$addToSet": bson.M{
 			"likes": userObjID,
@@ -128,35 +137,34 @@ func AddPlaceLike(c *fiber.Ctx) error {
 
 	_, err = config.DB.Collection("places").UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Could not add like to place",
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Could not add like to place",
+			Details: err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true})
 }
 
 func RemovePlaceLike(c *fiber.Ctx) error {
-	var body struct {
-		PlaceID string `json:"placeId"`
-		UserID  string `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+	placeID := c.Params("placeId")
+	userID := c.Params("userId")
+
+	if placeID == "" || userID == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "placeId and userId are required",
 		})
 	}
 
-	userObjID, err := primitive.ObjectIDFromHex(body.UserID)
+	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid user ID format",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid user ID format",
+			Details: err.Error(),
 		})
 	}
 
-	filter := bson.M{"_id": body.PlaceID}
+	filter := bson.M{"_id": placeID}
 	update := bson.M{
 		"$pull": bson.M{
 			"likes": userObjID,
@@ -165,14 +173,13 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 
 	_, err = config.DB.Collection("places").UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Could not remove like from place",
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Could not remove like from place",
+			Details: err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true})
 }
 
 func GetPlacesIDs(c *fiber.Ctx) error {
@@ -191,8 +198,9 @@ func GetPlacesIDs(c *fiber.Ctx) error {
 
 	ids, err := dbhelpers.GetItemIDs[string](config.DB.Collection("places"), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch place IDs",
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to fetch place IDs",
+			Details: err.Error(),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(ids)

@@ -3,8 +3,8 @@ import { BASE_URL } from "../../../../App.tsx";
 import { User } from "../../../../models/User.ts";
 
 interface RemoveMapPayload {
-  mapId: number;
   userId: number;
+  mapId: number;
 }
 
 type RemoveMapResponse = User;
@@ -12,10 +12,10 @@ type RemoveMapResponse = User;
 const removeMapRequest = async (
   payload: RemoveMapPayload,
 ): Promise<RemoveMapResponse> => {
-  const response = await fetch(`${BASE_URL}/users/removeMap`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  const { userId, mapId } = payload;
+
+  const response = await fetch(`${BASE_URL}/users/${userId}/maps/${mapId}`, {
+    method: "DELETE",
   });
   const data = await response.json();
   if (!response.ok) {

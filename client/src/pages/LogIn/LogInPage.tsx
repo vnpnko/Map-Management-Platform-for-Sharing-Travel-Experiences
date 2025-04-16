@@ -4,7 +4,7 @@ import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
 import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserContext.tsx";
+import { useUserStore } from "../../store/useUserStore.ts";
 import useLogIn from "./hooks/useLogIn.ts";
 
 const LogInPage: React.FC = () => {
@@ -17,13 +17,13 @@ const LogInPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { login, isLoggingIn } = useLogIn();
-  const { setLoggedInUser } = useUser();
+  const { setUser } = useUserStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const user = await login(LogInPayload);
-      setLoggedInUser(user);
+      setUser(user);
       navigate(`/${user.username}`);
     } catch (error) {
       console.error("Login failed:", error);

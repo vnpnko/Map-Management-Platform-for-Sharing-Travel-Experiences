@@ -2,14 +2,13 @@ package controllers
 
 import (
 	"context"
-	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func GetUsers(c *fiber.Ctx) error {
@@ -160,29 +159,20 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Successful login
 	return c.Status(fiber.StatusCreated).JSON(user)
 }
 
-func UpdateUserFollow(c *fiber.Ctx) error {
-	var body struct {
-		FollowerId string `json:"followerId"`
-		FolloweeId string `json:"followeeId"`
-	}
+func FollowUser(c *fiber.Ctx) error {
+	followerIDHex := c.Params("followerId")
+	followeeIDHex := c.Params("followeeId")
 
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
-	}
-
-	followerObjID, err := primitive.ObjectIDFromHex(body.FollowerId)
+	followerObjID, err := primitive.ObjectIDFromHex(followerIDHex)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid follower ID format",
 		})
 	}
-	followeeObjID, err := primitive.ObjectIDFromHex(body.FolloweeId)
+	followeeObjID, err := primitive.ObjectIDFromHex(followeeIDHex)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid followee ID format",
@@ -194,7 +184,6 @@ func UpdateUserFollow(c *fiber.Ctx) error {
 		})
 	}
 
-	// Start a Mongo transaction
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -204,21 +193,18 @@ func UpdateUserFollow(c *fiber.Ctx) error {
 	defer session.EndSession(context.Background())
 
 	callback := func(sc mongo.SessionContext) (interface{}, error) {
-		// Add followee to follower's "following" array
 		filterFollower := bson.M{"_id": followerObjID}
 		updateFollower := bson.M{"$addToSet": bson.M{"following": followeeObjID}}
-		_, err := config.DB.Collection("users").UpdateOne(sc, filterFollower, updateFollower)
-		if err != nil {
+		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollower, updateFollower); err != nil {
 			return nil, err
 		}
 
-		// Add follower to followee's "followers" array
 		filterFollowee := bson.M{"_id": followeeObjID}
 		updateFollowee := bson.M{"$addToSet": bson.M{"followers": followerObjID}}
-		_, err = config.DB.Collection("users").UpdateOne(sc, filterFollowee, updateFollowee)
-		if err != nil {
+		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollowee, updateFollowee); err != nil {
 			return nil, err
 		}
+
 		return nil, nil
 	}
 
@@ -231,36 +217,28 @@ func UpdateUserFollow(c *fiber.Ctx) error {
 
 	var updatedUser models.User
 	filterFollower := bson.M{"_id": followerObjID}
-	err = config.DB.Collection("users").
+	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filterFollower).
-		Decode(&updatedUser)
-	if err != nil {
+		Decode(&updatedUser); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "User not found",
+			"error": "Follower user not found",
 		})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
-func UpdateUserUnfollow(c *fiber.Ctx) error {
-	var body struct {
-		FollowerId string `json:"followerId"`
-		FolloweeId string `json:"followeeId"`
-	}
+func UnfollowUser(c *fiber.Ctx) error {
+	followerIDHex := c.Params("followerId")
+	followeeIDHex := c.Params("followeeId")
 
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
-	}
-
-	followerObjID, err := primitive.ObjectIDFromHex(body.FollowerId)
+	followerObjID, err := primitive.ObjectIDFromHex(followerIDHex)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid follower ID format",
 		})
 	}
-	followeeObjID, err := primitive.ObjectIDFromHex(body.FolloweeId)
+	followeeObjID, err := primitive.ObjectIDFromHex(followeeIDHex)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid followee ID format",
@@ -272,7 +250,6 @@ func UpdateUserUnfollow(c *fiber.Ctx) error {
 		})
 	}
 
-	// Start a Mongo transaction
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -284,16 +261,13 @@ func UpdateUserUnfollow(c *fiber.Ctx) error {
 	callback := func(sc mongo.SessionContext) (interface{}, error) {
 		filterFollower := bson.M{"_id": followerObjID}
 		updateFollower := bson.M{"$pull": bson.M{"following": followeeObjID}}
-		_, err := config.DB.Collection("users").UpdateOne(sc, filterFollower, updateFollower)
-		if err != nil {
+		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollower, updateFollower); err != nil {
 			return nil, err
 		}
 
-		// Add follower to followee's "followers" array
 		filterFollowee := bson.M{"_id": followeeObjID}
 		updateFollowee := bson.M{"$pull": bson.M{"followers": followerObjID}}
-		_, err = config.DB.Collection("users").UpdateOne(sc, filterFollowee, updateFollowee)
-		if err != nil {
+		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollowee, updateFollowee); err != nil {
 			return nil, err
 		}
 		return nil, nil
@@ -308,14 +282,14 @@ func UpdateUserUnfollow(c *fiber.Ctx) error {
 
 	var updatedUser models.User
 	filterFollower := bson.M{"_id": followerObjID}
-	err = config.DB.Collection("users").
+	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filterFollower).
-		Decode(&updatedUser)
-	if err != nil {
+		Decode(&updatedUser); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "User not found",
+			"error": "Follower user not found",
 		})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
@@ -393,40 +367,36 @@ func DeleteUser(c *fiber.Ctx) error {
 }
 
 func AddPlaceToUser(c *fiber.Ctx) error {
-	var body struct {
-		UserID  primitive.ObjectID `json:"userId"`
-		PlaceID string             `json:"placeId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
-	}
-	if body.UserID == primitive.NilObjectID || body.PlaceID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing userId or placeId",
-		})
-	}
+	userIdStr := c.Params("userId")
+	placeIdStr := c.Params("placeId")
 
-	filter := bson.M{"_id": body.UserID}
-	update := bson.M{
-		"$addToSet": bson.M{"places": body.PlaceID},
-	}
-
-	_, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update)
+	userObjID, err := primitive.ObjectIDFromHex(userIdStr)
 	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+	if placeIdStr == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Place ID is required",
+		})
+	}
+
+	filter := bson.M{"_id": userObjID}
+	update := bson.M{"$addToSet": bson.M{"places": placeIdStr}}
+
+	if _, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to update user",
 		})
 	}
 
 	var updatedUser models.User
-	err = config.DB.Collection("users").
+	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filter).
-		Decode(&updatedUser)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		Decode(&updatedUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}
@@ -435,40 +405,36 @@ func AddPlaceToUser(c *fiber.Ctx) error {
 }
 
 func RemovePlaceFromUser(c *fiber.Ctx) error {
-	var body struct {
-		UserID  primitive.ObjectID `json:"userId"`
-		PlaceID string             `json:"placeId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
-	}
-	if body.UserID == primitive.NilObjectID || body.PlaceID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing userId or placeId",
-		})
-	}
+	userIdStr := c.Params("userId")
+	placeIdStr := c.Params("placeId")
 
-	filter := bson.M{"_id": body.UserID}
-	update := bson.M{
-		"$pull": bson.M{"places": body.PlaceID},
-	}
-
-	_, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update)
+	userObjID, err := primitive.ObjectIDFromHex(userIdStr)
 	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+	if placeIdStr == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Place ID is required",
+		})
+	}
+
+	filter := bson.M{"_id": userObjID}
+	update := bson.M{"$pull": bson.M{"places": placeIdStr}}
+
+	if _, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to update user",
 		})
 	}
 
 	var updatedUser models.User
-	err = config.DB.Collection("users").
+	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filter).
-		Decode(&updatedUser)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		Decode(&updatedUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}
@@ -477,40 +443,39 @@ func RemovePlaceFromUser(c *fiber.Ctx) error {
 }
 
 func AddMapToUser(c *fiber.Ctx) error {
-	var body struct {
-		UserID primitive.ObjectID `json:"userId"`
-		MapID  primitive.ObjectID `json:"mapId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
-	}
-	if body.UserID == primitive.NilObjectID || body.MapID == primitive.NilObjectID {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing userId or mapId",
-		})
-	}
+	userIDStr := c.Params("userId")
+	mapIDStr := c.Params("mapId")
 
-	filter := bson.M{"_id": body.UserID}
-	update := bson.M{
-		"$addToSet": bson.M{"maps": body.MapID},
-	}
-
-	_, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update)
+	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
 	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid map ID format",
+		})
+	}
+
+	filter := bson.M{"_id": userObjID}
+	update := bson.M{
+		"$addToSet": bson.M{"maps": mapObjID},
+	}
+
+	if _, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to update user",
 		})
 	}
 
 	var updatedUser models.User
-	err = config.DB.Collection("users").
+	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filter).
-		Decode(&updatedUser)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		Decode(&updatedUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}
@@ -519,40 +484,39 @@ func AddMapToUser(c *fiber.Ctx) error {
 }
 
 func RemoveMapFromUser(c *fiber.Ctx) error {
-	var body struct {
-		MapID  primitive.ObjectID `json:"mapId"`
-		UserID primitive.ObjectID `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
-	}
-	if body.UserID == primitive.NilObjectID || body.MapID == primitive.NilObjectID {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing userId or mapId",
-		})
-	}
+	userIDStr := c.Params("userId")
+	mapIDStr := c.Params("mapId")
 
-	filter := bson.M{"_id": body.UserID}
-	update := bson.M{
-		"$pull": bson.M{"maps": body.MapID},
-	}
-
-	_, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update)
+	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
 	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid map ID format",
+		})
+	}
+
+	filter := bson.M{"_id": userObjID}
+	update := bson.M{
+		"$pull": bson.M{"maps": mapObjID},
+	}
+
+	if _, err := config.DB.Collection("users").
+		UpdateOne(context.Background(), filter, update); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to update user",
 		})
 	}
 
 	var updatedUser models.User
-	err = config.DB.Collection("users").
+	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filter).
-		Decode(&updatedUser)
-	if err != nil {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		Decode(&updatedUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}

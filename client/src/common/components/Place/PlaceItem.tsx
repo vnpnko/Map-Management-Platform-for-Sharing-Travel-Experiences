@@ -2,12 +2,13 @@ import React from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useToast, Image, Flex } from "@chakra-ui/react";
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser";
-import { useUser } from "../../../context/UserContext";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser";
 import useAddPlaceLike from "./hooks/useAddPlaceLike";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike";
 import CardItem from "../CardItem";
 import { Place } from "../../../models/Place.ts";
+import { useUserStore } from "../../../store/useUserStore.ts";
+import favmaps_logo from "../../../assets/favmaps_logo.png";
 
 interface PlaceItemProps {
   place: Place;
@@ -15,13 +16,13 @@ interface PlaceItemProps {
 
 const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useUser();
-  const { addPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser } = useRemovePlaceFromUser();
-  const { addPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike } = useRemovePlaceLike();
+  const { user, setUser } = useUserStore();
+  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
+  const { removePlaceFromUser, isRemovingPlaceFromUser } = useRemovePlaceFromUser();
+  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
+  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace = loggedInUser?.places.includes(place._id);
+  const alreadyHasPlace = user?.places.includes(place._id);
 
   const center = {
     lat: place.location.lat,
@@ -38,16 +39,18 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   };
 
   const handleAddPlace = async () => {
-    if (!loggedInUser) {
+    if (user === null) {
       toastError("Not Authorized", new Error("Please log in to like a place."));
       return;
     }
-    if (place && loggedInUser && !alreadyHasPlace) {
+    if (place && user && !alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const payload = { placeId: place._id, userId: user._id };
         const updatedUser = await addPlaceToUser(payload);
-        setLoggedInUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        setUser(updatedUser);
+        await addPlaceLike({ placeId: place._id, userId: user._id });
+        // while liking a place, we need to make a heart button unable
+        place.likes.push(user._id);
       } catch (error) {
         toastError("Error Adding Place", error as Error);
       }
@@ -55,12 +58,14 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   };
 
   const handleRemovePlace = async () => {
-    if (place && loggedInUser && alreadyHasPlace) {
+    if (place && user && alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
+        const payload = { placeId: place._id, userId: user._id };
         const updatedUser = await removePlaceFromUser(payload);
-        setLoggedInUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
+        setUser(updatedUser);
+        await removePlaceLike({ placeId: place._id, userId: user._id });
+        // while unliking a place, we need to make a heart button unable
+        place.likes = place.likes.filter((like) => like !== user._id);
       } catch (error) {
         toastError("Error Removing PLace", error as Error);
       }
@@ -78,6 +83,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       likedByUser={alreadyHasPlace}
       onLike={handleAddPlace}
       onUnlike={handleRemovePlace}
+      isPending={isAddingPlaceLike || isRemovingPlaceLike || isAddingPlaceToUser || isRemovingPlaceFromUser}
     >
       <Flex>
         <GoogleMap
@@ -91,12 +97,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           <Marker position={center} />
         </GoogleMap>
         <Image
-          src={place.photoUrl}
+          src={place.photoUrl || favmaps_logo}
           alt={`${place.name} photo`}
           width={"50%"}
           height={"300px"}
           objectFit="cover"
-          objectPosition={"center"}
         />
       </Flex>
     </CardItem>

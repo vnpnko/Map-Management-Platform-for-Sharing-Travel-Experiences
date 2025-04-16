@@ -9,7 +9,7 @@ type CreatePlaceResponse = Place;
 const createPlaceRequest = async (
   payload: CreatePlacePayload,
 ): Promise<CreatePlaceResponse> => {
-  const response = await fetch(`${BASE_URL}/createPlace`, {
+  const response = await fetch(`${BASE_URL}/places`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
