@@ -12,7 +12,7 @@ type RemoveMapResponse = User;
 const removeMapRequest = async (
   payload: RemoveMapPayload,
 ): Promise<RemoveMapResponse> => {
-  const response = await fetch(`${BASE_URL}/users/removeMap`, {
+  const response = await fetch(`${BASE_URL}/users/maps/remove`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

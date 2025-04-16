@@ -13,7 +13,7 @@ interface AddPlaceLikeResponse {
 const addPlaceLikeRequest = async (
   payload: AddPlaceLikePayload,
 ): Promise<AddPlaceLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/places/addPlaceLike`, {
+  const response = await fetch(`${BASE_URL}/places/addLike`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

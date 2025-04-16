@@ -12,7 +12,7 @@ type RemovePlaceResponse = User;
 const removePlaceRequest = async (
   payload: RemovePlacePayload,
 ): Promise<RemovePlaceResponse> => {
-  const response = await fetch(`${BASE_URL}/users/removePlace`, {
+  const response = await fetch(`${BASE_URL}/users/places/remove`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

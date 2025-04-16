@@ -13,7 +13,7 @@ interface RemovePlaceLikeResponse {
 const removePlaceLikeRequest = async (
   payload: RemovePlaceLikePayload,
 ): Promise<RemovePlaceLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/places/removePlaceLike`, {
+  const response = await fetch(`${BASE_URL}/places/removeLike`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

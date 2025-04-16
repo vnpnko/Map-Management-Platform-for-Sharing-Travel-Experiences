@@ -12,7 +12,7 @@ type AddPlaceResponse = User;
 const addPlaceRequest = async (
   payload: AddPlacePayload,
 ): Promise<AddPlaceResponse> => {
-  const response = await fetch(`${BASE_URL}/users/addPlace`, {
+  const response = await fetch(`${BASE_URL}/users/places/add`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

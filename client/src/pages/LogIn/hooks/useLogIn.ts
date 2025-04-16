@@ -12,7 +12,7 @@ type LogInResponse = User;
 const useLogInRequest = async (
   payload: LogInPayload,
 ): Promise<LogInResponse> => {
-  const response = await fetch(`${BASE_URL}/login`, {
+  const response = await fetch(`${BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

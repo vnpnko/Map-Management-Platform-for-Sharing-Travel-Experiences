@@ -12,7 +12,7 @@ type AddMapLikeResponse = Map;
 const addMapLikeRequest = async (
   payload: AddMapLikePayload,
 ): Promise<AddMapLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/maps/addMapLike`, {
+  const response = await fetch(`${BASE_URL}/maps/addLike`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

@@ -12,7 +12,7 @@ type RemoveMapLikeResponse = Map;
 const removeMapLikeRequest = async (
   payload: RemoveMapLikePayload,
 ): Promise<RemoveMapLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/maps/removeMapLike`, {
+  const response = await fetch(`${BASE_URL}/maps/removeLike`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

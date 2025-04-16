@@ -12,7 +12,7 @@ type UnfollowResponse = User;
 const unfollowRequest = async (
   payload: UnfollowPayload,
 ): Promise<UnfollowResponse> => {
-  const response = await fetch(`${BASE_URL}/unfollow`, {
+  const response = await fetch(`${BASE_URL}/users/unfollow`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

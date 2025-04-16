@@ -12,7 +12,7 @@ type AddMapResponse = User;
 const addMapRequest = async (
   payload: AddMapPayload,
 ): Promise<AddMapResponse> => {
-  const response = await fetch(`${BASE_URL}/users/addMap`, {
+  const response = await fetch(`${BASE_URL}/users/maps/add`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

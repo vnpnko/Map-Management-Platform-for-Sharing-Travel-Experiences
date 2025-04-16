@@ -14,7 +14,7 @@ type SignUpResponse = User;
 const useSignUpRequest = async (
   payload: SignUpPayload,
 ): Promise<SignUpResponse> => {
-  const response = await fetch(`${BASE_URL}/signup`, {
+  const response = await fetch(`${BASE_URL}/auth/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
