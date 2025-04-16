@@ -9,6 +9,7 @@ import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
 import { useUserStore } from "../../../store/useUserStore.ts";
+import favmaps_logo from "../../../assets/favmaps_logo.png";
 
 interface PlaceItemProps {
   place: Place;
@@ -119,13 +120,12 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           </Flex>
         </Flex>
         <Image
-          src={place.photoUrl}
+          src={place.photoUrl || favmaps_logo}
           alt={`${place.name} photo`}
           borderRadius="md"
           width={"100%"}
           height={"200px"}
           objectFit="cover"
-          objectPosition={"center"}
         />
       </Flex>
     </CustomBox>

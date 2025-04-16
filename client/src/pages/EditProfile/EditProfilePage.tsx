@@ -9,7 +9,7 @@ import useUpdateUser from "./hooks/useUpdateUser.ts";
 import { useUserStore } from "../../store/useUserStore.ts";
 
 const EditProfilePage: React.FC = () => {
-  const { user, setUser, logout } = useUserStore();
+  const { user, setUser } = useUserStore();
   const [updatedUsername, setUpdatedUsername] = useState(user!.username);
   const [updatedName, setUpdatedName] = useState(user!.name);
   const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
@@ -34,7 +34,7 @@ const EditProfilePage: React.FC = () => {
       try {
         const data = await deleteUser({ _id: user._id });
         if (data) {
-          logout();
+          setUser(null);
           navigate("/");
         }
       } catch (error) {

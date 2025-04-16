@@ -8,6 +8,7 @@ import useRemovePlaceLike from "./hooks/useRemovePlaceLike";
 import CardItem from "../CardItem";
 import { Place } from "../../../models/Place.ts";
 import { useUserStore } from "../../../store/useUserStore.ts";
+import favmaps_logo from "../../../assets/favmaps_logo.png";
 
 interface PlaceItemProps {
   place: Place;
@@ -95,12 +96,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           <Marker position={center} />
         </GoogleMap>
         <Image
-          src={place.photoUrl}
+          src={place.photoUrl || favmaps_logo}
           alt={`${place.name} photo`}
           width={"50%"}
           height={"300px"}
           objectFit="cover"
-          objectPosition={"center"}
         />
       </Flex>
     </CardItem>

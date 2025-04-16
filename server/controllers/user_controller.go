@@ -159,16 +159,13 @@ func LoginUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Successful login
 	return c.Status(fiber.StatusCreated).JSON(user)
 }
 
-// FollowUser implements POST /users/:followerId/following/:followeeId
 func FollowUser(c *fiber.Ctx) error {
 	followerIDHex := c.Params("followerId")
 	followeeIDHex := c.Params("followeeId")
 
-	// Validate IDs
 	followerObjID, err := primitive.ObjectIDFromHex(followerIDHex)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -187,7 +184,6 @@ func FollowUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Start a Mongo transaction
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -197,14 +193,12 @@ func FollowUser(c *fiber.Ctx) error {
 	defer session.EndSession(context.Background())
 
 	callback := func(sc mongo.SessionContext) (interface{}, error) {
-		// 1) Add followee to follower's "following" array
 		filterFollower := bson.M{"_id": followerObjID}
 		updateFollower := bson.M{"$addToSet": bson.M{"following": followeeObjID}}
 		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollower, updateFollower); err != nil {
 			return nil, err
 		}
 
-		// 2) Add follower to followee's "followers" array
 		filterFollowee := bson.M{"_id": followeeObjID}
 		updateFollowee := bson.M{"$addToSet": bson.M{"followers": followerObjID}}
 		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollowee, updateFollowee); err != nil {
@@ -221,7 +215,6 @@ func FollowUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the updated follower so front-end can see the new 'following' array
 	var updatedUser models.User
 	filterFollower := bson.M{"_id": followerObjID}
 	if err := config.DB.Collection("users").
@@ -235,12 +228,10 @@ func FollowUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
-// UnfollowUser implements DELETE /users/:followerId/following/:followeeId
 func UnfollowUser(c *fiber.Ctx) error {
 	followerIDHex := c.Params("followerId")
 	followeeIDHex := c.Params("followeeId")
 
-	// Validate IDs
 	followerObjID, err := primitive.ObjectIDFromHex(followerIDHex)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -268,14 +259,12 @@ func UnfollowUser(c *fiber.Ctx) error {
 	defer session.EndSession(context.Background())
 
 	callback := func(sc mongo.SessionContext) (interface{}, error) {
-		// 1) Remove followee from follower's "following" array
 		filterFollower := bson.M{"_id": followerObjID}
 		updateFollower := bson.M{"$pull": bson.M{"following": followeeObjID}}
 		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollower, updateFollower); err != nil {
 			return nil, err
 		}
 
-		// 2) Remove follower from followee's "followers" array
 		filterFollowee := bson.M{"_id": followeeObjID}
 		updateFollowee := bson.M{"$pull": bson.M{"followers": followerObjID}}
 		if _, err := config.DB.Collection("users").UpdateOne(sc, filterFollowee, updateFollowee); err != nil {
@@ -291,7 +280,6 @@ func UnfollowUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the updated follower user after removing the followee
 	var updatedUser models.User
 	filterFollower := bson.M{"_id": followerObjID}
 	if err := config.DB.Collection("users").
@@ -379,14 +367,9 @@ func DeleteUser(c *fiber.Ctx) error {
 }
 
 func AddPlaceToUser(c *fiber.Ctx) error {
-	// 1. Extract userId and placeId from path params
 	userIdStr := c.Params("userId")
 	placeIdStr := c.Params("placeId")
 
-	// If your user IDs are MongoDB ObjectIDs:
-	// userObjID, err := primitive.ObjectIDFromHex(userIdStr)
-	// If your user IDs are numeric, do: userId, err := strconv.Atoi(userIdStr)
-	// For now, let's assume they're ObjectIDs
 	userObjID, err := primitive.ObjectIDFromHex(userIdStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -399,11 +382,9 @@ func AddPlaceToUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// 2. Construct filter & update
 	filter := bson.M{"_id": userObjID}
 	update := bson.M{"$addToSet": bson.M{"places": placeIdStr}}
 
-	// 3. Perform the update
 	if _, err := config.DB.Collection("users").
 		UpdateOne(context.Background(), filter, update); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -411,7 +392,6 @@ func AddPlaceToUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// 4. Return the updated user
 	var updatedUser models.User
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filter).
@@ -428,7 +408,6 @@ func RemovePlaceFromUser(c *fiber.Ctx) error {
 	userIdStr := c.Params("userId")
 	placeIdStr := c.Params("placeId")
 
-	// If numeric IDs: userId, err := strconv.Atoi(userIdStr)
 	userObjID, err := primitive.ObjectIDFromHex(userIdStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -467,14 +446,12 @@ func AddMapToUser(c *fiber.Ctx) error {
 	userIDStr := c.Params("userId")
 	mapIDStr := c.Params("mapId")
 
-	// If your userID is a Mongo ObjectID:
 	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid user ID format",
 		})
 	}
-	// If your map ID is also an ObjectID, do the same:
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -482,7 +459,6 @@ func AddMapToUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Filter by user _id, and add this map to their "maps" array
 	filter := bson.M{"_id": userObjID}
 	update := bson.M{
 		"$addToSet": bson.M{"maps": mapObjID},
@@ -495,7 +471,6 @@ func AddMapToUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return the updated user
 	var updatedUser models.User
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filter).

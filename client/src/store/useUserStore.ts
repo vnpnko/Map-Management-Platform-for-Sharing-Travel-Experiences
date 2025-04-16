@@ -7,12 +7,8 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       user: null,
-      setUser: async (user: User) => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+      setUser: (user: User | null) => {
         set({ user });
-      },
-      logout: () => {
-        set({ user: null });
       },
     }),
     {

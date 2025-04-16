@@ -30,9 +30,9 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { user, setUser, logout } = useUserStore();
+  const { user, setUser } = useUserStore();
   const {
-    fetchedUser: profileUser,
+    fetchedUser,
     isFetchingUser,
     userError,
   } = useFetchUser({ username });
@@ -53,15 +53,15 @@ const ProfilePage: React.FC = () => {
       return;
     }
 
-    if (profileUser) {
+    if (fetchedUser) {
       try {
         const payload = {
           followerId: user._id,
-          followeeId: profileUser._id,
+          followeeId: fetchedUser._id,
         };
         const updatedUser = await follow(payload);
         setUser(updatedUser);
-        profileUser.followers.push(user._id);
+        fetchedUser.followers.push(user._id);
       } catch (error) {
         toast({
           title: "Follow Failed",
@@ -74,15 +74,15 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleUnfollow = async () => {
-    if (user && profileUser) {
+    if (user && fetchedUser) {
       try {
         const payload = {
           followerId: user._id,
-          followeeId: profileUser._id,
+          followeeId: fetchedUser._id,
         };
         const updatedUser = await unfollow(payload);
         setUser(updatedUser);
-        profileUser.followers = profileUser.followers.filter(
+        fetchedUser.followers = fetchedUser.followers.filter(
           (id) => id !== user._id,
         );
       } catch (error) {
@@ -97,7 +97,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    setUser(null);
     navigate("/");
   };
 
@@ -105,7 +105,7 @@ const ProfilePage: React.FC = () => {
     return <Spinner color="black" />;
   }
 
-  if (userError || !profileUser) {
+  if (userError || !fetchedUser) {
     return (
       <Alert
         p={8}
@@ -122,13 +122,13 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  const isOwnProfile = user && user._id === profileUser._id;
-  const user_data = isOwnProfile ? user : profileUser;
+  const isOwnProfile = user && user._id === fetchedUser._id;
+  const user_data = isOwnProfile ? user : fetchedUser;
 
-  const foll = [
+  const userStats = [
     {
       name: "maps",
-      value: isOwnProfile ? user.maps.length : profileUser.maps.length,
+      value: user_data.maps.length,
     },
     {
       name: "places",
@@ -136,11 +136,11 @@ const ProfilePage: React.FC = () => {
     },
     {
       name: "followers",
-      value: profileUser.followers.length,
+      value: fetchedUser.followers.length,
     },
     {
       name: "following",
-      value: profileUser.following.length,
+      value: fetchedUser.following.length,
     },
   ];
 
@@ -155,7 +155,7 @@ const ProfilePage: React.FC = () => {
     >
       <Flex gap={8} w={"xl"}>
         <Avatar
-          name={profileUser.username}
+          name={fetchedUser.username}
           src="" // Provide user profile pic URL if available
           size={"2xl"}
         />
@@ -167,7 +167,7 @@ const ProfilePage: React.FC = () => {
               fontWeight={"thin"}
               textAlign="left"
             >
-              {profileUser.username}
+              {fetchedUser.username}
             </Text>
 
             {isOwnProfile ? (
@@ -175,7 +175,7 @@ const ProfilePage: React.FC = () => {
                 <CustomButton
                   width={120}
                   isSelected={true}
-                  onClick={() => navigate(`/${profileUser.username}/edit`)}
+                  onClick={() => navigate(`/${fetchedUser.username}/edit`)}
                 >
                   Edit Profile
                 </CustomButton>
@@ -199,17 +199,17 @@ const ProfilePage: React.FC = () => {
                   width={220}
                   isSelected={true}
                   onClick={
-                    profileUser.followers.includes(user._id)
+                    fetchedUser.followers.includes(user._id)
                       ? handleUnfollow
                       : handleFollow
                   }
                   isDisabled={
-                    profileUser.followers.includes(user._id)
+                    fetchedUser.followers.includes(user._id)
                       ? isUnfollowing
                       : isFollowing
                   }
                 >
-                  {profileUser.followers.includes(user._id)
+                  {fetchedUser.followers.includes(user._id)
                     ? "Unfollow"
                     : "Follow"}
                 </CustomButton>
@@ -218,7 +218,7 @@ const ProfilePage: React.FC = () => {
           </Flex>
 
           <Flex justifyContent={"space-between"}>
-            {foll.map((item) => (
+            {userStats.map((item) => (
               <Status key={item.name} value={item.value} name={item.name} />
             ))}
           </Flex>
@@ -229,7 +229,7 @@ const ProfilePage: React.FC = () => {
             fontWeight="normal"
             textAlign="left"
           >
-            {profileUser.name}
+            {fetchedUser.name}
           </Text>
         </Flex>
       </Flex>
