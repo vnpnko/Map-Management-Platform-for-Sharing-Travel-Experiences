@@ -48,6 +48,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
         const updatedUser = await addPlaceToUser(payload);
         setUser(updatedUser);
         await addPlaceLike({ placeId: place._id, userId: user._id });
+        // while liking a place, we need to make a heart button unable
+        place.likes.push(user._id);
       } catch (error) {
         toastError("Error Adding Place", error as Error);
       }
@@ -61,6 +63,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
         const updatedUser = await removePlaceFromUser(payload);
         setUser(updatedUser);
         await removePlaceLike({ placeId: place._id, userId: user._id });
+        // while unliking a place, we need to make a heart button unable
+        place.likes = place.likes.filter((like) => like !== user._id);
       } catch (error) {
         toastError("Error Removing PLace", error as Error);
       }

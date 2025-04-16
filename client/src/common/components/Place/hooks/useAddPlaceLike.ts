@@ -13,11 +13,16 @@ interface AddPlaceLikeResponse {
 const addPlaceLikeRequest = async (
   payload: AddPlaceLikePayload,
 ): Promise<AddPlaceLikeResponse> => {
-  const response = await fetch(`${BASE_URL}/places/addLike`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  const { placeId, userId } = payload;
+
+  // POST /places/:placeId/likes/:userId
+  const response = await fetch(
+    `${BASE_URL}/places/${placeId}/likes/${userId}`,
+    {
+      method: "POST",
+    },
+  );
+
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "Failed to add like to place");

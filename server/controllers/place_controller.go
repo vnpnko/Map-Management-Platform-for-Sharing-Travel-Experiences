@@ -101,31 +101,35 @@ func DeletePlace(c *fiber.Ctx) error {
 	})
 }
 
+// AddPlaceLike - POST /places/:placeId/likes/:userId
 func AddPlaceLike(c *fiber.Ctx) error {
-	var body struct {
-		PlaceID string `json:"placeId"`
-		UserID  string `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	// 1. Parse params
+	placeID := c.Params("placeId")
+	userID := c.Params("userId")
+
+	if placeID == "" || userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "placeId and userId are required",
 		})
 	}
 
-	userObjID, err := primitive.ObjectIDFromHex(body.UserID)
+	// 2. Convert userID to ObjectID if needed, or numeric if your user IDs are numeric
+	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid user ID format",
 		})
 	}
 
-	filter := bson.M{"_id": body.PlaceID}
+	// 3. Build the filter & update
+	filter := bson.M{"_id": placeID}
 	update := bson.M{
 		"$addToSet": bson.M{
 			"likes": userObjID,
 		},
 	}
 
+	// 4. Update the place document
 	_, err = config.DB.Collection("places").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -133,30 +137,29 @@ func AddPlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	// 5. Return success or the updated place (if you want)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true})
 }
 
+// RemovePlaceLike - DELETE /places/:placeId/likes/:userId
 func RemovePlaceLike(c *fiber.Ctx) error {
-	var body struct {
-		PlaceID string `json:"placeId"`
-		UserID  string `json:"userId"`
-	}
-	if err := c.BodyParser(&body); err != nil {
+	placeID := c.Params("placeId")
+	userID := c.Params("userId")
+
+	if placeID == "" || userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "placeId and userId are required",
 		})
 	}
 
-	userObjID, err := primitive.ObjectIDFromHex(body.UserID)
+	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid user ID format",
 		})
 	}
 
-	filter := bson.M{"_id": body.PlaceID}
+	filter := bson.M{"_id": placeID}
 	update := bson.M{
 		"$pull": bson.M{
 			"likes": userObjID,
@@ -170,9 +173,8 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-	})
+	// Return success or the updated doc
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"success": true})
 }
 
 func GetPlacesIDs(c *fiber.Ctx) error {
