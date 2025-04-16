@@ -20,6 +20,7 @@ interface GenericCardItemProps {
   likedByUser?: boolean;
   onLike: () => void;
   onUnlike: () => void;
+  isPending: boolean;
   children?: React.ReactNode;
 }
 
@@ -31,6 +32,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   likedByUser = false,
   onLike,
   onUnlike,
+  isPending,
   children,
 }) => {
   const toast = useToast();
@@ -65,6 +67,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
                 icon={likedByUser ? <FaHeart /> : <FaRegHeart />}
                 color={likedByUser ? "red.500" : "gray.600"}
                 onClick={handleLikeToggle}
+                disabled={isPending}
               />
               <Text fontSize="sm" color="gray.600">
                 {likesCount}

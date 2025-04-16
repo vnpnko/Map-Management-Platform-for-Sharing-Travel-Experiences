@@ -17,10 +17,10 @@ interface PlaceItemProps {
 const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   const toast = useToast();
   const { user, setUser } = useUserStore();
-  const { addPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser } = useRemovePlaceFromUser();
-  const { addPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike } = useRemovePlaceLike();
+  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
+  const { removePlaceFromUser, isRemovingPlaceFromUser } = useRemovePlaceFromUser();
+  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
+  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
   const alreadyHasPlace = user?.places.includes(place._id);
 
@@ -83,6 +83,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       likedByUser={alreadyHasPlace}
       onLike={handleAddPlace}
       onUnlike={handleRemovePlace}
+      isPending={isAddingPlaceLike || isRemovingPlaceLike || isAddingPlaceToUser || isRemovingPlaceFromUser}
     >
       <Flex>
         <GoogleMap
