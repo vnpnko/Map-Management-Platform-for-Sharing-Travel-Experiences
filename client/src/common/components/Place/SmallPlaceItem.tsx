@@ -1,5 +1,5 @@
 import React from "react";
-import {Flex, Text, useToast, Image, IconButton} from "@chakra-ui/react";
+import { Flex, Text, useToast, Image, IconButton } from "@chakra-ui/react";
 import CustomBox from "../ui/CustomBox.tsx";
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser.ts";
@@ -19,7 +19,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   const toast = useToast();
   const { user, setUser } = useUserStore();
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser, isRemovingPlaceFromUser } = useRemovePlaceFromUser();
+  const { removePlaceFromUser, isRemovingPlaceFromUser } =
+    useRemovePlaceFromUser();
   const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
   const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
@@ -70,11 +71,15 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
     }
   };
 
-  const handleLikeToggle = () => (alreadyHasPlace ? handleRemovePlace() : handleAddPlace());
-
+  const handleLikeToggle = () =>
+    alreadyHasPlace ? handleRemovePlace() : handleAddPlace();
 
   return (
-    <CustomBox  borderTopWidth="2px" borderTopColor={"blackAlpha.300"} height="300px">
+    <CustomBox
+      borderTopWidth="2px"
+      borderTopColor={"blackAlpha.300"}
+      height="300px"
+    >
       <Flex direction="column">
         <Flex justifyContent="space-between" alignItems="center">
           <Text
@@ -92,20 +97,31 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           <Flex alignItems={"center"} gap={2} py={2}>
             <IconCover>
               <IconButton
-                  aria-label={"Open in Google Maps"}
-                  icon={<FaRegMap size={25}/>}
-                  color={"gray.600"}
-                  onClick={() => window.open(place.url, "_blank")}
+                aria-label={"Open in Google Maps"}
+                icon={<FaRegMap size={25} />}
+                color={"gray.600"}
+                onClick={() => window.open(place.url, "_blank")}
               />
             </IconCover>
             <IconCover>
               <IconButton
-                  aria-label={alreadyHasPlace ? "Unlike" : "Like"}
-                  // size={"lg"}
-                  icon={alreadyHasPlace ? <FaHeart size={25}/> : <FaRegHeart size={25}/>}
-                  color={alreadyHasPlace ? "red.500" : "gray.600"}
-                  onClick={handleLikeToggle}
-                  disabled={isAddingPlaceLike || isRemovingPlaceLike || isAddingPlaceToUser || isRemovingPlaceFromUser}
+                aria-label={alreadyHasPlace ? "Unlike" : "Like"}
+                // size={"lg"}
+                icon={
+                  alreadyHasPlace ? (
+                    <FaHeart size={25} />
+                  ) : (
+                    <FaRegHeart size={25} />
+                  )
+                }
+                color={alreadyHasPlace ? "red.500" : "gray.600"}
+                onClick={handleLikeToggle}
+                disabled={
+                  isAddingPlaceLike ||
+                  isRemovingPlaceLike ||
+                  isAddingPlaceToUser ||
+                  isRemovingPlaceFromUser
+                }
               />
             </IconCover>
           </Flex>

@@ -8,6 +8,7 @@ import (
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"sort"
 )
 
 func GetPlaces(c *fiber.Ctx) error {
@@ -204,4 +205,90 @@ func GetPlacesIDs(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(ids)
+}
+
+func GetRecommendedPlaces(c *fiber.Ctx) error {
+	userIDHex := c.Params("userId")
+	userID, err := primitive.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+
+	// 1. Get current user
+	var currentUser models.User
+	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	// 2. Get all users that this user is following
+	cursor, err := config.DB.Collection("users").Find(context.Background(), bson.M{
+		"_id": bson.M{"$in": currentUser.Following},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch following users"})
+	}
+
+	var followedUsers []models.User
+	if err := cursor.All(context.Background(), &followedUsers); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to decode followed users"})
+	}
+
+	// 3. Count how often each place is liked
+	placeFrequency := make(map[string]int)
+	for _, u := range followedUsers {
+		for _, placeID := range u.Places {
+			placeFrequency[placeID]++
+		}
+	}
+
+	// 4. Exclude places already liked by the current user
+	exclude := make(map[string]struct{})
+	for _, placeID := range currentUser.Places {
+		exclude[placeID] = struct{}{}
+	}
+
+	type ScoredPlace struct {
+		ID    string
+		Score int
+	}
+
+	var scored []ScoredPlace
+	for id, count := range placeFrequency {
+		if _, alreadyLiked := exclude[id]; alreadyLiked {
+			continue
+		}
+		scored = append(scored, ScoredPlace{ID: id, Score: count})
+	}
+
+	// 5. Sort by score descending
+	sort.Slice(scored, func(i, j int) bool {
+		return scored[i].Score > scored[j].Score
+	})
+
+	// 6. Prepare top 10 place IDs
+	topPlaceIDs := []string{}
+	for i := 0; i < len(scored) && i < 3; i++ {
+		topPlaceIDs = append(topPlaceIDs, scored[i].ID)
+	}
+
+	if len(topPlaceIDs) == 0 {
+		return c.JSON([]models.Place{})
+	}
+
+	// 7. Query places collection by string IDs
+	cursor, err = config.DB.Collection("places").Find(context.Background(), bson.M{
+		"_id": bson.M{"$in": topPlaceIDs},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch places"})
+	}
+
+	var places []models.Place
+	if err := cursor.All(context.Background(), &places); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to decode places"})
+	}
+
+	return c.JSON(places)
 }

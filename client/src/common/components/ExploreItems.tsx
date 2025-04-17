@@ -5,10 +5,16 @@ import GenericVirtualList from "./GenericVirtualList.tsx";
 import useFetchIds from "../hooks/useFetchIds.tsx";
 import useRecommendedUsers from "../../pages/Explore/hooks/useRecommendedUsers.ts";
 import UserItem from "./User/UserItem.tsx";
-import { User } from "../../models/User.ts";
 import { useUserStore } from "../../store/useUserStore.ts";
 import IconCover from "./ui/IconCover.tsx";
 import { FaRegListAlt } from "react-icons/fa";
+import useRecommendedPlaces from "../../pages/Explore/hooks/useRecommendedPlaces.ts";
+import useRecommendedMaps from "../../pages/Explore/hooks/useRecommendedMaps.ts";
+import { User } from "../../models/User.ts";
+import { Place } from "../../models/Place.ts";
+import { Map } from "../../models/Map.ts";
+import PlaceItem from "./Place/PlaceItem.tsx";
+import MapItem from "./Map/MapItem.tsx";
 
 interface ExploreItemsProps<T> {
   resource: "users" | "places" | "maps";
@@ -29,20 +35,38 @@ const ExploreItems = <T, ID>({
   const { data } = useFetchIds<ID>(resource, searchQuery);
   const ids = data?.filter((id) => id !== user?._id) || [];
 
-  const { recommendedUsers, isLoadingRecommendations, recommendationError } =
-    useRecommendedUsers(user?._id);
+  const {
+    recommendedUsers,
+    isLoadingUsersRecommendations,
+    recommendationUsersError,
+  } = useRecommendedUsers(user?._id);
+  const {
+    recommendedPlaces,
+    isLoadingPlacesRecommendations,
+    recommendationPlacesError,
+  } = useRecommendedPlaces(user?._id);
+  const {
+    recommendedMaps,
+    isLoadingMapsRecommendations,
+    recommendationMapsError,
+  } = useRecommendedMaps(user?._id);
 
   return (
     <Flex direction="column" gap={4}>
-      {user && resource === "users" && (
-        <Flex bg={"green.300"} direction="column" gap={2}>
+      {user && (
+        <Flex
+          borderWidth={"medium"}
+          borderColor={"green.500"}
+          direction="column"
+          gap={2}
+        >
           <Flex
             justifyContent={"space-between"}
             alignItems="center"
             bg={"green.500"}
             p={2}
           >
-            <Text fontWeight={"medium"}>Recommended users</Text>
+            <Text fontWeight={"medium"}>Recommended {resource}</Text>
             <IconCover>
               <IconButton
                 aria-label={
@@ -55,14 +79,36 @@ const ExploreItems = <T, ID>({
               />
             </IconCover>
           </Flex>
-          {isRecommendationsOpen && (
+          {resource === "users" && isRecommendationsOpen && (
             <>
-              {isLoadingRecommendations && <Text>Loading...</Text>}
-              {recommendationError && (
-                <Text color="red.500">{recommendationError.message}</Text>
+              {isLoadingUsersRecommendations && <Text>Loading...</Text>}
+              {recommendationUsersError && (
+                <Text color="red.500">{recommendationUsersError.message}</Text>
               )}
               {recommendedUsers.map((user: User) => (
                 <UserItem key={user._id} user={user} />
+              ))}
+            </>
+          )}
+          {resource === "places" && isRecommendationsOpen && (
+            <>
+              {isLoadingPlacesRecommendations && <Text>Loading...</Text>}
+              {recommendationPlacesError && (
+                <Text color="red.500">{recommendationPlacesError.message}</Text>
+              )}
+              {recommendedPlaces.map((place: Place) => (
+                <PlaceItem key={place._id} place={place} />
+              ))}
+            </>
+          )}
+          {resource === "maps" && isRecommendationsOpen && (
+            <>
+              {isLoadingMapsRecommendations && <Text>Loading...</Text>}
+              {recommendationMapsError && (
+                <Text color="red.500">{recommendationMapsError.message}</Text>
+              )}
+              {recommendedMaps.map((map: Map) => (
+                <MapItem key={map._id} map={map} />
               ))}
             </>
           )}

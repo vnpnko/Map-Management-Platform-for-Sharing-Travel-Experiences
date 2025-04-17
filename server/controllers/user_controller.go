@@ -6,6 +6,7 @@ import (
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -588,8 +589,8 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 			continue
 		}
 
-		commonFollowers := intersectCount(currentUser.Followers, u.Followers)
-		commonFollowing := intersectCount(currentUser.Following, u.Following)
+		commonFollowers := utils.IntersectCount(currentUser.Followers, u.Followers)
+		commonFollowing := utils.IntersectCount(currentUser.Following, u.Following)
 		score := commonFollowers + commonFollowing
 		scored = append(scored, ScoredUser{User: u, Score: score})
 	}
@@ -604,19 +605,4 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(topUsers)
-}
-
-func intersectCount(a, b []primitive.ObjectID) int {
-	m := make(map[primitive.ObjectID]struct{}, len(a))
-	for _, id := range a {
-		m[id] = struct{}{}
-	}
-
-	count := 0
-	for _, id := range b {
-		if _, exists := m[id]; exists {
-			count++
-		}
-	}
-	return count
 }

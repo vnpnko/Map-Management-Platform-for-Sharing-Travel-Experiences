@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"sort"
 )
 
 func GetMaps(c *fiber.Ctx) error {
@@ -362,4 +363,90 @@ func GetMapsIDs(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(ids)
+}
+
+func GetRecommendedMaps(c *fiber.Ctx) error {
+	userIDHex := c.Params("userId")
+	userID, err := primitive.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+
+	// 1. Fetch current user
+	var currentUser models.User
+	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	// 2. Fetch all users the current user follows
+	cursor, err := config.DB.Collection("users").Find(context.Background(), bson.M{
+		"_id": bson.M{"$in": currentUser.Following},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch followed users"})
+	}
+
+	var followedUsers []models.User
+	if err := cursor.All(context.Background(), &followedUsers); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to decode followed users"})
+	}
+
+	// 3. Count map frequency
+	mapFrequency := make(map[primitive.ObjectID]int)
+	for _, u := range followedUsers {
+		for _, mapID := range u.Maps {
+			mapFrequency[mapID]++
+		}
+	}
+
+	// 4. Exclude maps the user already likes
+	exclude := make(map[primitive.ObjectID]struct{})
+	for _, mapID := range currentUser.Maps {
+		exclude[mapID] = struct{}{}
+	}
+
+	type ScoredMap struct {
+		ID    primitive.ObjectID
+		Score int
+	}
+
+	var scored []ScoredMap
+	for id, count := range mapFrequency {
+		if _, alreadyLiked := exclude[id]; alreadyLiked {
+			continue
+		}
+		scored = append(scored, ScoredMap{ID: id, Score: count})
+	}
+
+	// 5. Sort by score
+	sort.Slice(scored, func(i, j int) bool {
+		return scored[i].Score > scored[j].Score
+	})
+
+	// 6. Take top 10 map IDs
+	topMapIDs := []primitive.ObjectID{}
+	for i := 0; i < len(scored) && i < 3; i++ {
+		topMapIDs = append(topMapIDs, scored[i].ID)
+	}
+
+	if len(topMapIDs) == 0 {
+		return c.JSON([]models.Map{})
+	}
+
+	// 7. Fetch map documents
+	cursor, err = config.DB.Collection("maps").Find(context.Background(), bson.M{
+		"_id": bson.M{"$in": topMapIDs},
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch maps"})
+	}
+
+	var maps []models.Map
+	if err := cursor.All(context.Background(), &maps); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to decode maps"})
+	}
+
+	return c.JSON(maps)
 }
