@@ -24,6 +24,8 @@ import { Place } from "../../models/Place.ts";
 import { Map } from "../../models/Map.ts";
 import MapItem from "../../common/components/Map/MapItem.tsx";
 import { useUserStore } from "../../store/useUserStore.ts";
+import { User } from "../../models/User.ts";
+import UserItem from "../../common/components/User/UserItem.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
@@ -31,16 +33,14 @@ const ProfilePage: React.FC = () => {
   const toast = useToast();
 
   const { user, setUser } = useUserStore();
-  const {
-    fetchedUser,
-    isFetchingUser,
-    userError,
-  } = useFetchUser({ username });
+  const { fetchedUser, isFetchingUser, userError } = useFetchUser({ username });
 
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 
-  const [placesSelected, setPlacesSelected] = useState(true);
+  const [selectedTab, setSelectedTab] = useState<
+    "followers" | "following" | "places" | "maps"
+  >("followers");
 
   const handleFollow = async () => {
     if (user === null) {
@@ -234,22 +234,62 @@ const ProfilePage: React.FC = () => {
         </Flex>
       </Flex>
       <Flex direction={"column"} gap={4} w={"full"}>
-        <Tabs onChange={() => setPlacesSelected(!placesSelected)} isFitted>
+        <Tabs
+          onChange={(index) =>
+            setSelectedTab(
+              ["followers", "following", "places", "maps"][index] as
+                | "followers"
+                | "following"
+                | "places"
+                | "maps",
+            )
+          }
+          isFitted
+        >
           <TabList borderColor="blackAlpha.300">
-            <Tab color={placesSelected ? "black" : "blackAlpha.700"}>
+            <Tab
+              color={selectedTab === "followers" ? "black" : "blackAlpha.700"}
+            >
+              Followers
+            </Tab>
+            <Tab
+              color={selectedTab === "following" ? "black" : "blackAlpha.700"}
+            >
+              Following
+            </Tab>
+            <Tab color={selectedTab === "places" ? "black" : "blackAlpha.700"}>
               Places
             </Tab>
-            <Tab color={!placesSelected ? "black" : "blackAlpha.700"}>Maps</Tab>
+            <Tab color={selectedTab === "maps" ? "black" : "blackAlpha.700"}>
+              Maps
+            </Tab>
           </TabList>
         </Tabs>
-        {placesSelected ? (
+        {selectedTab === "followers" && (
+          <GenericVirtualList<User, number>
+            items={[...user_data.followers].reverse()}
+            type={"users"}
+            pageSize={10}
+            renderItem={(user) => <UserItem key={user._id} user={user} />}
+          />
+        )}
+        {selectedTab === "following" && (
+          <GenericVirtualList<User, number>
+            items={[...user_data.following].reverse()}
+            type={"users"}
+            pageSize={10}
+            renderItem={(user) => <UserItem key={user._id} user={user} />}
+          />
+        )}
+        {selectedTab === "places" && (
           <GenericVirtualList<Place, string>
             items={[...user_data.places].reverse()}
             type={"places"}
-            pageSize={10}
+            pageSize={5}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
           />
-        ) : (
+        )}
+        {selectedTab === "maps" && (
           <GenericVirtualList<Map, number>
             items={user_data.maps}
             type={"maps"}
