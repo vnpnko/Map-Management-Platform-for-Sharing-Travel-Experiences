@@ -6,12 +6,14 @@ import useInfiniteFetchItems from "../hooks/useInfiniteFetchItems";
 interface GenericVirtualListProps<T, ID> {
   items: ID[] | undefined;
   type: "users" | "places" | "maps";
+  pageSize: number;
   renderItem: (item: T) => React.ReactNode;
 }
 
 function GenericVirtualList<T, ID>({
   items,
   type,
+  pageSize,
   renderItem,
 }: GenericVirtualListProps<T, ID>) {
   const {
@@ -22,7 +24,7 @@ function GenericVirtualList<T, ID>({
     isFetchingNextPage,
   } = useInfiniteFetchItems<T, ID>({
     itemIds: items || [],
-    pageSize: 3,
+    pageSize: pageSize,
     endpoint: type === "users" ? "users/id" : type,
   });
 

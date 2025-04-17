@@ -19,6 +19,7 @@ func SetupRoutes(app *fiber.App) {
 	users.Get("/username/:username", controllers.GetUserByUsername)
 	users.Get("/id/:id", controllers.GetUserByID)
 	users.Get("/get/ids", controllers.GetUsersIDs)
+	users.Get("/recommended/:userId", controllers.GetRecommendedUsers)
 
 	users.Post("/:followerId/following/:followeeId", controllers.FollowUser)
 	users.Delete("/:followerId/following/:followeeId", controllers.UnfollowUser)

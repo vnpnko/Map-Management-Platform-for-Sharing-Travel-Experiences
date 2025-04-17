@@ -8,14 +8,14 @@ export interface ItemsPage<T> {
 
 export interface UseInfiniteFetchItemsProps<T, ID> {
   itemIds: ID[];
-  pageSize?: number;
+  pageSize: number;
   endpoint: string;
   parseResponse?: (data: unknown) => T;
 }
 
 const useInfiniteFetchItems = <T, ID>({
   itemIds,
-  pageSize = 10,
+  pageSize,
   endpoint,
   parseResponse,
 }: UseInfiniteFetchItemsProps<T, ID>) => {

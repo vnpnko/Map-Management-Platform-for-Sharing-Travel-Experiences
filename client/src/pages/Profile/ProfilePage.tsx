@@ -246,12 +246,14 @@ const ProfilePage: React.FC = () => {
           <GenericVirtualList<Place, string>
             items={[...user_data.places].reverse()}
             type={"places"}
+            pageSize={10}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
           />
         ) : (
           <GenericVirtualList<Map, number>
             items={user_data.maps}
             type={"maps"}
+            pageSize={5}
             renderItem={(map) => <MapItem key={map._id} map={map} />}
           />
         )}

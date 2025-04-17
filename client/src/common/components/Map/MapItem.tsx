@@ -20,10 +20,10 @@ interface MapItemProps {
 const MapItem: React.FC<MapItemProps> = ({ map }) => {
   const toast = useToast();
   const { user, setUser } = useUserStore();
-  const { addMapToUser } = useAddMapToUser();
-  const { removeMap } = useRemoveMapFromUser();
-  const { addMapLike } = useAddMapLike();
-  const { removeMapLike } = useRemoveMapLike();
+  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
+  const { removeMap, isRemovingMap } = useRemoveMapFromUser();
+  const { addMapLike, isAddingMapLike } = useAddMapLike();
+  const { removeMapLike, isRemovingMapLike } = useRemoveMapLike();
 
   const alreadyHasMap = user?.maps.includes(map._id);
   const { places, isLoading } = useFetchPlaces({
@@ -105,6 +105,12 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
       likedByUser={alreadyHasMap}
       onLike={handleAddMap}
       onUnlike={handleRemoveMap}
+      isPending={
+        isAddingMapToUser ||
+        isRemovingMap ||
+        isAddingMapLike ||
+        isRemovingMapLike
+      }
     >
       <Flex direction={"column"} gap={4}>
         <Flex>

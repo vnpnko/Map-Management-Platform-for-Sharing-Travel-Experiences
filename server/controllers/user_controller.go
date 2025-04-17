@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"sort"
 )
 
 func GetUsers(c *fiber.Ctx) error {
@@ -545,4 +546,77 @@ func GetUsersIDs(c *fiber.Ctx) error {
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(ids)
+}
+
+func GetRecommendedUsers(c *fiber.Ctx) error {
+	userIDHex := c.Params("userId")
+	userID, err := primitive.ObjectIDFromHex(userIDHex)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
+
+	var currentUser models.User
+	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	cursor, err := config.DB.Collection("users").Find(context.Background(), bson.M{"_id": bson.M{"$ne": userID}})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch users"})
+	}
+
+	var users []models.User
+	if err := cursor.All(context.Background(), &users); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to decode users"})
+	}
+
+	followingSet := make(map[primitive.ObjectID]struct{})
+	for _, fid := range currentUser.Following {
+		followingSet[fid] = struct{}{}
+	}
+
+	type ScoredUser struct {
+		User  models.User
+		Score int
+	}
+
+	var scored []ScoredUser
+	for _, u := range users {
+		if _, alreadyFollowing := followingSet[u.ID]; alreadyFollowing {
+			continue
+		}
+
+		commonFollowers := intersectCount(currentUser.Followers, u.Followers)
+		commonFollowing := intersectCount(currentUser.Following, u.Following)
+		score := commonFollowers + commonFollowing
+		scored = append(scored, ScoredUser{User: u, Score: score})
+	}
+
+	sort.Slice(scored, func(i, j int) bool {
+		return scored[i].Score > scored[j].Score
+	})
+
+	var topUsers []models.User
+	for i := 0; i < len(scored) && i < 3; i++ {
+		topUsers = append(topUsers, scored[i].User)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(topUsers)
+}
+
+func intersectCount(a, b []primitive.ObjectID) int {
+	m := make(map[primitive.ObjectID]struct{}, len(a))
+	for _, id := range a {
+		m[id] = struct{}{}
+	}
+
+	count := 0
+	for _, id := range b {
+		if _, exists := m[id]; exists {
+			count++
+		}
+	}
+	return count
 }
