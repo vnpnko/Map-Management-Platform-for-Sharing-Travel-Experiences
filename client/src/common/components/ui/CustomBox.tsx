@@ -5,12 +5,7 @@ type CustomBoxProps = BoxProps;
 
 const CustomBox: React.FC<CustomBoxProps> = ({ children, ...rest }) => {
   return (
-    <Box
-      borderBottomWidth="2px"
-      borderBottomColor={"blackAlpha.300"}
-      textAlign="center"
-      {...rest}
-    >
+    <Box textAlign="center" {...rest}>
       {children}
     </Box>
   );

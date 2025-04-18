@@ -58,7 +58,7 @@ const MapForm: React.FC = () => {
   };
 
   return (
-    <CustomBox w="full" p={4}>
+    <CustomBox w="full">
       <Flex
         as="form"
         onSubmit={handleCreateMap}
@@ -91,6 +91,7 @@ const MapForm: React.FC = () => {
           <GenericVirtualList<Place, string>
             items={draftMap.places}
             type={"places"}
+            pageSize={5}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
           />
         )}

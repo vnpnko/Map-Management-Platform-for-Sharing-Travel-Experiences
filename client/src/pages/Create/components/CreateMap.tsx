@@ -5,6 +5,7 @@ import { Map } from "../../../models/Map.ts";
 import MapItem from "../../../common/components/Map/MapItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
 import { useUserStore } from "../../../store/useUserStore.ts";
+import CustomDivider from "../../../common/components/ui/CustomDivider.tsx";
 
 const CreateMap: React.FC = () => {
   const { user } = useUserStore();
@@ -23,9 +24,11 @@ const CreateMap: React.FC = () => {
   return (
     <>
       <MapForm />
+      <CustomDivider text={"your maps"} mt={4} />
       <GenericVirtualList<Map, number>
         items={[...user.maps].reverse()}
         type={"maps"}
+        pageSize={5}
         renderItem={(map) => <MapItem key={map._id} map={map} />}
       />
     </>

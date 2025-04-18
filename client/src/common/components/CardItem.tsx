@@ -51,7 +51,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   };
 
   return (
-    <CustomBox key={id}>
+    <CustomBox key={id} borderBottomWidth={2} borderColor={"blackAlpha.300"}>
       <Flex direction={"column"}>
         <Text py={4} fontSize={"medium"} textAlign={"left"} color={"black"}>
           {name}
