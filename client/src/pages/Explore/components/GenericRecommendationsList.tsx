@@ -4,7 +4,7 @@ import { FaRegListAlt } from "react-icons/fa";
 import useRecommended from "../hooks/useRecommended.ts";
 
 interface GenericRecommendationsListProps<T> {
-  userId?: number;
+  userId: number;
   resource: "users" | "places" | "maps";
   renderItem: (item: T) => React.ReactNode;
   title?: string;
@@ -22,12 +22,7 @@ function GenericRecommendationsList<T>({
     useRecommended<T>(resource, userId);
 
   return (
-    <Flex
-      borderWidth="medium"
-      borderColor="green.500"
-      direction="column"
-      gap={2}
-    >
+    <Flex borderWidth="medium" borderColor="green.500" direction="column">
       <Flex justify="space-between" align="center" bg="green.500" p={2}>
         <Text fontWeight="medium">
           {title} {resource}

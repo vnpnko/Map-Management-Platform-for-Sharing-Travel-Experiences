@@ -11,11 +11,11 @@ import { useUserStore } from "../../../store/useUserStore.ts";
 import favmaps_logo from "../../../assets/favmaps_logo.png";
 import IconCover from "../ui/IconCover.tsx";
 
-interface PlaceItemProps {
+interface SmallPlaceItemProps {
   place: Place;
 }
 
-const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
+const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   const toast = useToast();
   const { user, setUser } = useUserStore();
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
@@ -75,11 +75,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
     alreadyHasPlace ? handleRemovePlace() : handleAddPlace();
 
   return (
-    <CustomBox
-      borderTopWidth="2px"
-      borderTopColor={"blackAlpha.300"}
-      height="300px"
-    >
+    <CustomBox bgColor={"blackAlpha.100"} borderWidth={0} height="300px">
       <Flex direction="column">
         <Flex justifyContent="space-between" alignItems="center">
           <Text
@@ -139,4 +135,4 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   );
 };
 
-export default PlaceItem;
+export default SmallPlaceItem;

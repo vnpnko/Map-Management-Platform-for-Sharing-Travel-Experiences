@@ -25,23 +25,17 @@ const ExploreItems = <T, ID>({
   const ids = data?.filter((id) => id !== user?._id) || [];
 
   return (
-    <Flex direction="column" gap={4}>
+    <Flex direction="column">
       {user && (
-        <Flex
-          borderWidth={"medium"}
-          borderColor={"green.500"}
-          direction="column"
-          gap={2}
-        >
-          <GenericRecommendationsList<T>
-            userId={user?._id}
-            resource={resource}
-            renderItem={renderItem}
-          />
-        </Flex>
+        <GenericRecommendationsList<T>
+          userId={user._id}
+          resource={resource}
+          renderItem={renderItem}
+        />
       )}
 
       <CustomInput
+        mt={4}
         placeholder={placeholder}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}

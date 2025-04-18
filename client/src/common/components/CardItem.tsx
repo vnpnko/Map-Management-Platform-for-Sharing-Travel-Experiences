@@ -53,13 +53,13 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   return (
     <CustomBox key={id}>
       <Flex direction={"column"}>
-        <Text textAlign={"left"} color={"black"} py={4}>
+        <Text py={4} fontSize={"medium"} textAlign={"left"} color={"black"}>
           {name}
         </Text>
 
         {children}
 
-        <Flex gap={2} py={2}>
+        <Flex py={2} gap={2}>
           <IconCover>
             <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
               <IconButton

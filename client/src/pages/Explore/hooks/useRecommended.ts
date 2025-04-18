@@ -3,13 +3,11 @@ import { BASE_URL } from "../../../App";
 
 const useRecommended = <T>(
   resource: "users" | "places" | "maps",
-  userId?: number,
+  userId: number,
 ) => {
   const { data, isLoading, error } = useQuery<T[], Error>({
     queryKey: [`recommended-${resource}`, userId],
     queryFn: async () => {
-      if (!userId) throw new Error("User ID is required");
-
       const response = await fetch(
         `${BASE_URL}/${resource}/recommended/${userId}`,
       );
@@ -23,7 +21,6 @@ const useRecommended = <T>(
 
       return data;
     },
-    enabled: !!userId,
     staleTime: 5 * 60 * 1000,
     retry: false,
     refetchOnWindowFocus: false,
