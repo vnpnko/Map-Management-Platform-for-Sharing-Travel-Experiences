@@ -3,7 +3,7 @@ import { Flex } from "@chakra-ui/react";
 import CustomInput from "./ui/CustomInput.tsx";
 import GenericVirtualList from "./GenericVirtualList.tsx";
 import useFetchIds from "../hooks/useFetchIds.tsx";
-import { useUserStore } from "../../store/useUserStore.ts";
+import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
 import GenericRecommendationsList from "../../pages/Explore/components/GenericRecommendationsList.tsx";
 
 interface ExploreItemsProps<T> {
@@ -20,15 +20,15 @@ const ExploreItems = <T, ID>({
   pageSize = 5,
 }: ExploreItemsProps<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useUserStore();
+  const { loggedInUser } = useLoggedInUserStore();
   const { data } = useFetchIds<ID>(resource, searchQuery);
-  const ids = data?.filter((id) => id !== user?._id) || [];
+  const ids = data?.filter((id) => id !== loggedInUser?._id) || [];
 
   return (
     <Flex direction="column" w={"full"} gap={4}>
-      {user && (
+      {loggedInUser && (
         <GenericRecommendationsList<T>
-          userId={user._id}
+          userId={loggedInUser._id}
           resource={resource}
           renderItem={renderItem}
         />

@@ -6,7 +6,7 @@ import useFollow from "../../../pages/Profile/hooks/useFollow.ts";
 import useUnfollow from "../../../pages/Profile/hooks/useUnfollow.ts";
 import CustomBox from "../ui/CustomBox.tsx";
 import { useNavigate } from "react-router-dom";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
 
 interface UserItemProps {
   user: User;
@@ -16,7 +16,8 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const { user: loggedInUser, setUser } = useUserStore();
+  const { loggedInUser: loggedInUser, setLoggedInUser } =
+    useLoggedInUserStore();
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 
@@ -39,7 +40,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
     };
     try {
       const data = await follow(payload);
-      setUser(data);
+      setLoggedInUser(data);
       user.followers.push(loggedInUser._id);
     } catch (error) {
       console.error("Follow failed:", error);
@@ -54,7 +55,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
     };
     try {
       const data = await unfollow(payload);
-      setUser(data);
+      setLoggedInUser(data);
       user.followers = user.followers.filter((id) => id !== loggedInUser._id);
     } catch (error) {
       console.error("Unfollow failed:", error);
@@ -73,7 +74,6 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       <Flex gap={4} alignItems="center">
         <Avatar
           name={user.username}
-          src=""
           onClick={() => navigate(`/${user.username}`)}
           _hover={{ cursor: "pointer" }}
         />

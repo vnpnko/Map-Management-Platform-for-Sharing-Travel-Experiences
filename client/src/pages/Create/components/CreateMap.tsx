@@ -4,11 +4,11 @@ import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import { Map } from "../../../models/Map.ts";
 import MapItem from "../../../common/components/Map/MapItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
 import CustomDivider from "../../../common/components/ui/CustomDivider.tsx";
 
 const CreateMap: React.FC = () => {
-  const { user } = useUserStore();
+  const { loggedInUser } = useLoggedInUserStore();
   const { dispatch } = useDraftMap();
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const CreateMap: React.FC = () => {
     };
   }, [dispatch]);
 
-  if (user === null) {
+  if (loggedInUser === null) {
     return;
   }
 
@@ -26,7 +26,7 @@ const CreateMap: React.FC = () => {
       <MapForm />
       <CustomDivider text={"your maps"} />
       <GenericVirtualList<Map, number>
-        items={[...user.maps].reverse()}
+        items={[...loggedInUser.maps].reverse()}
         type={"maps"}
         pageSize={5}
         renderItem={(map) => <MapItem key={map._id} map={map} />}

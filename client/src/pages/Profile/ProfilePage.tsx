@@ -1,275 +1,148 @@
-import React, { useState } from "react";
-import {
-  Flex,
-  Spinner,
-  Alert,
-  AlertIcon,
-  Text,
-  Avatar,
-  useToast,
-} from "@chakra-ui/react";
-import { useNavigate, useParams } from "react-router-dom";
-import CustomButton from "../../common/components/ui/CustomButton.tsx";
+import React from "react";
+import { Flex } from "@chakra-ui/react";
+import { useParams } from "react-router-dom";
 import Status from "../../common/components/User/Status.tsx";
 import useFollow from "./hooks/useFollow.ts";
 import useUnfollow from "./hooks/useUnfollow.ts";
 import useFetchUser from "./hooks/useFetchUser.ts";
 import GenericVirtualList from "../../common/components/GenericVirtualList.tsx";
-import PlaceItem from "../../common/components/Place/PlaceItem.tsx";
+import ToggleButton from "../../common/components/ui/ToggleButton.tsx";
+import { ProfileTab, useProfileTabs } from "./hooks/useProfileTabs.ts";
+import { User } from "../../models/User.ts";
 import { Place } from "../../models/Place.ts";
 import { Map } from "../../models/Map.ts";
-import MapItem from "../../common/components/Map/MapItem.tsx";
-import { useUserStore } from "../../store/useUserStore.ts";
-import { User } from "../../models/User.ts";
 import UserItem from "../../common/components/User/UserItem.tsx";
-import ToggleButton from "../../common/components/ui/ToggleButton.tsx";
+import PlaceItem from "../../common/components/Place/PlaceItem.tsx";
+import MapItem from "../../common/components/Map/MapItem.tsx";
+import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
+import ProfileHeader from "./components/ProfileHeader.tsx";
+import useToastError from "../../common/hooks/useToastError.tsx";
+import CustomSpinner from "../../common/components/CustomSpinner.tsx";
+import CustomAlert from "../../common/components/CustomAlert.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
-  const navigate = useNavigate();
-  const toast = useToast();
+  const toastError = useToastError();
 
-  const { user, setUser } = useUserStore();
-  const { fetchedUser, isFetchingUser, userError } = useFetchUser({ username });
-
+  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { fetchedUser, isFetchingUser, fetchedUserError } = useFetchUser({
+    username,
+  });
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
+  const { activeTab, setActiveTab } = useProfileTabs();
 
-  const [type, setType] = useState("maps");
+  if (isFetchingUser) return <CustomSpinner />;
 
-  const handleFollow = async () => {
-    if (user === null) {
-      toast({
-        title: "Not Authorized",
-        description: "Please log in to follow a user.",
-        status: "error",
-        isClosable: true,
+  if (fetchedUserError) return <CustomAlert title={fetchedUserError.message} />;
+
+  if (!fetchedUser) return null;
+
+  const isOwnProfile = loggedInUser?._id === fetchedUser._id;
+  const user = isOwnProfile ? loggedInUser : fetchedUser;
+  const isFollowingUser = loggedInUser
+    ? fetchedUser.followers.includes(loggedInUser._id)
+    : false;
+
+  const handleFollowToggle = async () => {
+    if (!loggedInUser) {
+      toastError({
+        title: "Follow Failed",
+        description: "Login to follow users",
       });
       return;
     }
 
-    if (fetchedUser) {
-      try {
-        const payload = {
-          followerId: user._id,
-          followeeId: fetchedUser._id,
-        };
-        const updatedUser = await follow(payload);
-        setUser(updatedUser);
-        fetchedUser.followers.push(user._id);
-      } catch (error) {
-        toast({
-          title: "Follow Failed",
-          description: (error as Error).message,
-          status: "error",
-          isClosable: true,
-        });
-      }
-    }
-  };
+    const payload = {
+      followerId: loggedInUser._id,
+      followeeId: fetchedUser._id,
+    };
 
-  const handleUnfollow = async () => {
-    if (user && fetchedUser) {
-      try {
-        const payload = {
-          followerId: user._id,
-          followeeId: fetchedUser._id,
-        };
-        const updatedUser = await unfollow(payload);
-        setUser(updatedUser);
+    try {
+      const updatedUser = isFollowingUser
+        ? await unfollow(payload)
+        : await follow(payload);
+      setLoggedInUser(updatedUser);
+      if (isFollowingUser) {
         fetchedUser.followers = fetchedUser.followers.filter(
-          (id) => id !== user._id,
+          (id) => id !== loggedInUser._id,
         );
-      } catch (error) {
-        toast({
-          title: "Unfollow Failed",
-          description: (error as Error).message,
-          status: "error",
-          isClosable: true,
-        });
+      } else {
+        fetchedUser.followers.push(loggedInUser._id);
       }
+    } catch (error) {
+      toastError({
+        title: "Follow Failed",
+        description: (error as Error).message,
+      });
     }
   };
 
-  if (isFetchingUser) {
-    return <Spinner color="black" />;
-  }
-
-  if (userError || !fetchedUser) {
-    return (
-      <Alert
-        p={8}
-        status="error"
-        variant="solid"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <AlertIcon boxSize={10} color="red.500" />
-        <Text color="red.500" fontSize="xl" fontWeight="bold">
-          {userError?.message || "Failed to fetch user"}
-        </Text>
-      </Alert>
-    );
-  }
-
-  const isOwnProfile = user && user._id === fetchedUser._id;
-  const user_data = isOwnProfile ? user : fetchedUser;
-
-  const renderContent = () => {
-    switch (type) {
-      case "maps":
-        return (
-          <GenericVirtualList<Map, number>
-            items={user_data.maps}
-            type={"maps"}
-            pageSize={5}
-            renderItem={(map) => <MapItem key={map._id} map={map} />}
-          />
-        );
-      case "places":
-        return (
-          <GenericVirtualList<Place, string>
-            items={[...user_data.places].reverse()}
-            type={"places"}
-            pageSize={5}
-            renderItem={(place) => <PlaceItem key={place._id} place={place} />}
-          />
-        );
-      case "followers":
-        return (
-          <GenericVirtualList<User, number>
-            items={[...user_data.followers].reverse()}
-            type={"users"}
-            pageSize={10}
-            renderItem={(user) => <UserItem key={user._id} user={user} />}
-          />
-        );
-      case "following":
-        return (
-          <GenericVirtualList<User, number>
-            items={[...user_data.following].reverse()}
-            type={"users"}
-            pageSize={10}
-            renderItem={(user) => <UserItem key={user._id} user={user} />}
-          />
-        );
-    }
+  const tabMap: Record<ProfileTab, React.ReactNode> = {
+    maps: (
+      <GenericVirtualList<Map, number>
+        items={[...user.maps].reverse()}
+        type="maps"
+        pageSize={5}
+        renderItem={(map) => <MapItem key={map._id} map={map} />}
+      />
+    ),
+    places: (
+      <GenericVirtualList<Place, string>
+        items={[...user.places].reverse()}
+        type="places"
+        pageSize={5}
+        renderItem={(place) => <PlaceItem key={place._id} place={place} />}
+      />
+    ),
+    followers: (
+      <GenericVirtualList<User, number>
+        items={[...user.followers].reverse()}
+        type="users"
+        pageSize={10}
+        renderItem={(u) => <UserItem key={u._id} user={u} />}
+      />
+    ),
+    following: (
+      <GenericVirtualList<User, number>
+        items={[...user.following].reverse()}
+        type="users"
+        pageSize={10}
+        renderItem={(u) => <UserItem key={u._id} user={u} />}
+      />
+    ),
   };
 
   return (
-    <Flex
-      direction="column"
-      gap={8}
-      w="2xl"
-      alignItems="center"
-      justifyContent="center"
-    >
-      <Flex gap={8} w={"xl"}>
-        <Avatar
-          name={fetchedUser.username}
-          src="" // Provide user profile pic URL if available
-          size={"2xl"}
-        />
-        <Flex direction="column" w={"full"} justifyContent={"center"}>
-          <Flex alignItems={"center"} justifyContent={"space-between"}>
-            <Text
-              color="black"
-              fontSize="5xl"
-              fontWeight="medium"
-              textAlign="left"
-            >
-              {fetchedUser.username}
-            </Text>
+    <Flex direction="column" alignItems="center" gap={8}>
+      <ProfileHeader
+        user={fetchedUser}
+        isOwnProfile={isOwnProfile}
+        isFollowingUser={isFollowingUser}
+        isFollowLoading={isFollowing || isUnfollowing}
+        onFollowToggle={handleFollowToggle}
+      />
 
-            {isOwnProfile ? (
-              <CustomButton
-                width={120}
-                height={50}
-                isSelected={true}
-                onClick={() => navigate(`/${fetchedUser.username}/edit`)}
-              >
-                Edit profile
-              </CustomButton>
-            ) : (
-              user && (
-                <CustomButton
-                  width={120}
-                  height={50}
-                  isSelected={true}
-                  onClick={
-                    fetchedUser.followers.includes(user._id)
-                      ? handleUnfollow
-                      : handleFollow
-                  }
-                  isDisabled={
-                    fetchedUser.followers.includes(user._id)
-                      ? isUnfollowing
-                      : isFollowing
-                  }
-                >
-                  {fetchedUser.followers.includes(user._id)
-                    ? "Unfollow"
-                    : "Follow"}
-                </CustomButton>
-              )
-            )}
-          </Flex>
-
-          <Text
-            color="black"
-            fontSize="xl"
-            fontWeight="normal"
-            textAlign="left"
-          >
-            {fetchedUser.name}
-          </Text>
-        </Flex>
-      </Flex>
       <Flex direction="column" gap={4} w={"2xl"}>
         <Flex justifyContent="space-between" gap={4}>
-          <ToggleButton
-            onClick={() => setType("maps")}
-            isSelected={type === "maps"}
-          >
-            <Status
-              value={user_data.maps.length}
-              name={"maps"}
-              isSelected={type === "maps"}
-            />
-          </ToggleButton>
-          <ToggleButton
-            onClick={() => setType("places")}
-            isSelected={type === "places"}
-          >
-            <Status
-              value={user_data.places.length}
-              name={"places"}
-              isSelected={type === "places"}
-            />
-          </ToggleButton>
-          <ToggleButton
-            onClick={() => setType("followers")}
-            isSelected={type === "followers"}
-          >
-            <Status
-              value={user_data.followers.length}
-              name={"followers"}
-              isSelected={type === "followers"}
-            />
-          </ToggleButton>
-          <ToggleButton
-            onClick={() => setType("following")}
-            isSelected={type === "following"}
-          >
-            <Status
-              value={user_data.following.length}
-              name={"following"}
-              isSelected={type === "following"}
-            />
-          </ToggleButton>
+          {(["maps", "places", "followers", "following"] as ProfileTab[]).map(
+            (tab) => (
+              <ToggleButton
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                isSelected={activeTab === tab}
+              >
+                <Status
+                  name={tab}
+                  value={user[tab].length}
+                  isSelected={activeTab === tab}
+                />
+              </ToggleButton>
+            ),
+          )}
         </Flex>
 
-        {renderContent()}
+        {tabMap[activeTab]}
       </Flex>
     </Flex>
   );

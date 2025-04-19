@@ -6,12 +6,12 @@ import useAddMapLike from "./hooks/useAddMapLike.ts";
 import useRemoveMapLike from "./hooks/useRemoveMapLike.ts";
 import CardItem from "../CardItem.tsx";
 import { GoogleMap } from "@react-google-maps/api";
-import Carousel from "../Carousel.tsx";
+import UseToastError from "../../hooks/useToastError.tsx";
 import SmallPlaceItem from "../Place/SmallPlaceItem.tsx";
 import useFetchPlaces from "../Place/hooks/useFetchPlaces.ts";
 import CustomMarker from "./CustomMarker.tsx";
 import { Map } from "../../../models/Map.ts";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
 
 interface MapItemProps {
   map: Map;
@@ -19,20 +19,20 @@ interface MapItemProps {
 
 const MapItem: React.FC<MapItemProps> = ({ map }) => {
   const toast = useToast();
-  const { user, setUser } = useUserStore();
+  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { removeMap, isRemovingMap } = useRemoveMapFromUser();
   const { addMapLike, isAddingMapLike } = useAddMapLike();
   const { removeMapLike, isRemovingMapLike } = useRemoveMapLike();
 
-  const alreadyHasMap = user?.maps.includes(map._id);
+  const alreadyHasMap = loggedInUser?.maps.includes(map._id);
   const { places, isLoading } = useFetchPlaces({
     placeIds: map.places,
   });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleAddMap = async () => {
-    if (user === null) {
+    if (loggedInUser === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to like a map.",
@@ -41,17 +41,17 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
       });
       return;
     }
-    if (map && user && !alreadyHasMap) {
+    if (map && loggedInUser && !alreadyHasMap) {
       try {
-        const payload = { mapId: map._id, userId: user._id };
+        const payload = { mapId: map._id, userId: loggedInUser._id };
         const updatedUser = await addMapToUser(payload);
-        setUser(updatedUser);
-        await addMapLike({ mapId: map._id, userId: user._id });
-        map.likes.push(user._id);
+        setLoggedInUser(updatedUser);
+        await addMapLike({ mapId: map._id, userId: loggedInUser._id });
+        map.likes.push(loggedInUser._id);
       } catch (error) {
         toast({
-          title: "Error Adding Map",
-          description: (error as Error).message,
+          title: "UseToastError Adding Map",
+          description: (error as UseToastError).message,
           status: "error",
           isClosable: true,
         });
@@ -60,17 +60,17 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
   };
 
   const handleRemoveMap = async () => {
-    if (map && user && alreadyHasMap) {
+    if (map && loggedInUser && alreadyHasMap) {
       try {
-        const payload = { mapId: map._id, userId: user._id };
+        const payload = { mapId: map._id, userId: loggedInUser._id };
         const updatedUser = await removeMap(payload);
-        setUser(updatedUser);
-        await removeMapLike({ mapId: map._id, userId: user._id });
-        map.likes = map.likes.filter((id) => id !== user._id);
+        setLoggedInUser(updatedUser);
+        await removeMapLike({ mapId: map._id, userId: loggedInUser._id });
+        map.likes = map.likes.filter((id) => id !== loggedInUser._id);
       } catch (error) {
         toast({
-          title: "Error Removing Map",
-          description: (error as Error).message,
+          title: "UseToastError Removing Map",
+          description: (error as UseToastError).message,
           status: "error",
           isClosable: true,
         });
@@ -134,7 +134,7 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
               />
             ))}
           </GoogleMap>
-          <Carousel
+          <UseToastError
             currentIndex={currentIndex}
             onIndexChange={setCurrentIndex}
             width="50%"
@@ -143,7 +143,7 @@ const MapItem: React.FC<MapItemProps> = ({ map }) => {
             {places.map((place) => (
               <SmallPlaceItem place={place} key={place._id} />
             ))}
-          </Carousel>
+          </UseToastError>
         </Flex>
         <Flex color={"black"} textAlign={"left"} gap={2}>
           <Text fontWeight={"medium"}>username</Text>

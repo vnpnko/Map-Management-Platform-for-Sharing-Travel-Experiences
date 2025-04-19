@@ -6,14 +6,18 @@ import CustomBox from "../../common/components/ui/CustomBox.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
-import { useUserStore } from "../../store/useUserStore.ts";
+import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
 
 const EditProfilePage: React.FC = () => {
-  const { user, setUser } = useUserStore();
+  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
 
-  const [updatedName, setUpdatedName] = useState(user!.name);
-  const [updatedUsername, setUpdatedUsername] = useState(user!.username);
-  const [updatedPassword, setUpdatedPassword] = useState(user!.password);
+  const [updatedName, setUpdatedName] = useState(loggedInUser!.name);
+  const [updatedUsername, setUpdatedUsername] = useState(
+    loggedInUser!.username,
+  );
+  const [updatedPassword, setUpdatedPassword] = useState(
+    loggedInUser!.password,
+  );
 
   const { updateUserData, isUpdatingUserData } = useUpdateUser();
   const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
@@ -33,16 +37,16 @@ const EditProfilePage: React.FC = () => {
   }, [deleteUserError, toast]);
 
   const handleLogout = () => {
-    setUser(null);
+    setLoggedInUser(null);
     navigate("/");
   };
 
   const handleDeleteUser = async () => {
-    if (user) {
+    if (loggedInUser) {
       try {
-        const data = await deleteUser({ _id: user._id });
+        const data = await deleteUser({ _id: loggedInUser._id });
         if (data) {
-          setUser(null);
+          setLoggedInUser(null);
           navigate("/");
         }
       } catch (error) {
@@ -57,16 +61,16 @@ const EditProfilePage: React.FC = () => {
   };
 
   const handleUpdateUserData = async () => {
-    if (user) {
+    if (loggedInUser) {
       try {
         const payload = {
-          id: user._id,
+          id: loggedInUser._id,
           name: updatedName,
           username: updatedUsername,
           password: updatedPassword,
         };
         const updatedUser = await updateUserData(payload);
-        setUser(updatedUser);
+        setLoggedInUser(updatedUser);
         navigate(`/${updatedUsername}`);
       } catch (error) {
         toast({

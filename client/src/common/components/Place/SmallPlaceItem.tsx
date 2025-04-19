@@ -7,7 +7,7 @@ import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
 import favmaps_logo from "../../../assets/favmaps_logo.png";
 import IconCover from "../ui/IconCover.tsx";
 
@@ -17,17 +17,18 @@ interface SmallPlaceItemProps {
 
 const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   const toast = useToast();
-  const { user, setUser } = useUserStore();
+  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { removePlaceFromUser, isRemovingPlaceFromUser } =
     useRemovePlaceFromUser();
   const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
   const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace = user && user.places.includes(place._id);
+  const alreadyHasPlace =
+    loggedInUser && loggedInUser.places.includes(place._id);
 
   const handleAddPlace = async () => {
-    if (user === null) {
+    if (loggedInUser === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to like a place.",
@@ -36,15 +37,15 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
       });
       return;
     }
-    if (place && user && !alreadyHasPlace) {
+    if (place && loggedInUser && !alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: user._id };
+        const payload = { placeId: place._id, userId: loggedInUser._id };
         const updatedUser = await addPlaceToUser(payload);
-        setUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: user._id });
+        setLoggedInUser(updatedUser);
+        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
         toast({
-          title: "Error Adding hooks",
+          title: "UseToastError Adding hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,
@@ -54,15 +55,15 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   };
 
   const handleRemovePlace = async () => {
-    if (place && user && alreadyHasPlace) {
+    if (place && loggedInUser && alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: user._id };
+        const payload = { placeId: place._id, userId: loggedInUser._id };
         const updatedUser = await removePlaceFromUser(payload);
-        setUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: user._id });
+        setLoggedInUser(updatedUser);
+        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
         toast({
-          title: "Error Removing hooks",
+          title: "UseToastError Removing hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,

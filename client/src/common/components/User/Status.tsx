@@ -2,8 +2,8 @@ import React from "react";
 import { Text } from "@chakra-ui/react";
 
 interface StatusProps {
-  value: string | number;
   name: string;
+  value: string | number;
   isSelected?: boolean;
 }
 

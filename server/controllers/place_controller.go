@@ -27,8 +27,8 @@ func GetPlaces(c *fiber.Ctx) error {
 	cursor, err := config.DB.Collection("places").Find(context.Background(), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Database error",
-			Details: err.Error(),
+			UseToastError:   "Database error",
+			Details: err.UseToastError(),
 		})
 	}
 	defer cursor.Close(context.Background())
@@ -37,8 +37,8 @@ func GetPlaces(c *fiber.Ctx) error {
 		var place models.Place
 		if err := cursor.Decode(&place); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-				Error:   "Failed to decode place",
-				Details: err.Error(),
+				UseToastError:   "Failed to decode place",
+				Details: err.UseToastError(),
 			})
 		}
 		places = append(places, place)
@@ -50,7 +50,7 @@ func GetPlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Place ID is required",
+			UseToastError: "Place ID is required",
 		})
 	}
 
@@ -60,8 +60,8 @@ func GetPlace(c *fiber.Ctx) error {
 		Decode(&place)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error:   "Place not found",
-			Details: err.Error(),
+			UseToastError:   "Place not found",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -72,8 +72,8 @@ func CreatePlace(c *fiber.Ctx) error {
 	var place models.Place
 	if err := c.BodyParser(&place); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid request body",
-			Details: err.Error(),
+			UseToastError:   "Invalid request body",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -81,8 +81,8 @@ func CreatePlace(c *fiber.Ctx) error {
 		InsertOne(context.Background(), place)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Could not create place",
-			Details: err.Error(),
+			UseToastError:   "Could not create place",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -93,7 +93,7 @@ func DeletePlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Place ID is required",
+			UseToastError: "Place ID is required",
 		})
 	}
 
@@ -101,8 +101,8 @@ func DeletePlace(c *fiber.Ctx) error {
 	_, err := config.DB.Collection("places").DeleteOne(context.Background(), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Could not delete place",
-			Details: err.Error(),
+			UseToastError:   "Could not delete place",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -117,15 +117,15 @@ func AddPlaceLike(c *fiber.Ctx) error {
 
 	if placeID == "" || userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "placeId and userId are required",
+			UseToastError: "placeId and userId are required",
 		})
 	}
 
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
+			UseToastError:   "Invalid user ID format",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -139,8 +139,8 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("places").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Could not add like to place",
-			Details: err.Error(),
+			UseToastError:   "Could not add like to place",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -153,15 +153,15 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 
 	if placeID == "" || userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "placeId and userId are required",
+			UseToastError: "placeId and userId are required",
 		})
 	}
 
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
+			UseToastError:   "Invalid user ID format",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -175,8 +175,8 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("places").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Could not remove like from place",
-			Details: err.Error(),
+			UseToastError:   "Could not remove like from place",
+			Details: err.UseToastError(),
 		})
 	}
 
@@ -200,8 +200,8 @@ func GetPlacesIDs(c *fiber.Ctx) error {
 	ids, err := dbhelpers.GetItemIDs[string](config.DB.Collection("places"), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to fetch place IDs",
-			Details: err.Error(),
+			UseToastError:   "Failed to fetch place IDs",
+			Details: err.UseToastError(),
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(ids)
