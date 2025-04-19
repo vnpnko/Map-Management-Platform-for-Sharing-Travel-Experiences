@@ -188,7 +188,7 @@ const ProfilePage: React.FC = () => {
                 isSelected={true}
                 onClick={() => navigate(`/${fetchedUser.username}/edit`)}
               >
-                Edit Profile
+                Edit profile
               </CustomButton>
             ) : (
               user && (
@@ -252,7 +252,7 @@ const ProfilePage: React.FC = () => {
             isSelected={type === "followers"}
           >
             <Status
-              value={fetchedUser.followers.length}
+              value={user_data.followers.length}
               name={"followers"}
               isSelected={type === "followers"}
             />
@@ -262,7 +262,7 @@ const ProfilePage: React.FC = () => {
             isSelected={type === "following"}
           >
             <Status
-              value={fetchedUser.following.length}
+              value={user_data.following.length}
               name={"following"}
               isSelected={type === "following"}
             />

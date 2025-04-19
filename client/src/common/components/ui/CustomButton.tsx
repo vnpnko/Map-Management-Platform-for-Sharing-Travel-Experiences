@@ -19,7 +19,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       textColor={isSelected ? "black" : "white"}
       bg={isSelected ? "blackAlpha.300" : "blue.500"}
       borderWidth={2}
-      w={"full"}
+      borderColor="blackAlpha.300"
       {...props}
     >
       {children}

@@ -29,6 +29,11 @@ const EditProfilePage: React.FC = () => {
     }
   }, [deleteUserError, toast]);
 
+  const handleLogout = () => {
+    setUser(null);
+    navigate("/");
+  };
+
   const handleDeleteUser = async () => {
     if (user) {
       try {
@@ -74,7 +79,7 @@ const EditProfilePage: React.FC = () => {
     <Flex direction="column">
       <CustomBox p={8} w={"sm"}>
         <Heading mb={8} color="black" size="lg">
-          Edit Profile
+          Edit profile
         </Heading>
 
         <Flex
@@ -98,31 +103,33 @@ const EditProfilePage: React.FC = () => {
             onChange={(e) => setUpdatedName(e.target.value)}
           />
 
-          <Flex gap={4}>
-            <CustomButton
-              flex={1}
-              isSelected={false}
-              onClick={handleUpdateUserData}
-            >
-              Save Changes
-            </CustomButton>
-            <CustomButton
-              flex={1}
-              bg="gray.50"
-              textColor="black"
-              _hover={{
-                bg: "red.500",
-                textColor: "white",
-              }}
-              borderColor="blackAlpha.300"
-              borderWidth={2}
-              w={"full"}
-              onClick={handleDeleteUser}
-              isDisabled={isDeletingUser}
-            >
-              Delete Account
-            </CustomButton>
-          </Flex>
+          <CustomButton
+            isSelected={false}
+            disabled={true}
+            onClick={handleUpdateUserData}
+          >
+            Save changes
+          </CustomButton>
+          <CustomButton
+            isSelected={true}
+            textColor="black"
+            borderColor="blackAlpha.300"
+            onClick={handleLogout}
+          >
+            Logout
+          </CustomButton>
+          <CustomButton
+            isSelected={true}
+            textColor="red.500"
+            _hover={{
+              bg: "red.500",
+              textColor: "white",
+            }}
+            onClick={handleDeleteUser}
+            isDisabled={isDeletingUser}
+          >
+            Delete account
+          </CustomButton>
         </Flex>
       </CustomBox>
     </Flex>

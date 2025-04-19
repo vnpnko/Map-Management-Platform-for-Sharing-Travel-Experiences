@@ -16,7 +16,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const { user: loggedInUser } = useUserStore();
+  const { user: loggedInUser, setUser } = useUserStore();
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 
@@ -39,9 +39,8 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
     };
     try {
       const data = await follow(payload);
-      if (data) {
-        user.followers.push(loggedInUser._id);
-      }
+      setUser(data);
+      user.followers.push(loggedInUser._id);
     } catch (error) {
       console.error("Follow failed:", error);
     }
@@ -55,9 +54,8 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
     };
     try {
       const data = await unfollow(payload);
-      if (data) {
-        user.followers = user.followers.filter((id) => id !== loggedInUser._id);
-      }
+      setUser(data);
+      user.followers = user.followers.filter((id) => id !== loggedInUser._id);
     } catch (error) {
       console.error("Unfollow failed:", error);
     }
@@ -68,7 +66,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       display={"flex"}
       alignItems="center"
       justifyContent={"space-between"}
-      p={4}
+      py={2}
     >
       <Flex gap={4} alignItems="center">
         <Avatar
@@ -99,7 +97,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       {!isOwnUser &&
         (isFollowed ? (
           <CustomButton
-            w={"min"}
+            w={100}
             onClick={handleUnfollow}
             isDisabled={isUnfollowing}
             color="black"
@@ -109,11 +107,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
             Unfollow
           </CustomButton>
         ) : (
-          <CustomButton
-            w={"min"}
-            onClick={handleFollow}
-            isDisabled={isFollowing}
-          >
+          <CustomButton w={100} onClick={handleFollow} isDisabled={isFollowing}>
             Follow
           </CustomButton>
         ))}

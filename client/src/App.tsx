@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { DraftMapProvider } from "./context/DraftMapContext";
-import GoogleMapsLoader from "./common/components/GoogleMapsLoader.tsx";
-
 import { Layout } from "./common/components/layout/Layout";
+import GoogleMapsLoader from "./common/components/GoogleMapsLoader.tsx";
 import SignUpPage from "./pages/SignUp/SignUpPage.tsx";
 import LogInPage from "./pages/LogIn/LogInPage.tsx";
 import ProfilePage from "./pages/Profile/ProfilePage.tsx";
@@ -17,24 +16,6 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout />}>
-          <Route
-            path="/search"
-            element={
-              <GoogleMapsLoader>
-                <ExplorePage />
-              </GoogleMapsLoader>
-            }
-          />
-          <Route
-            path="/create"
-            element={
-              <DraftMapProvider>
-                <GoogleMapsLoader>
-                  <CreatePage />
-                </GoogleMapsLoader>
-              </DraftMapProvider>
-            }
-          />
           <Route path="/" element={<LogInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route
@@ -46,6 +27,24 @@ function App() {
             }
           />
           <Route path="/:username/edit" element={<EditProfilePage />} />
+          <Route
+            path="/create"
+            element={
+              <DraftMapProvider>
+                <GoogleMapsLoader>
+                  <CreatePage />
+                </GoogleMapsLoader>
+              </DraftMapProvider>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <GoogleMapsLoader>
+                <ExplorePage />
+              </GoogleMapsLoader>
+            }
+          />
         </Route>
       </Routes>
     </Router>
