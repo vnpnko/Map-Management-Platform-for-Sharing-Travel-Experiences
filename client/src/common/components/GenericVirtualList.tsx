@@ -55,7 +55,13 @@ function GenericVirtualList<T, ID>({
         </Box>
       }
     >
-      {itemObjects.map(renderItem)}
+      {itemObjects.length === 0 ? (
+        <Box textAlign="center" p={4}>
+          <Text color="black">no {type} found</Text>
+        </Box>
+      ) : (
+        itemObjects.map(renderItem)
+      )}
       {isFetchingNextPage && (
         <Box textAlign="center" color="black" p={4}>
           <Spinner />
