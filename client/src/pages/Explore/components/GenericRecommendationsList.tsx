@@ -7,14 +7,12 @@ interface GenericRecommendationsListProps<T> {
   userId: number;
   resource: "users" | "places" | "maps";
   renderItem: (item: T) => React.ReactNode;
-  title?: string;
 }
 
 function GenericRecommendationsList<T>({
   userId,
   resource,
   renderItem,
-  title = "Recommended",
 }: GenericRecommendationsListProps<T>) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -24,9 +22,7 @@ function GenericRecommendationsList<T>({
   return (
     <Flex borderWidth="medium" borderColor="green.500" direction="column">
       <Flex justify="space-between" align="center" bg="green.500" p={2}>
-        <Text fontWeight="medium">
-          {title} {resource}
-        </Text>
+        <Text fontWeight="medium">Recommended {resource}</Text>
         <IconButton
           aria-label={isOpen ? "Hide recommendations" : "Show recommendations"}
           icon={<FaRegListAlt />}
@@ -37,12 +33,14 @@ function GenericRecommendationsList<T>({
       {isOpen && (
         <>
           {isLoadingRecommendations && (
-            <Box textAlign="center" p={3}>
-              <Spinner />
+            <Box textAlign="center" p={4}>
+              <Spinner color={"black"} />
             </Box>
           )}
           {recommendationsError && (
-            <Text color="red.500">{recommendationsError.message}</Text>
+            <Box textAlign="center" p={4}>
+              <Text color="red.500">{recommendationsError.message}</Text>
+            </Box>
           )}
           {recommendations.map(renderItem)}
         </>

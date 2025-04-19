@@ -25,7 +25,7 @@ const ExploreItems = <T, ID>({
   const ids = data?.filter((id) => id !== user?._id) || [];
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" w={"full"}>
       {user && (
         <GenericRecommendationsList<T>
           userId={user._id}

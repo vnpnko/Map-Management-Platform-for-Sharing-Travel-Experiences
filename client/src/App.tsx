@@ -7,15 +7,8 @@ import SignUpPage from "./pages/SignUp/SignUpPage.tsx";
 import LogInPage from "./pages/LogIn/LogInPage.tsx";
 import ProfilePage from "./pages/Profile/ProfilePage.tsx";
 import EditProfilePage from "./pages/EditProfile/EditProfilePage.tsx";
-
-import ExplorePage from "./pages/Explore/ExplorePage";
-import ExploreUsers from "./pages/Explore/components/ExploreUsers.tsx";
-import ExplorePlaces from "./pages/Explore/components/ExplorePlaces.tsx";
-import ExploreMaps from "./pages/Explore/components/ExploreMaps.tsx";
-
 import CreatePage from "./pages/Create/CreatePage";
-import CreatePlace from "./pages/Create/components/CreatePlace";
-import CreateMap from "./pages/Create/components/CreateMap";
+import ExplorePage from "./pages/Explore/ExplorePage.tsx";
 
 export const BASE_URL = "http://localhost:5000/api";
 
@@ -24,61 +17,24 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout />}>
-          {/* Explore Routes */}
-          <Route path="/search" element={<ExplorePage />}>
-            <Route index element={<ExploreUsers />} />
-            <Route path="users" element={<ExploreUsers />} />
-            <Route
-              path="places"
-              element={
+          <Route
+            path="/search"
+            element={
+              <GoogleMapsLoader>
+                <ExplorePage />
+              </GoogleMapsLoader>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <DraftMapProvider>
                 <GoogleMapsLoader>
-                  <ExplorePlaces />
+                  <CreatePage />
                 </GoogleMapsLoader>
-              }
-            />
-            <Route
-              path="maps"
-              element={
-                <GoogleMapsLoader>
-                  <ExploreMaps />
-                </GoogleMapsLoader>
-              }
-            />
-          </Route>
-
-          {/* Create Routes */}
-          <Route path="/create" element={<CreatePage />}>
-            <Route
-              index
-              element={
-                <DraftMapProvider>
-                  <GoogleMapsLoader>
-                    <CreatePlace />
-                  </GoogleMapsLoader>
-                </DraftMapProvider>
-              }
-            />
-            <Route
-              path="places"
-              element={
-                <DraftMapProvider>
-                  <GoogleMapsLoader>
-                    <CreatePlace />
-                  </GoogleMapsLoader>
-                </DraftMapProvider>
-              }
-            />
-            <Route
-              path="maps"
-              element={
-                <DraftMapProvider>
-                  <CreateMap />
-                </DraftMapProvider>
-              }
-            />
-          </Route>
-
-          {/* Auth & Profile */}
+              </DraftMapProvider>
+            }
+          />
           <Route path="/" element={<LogInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route
