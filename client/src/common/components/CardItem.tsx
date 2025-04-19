@@ -18,8 +18,7 @@ interface GenericCardItemProps {
   likesCount: number;
   // commentsCount?: number;
   likedByUser?: boolean;
-  onLike: () => void;
-  onUnlike: () => void;
+  onLikeToggle: () => void;
   isPending: boolean;
   children?: React.ReactNode;
 }
@@ -30,13 +29,11 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   url,
   likesCount,
   likedByUser = false,
-  onLike,
-  onUnlike,
+  onLikeToggle,
   isPending,
   children,
 }) => {
   const toast = useToast();
-  const handleLikeToggle = () => (likedByUser ? onUnlike() : onLike());
 
   const copyLink = (message: string) => {
     if (url) {
@@ -66,7 +63,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
                 aria-label={likedByUser ? "Unlike" : "Like"}
                 icon={likedByUser ? <FaHeart /> : <FaRegHeart />}
                 color={likedByUser ? "red.500" : "gray.600"}
-                onClick={handleLikeToggle}
+                onClick={onLikeToggle}
                 disabled={isPending}
               />
               <Text fontSize="sm" color="gray.600">

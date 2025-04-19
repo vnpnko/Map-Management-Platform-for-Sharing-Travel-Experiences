@@ -1,6 +1,6 @@
 import React from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { useToast, Image, Flex } from "@chakra-ui/react";
+import { Image, Flex } from "@chakra-ui/react";
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser";
 import useAddPlaceLike from "./hooks/useAddPlaceLike";
@@ -9,68 +9,63 @@ import CardItem from "../CardItem";
 import { Place } from "../../../models/Place.ts";
 import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
 import favmaps_logo from "../../../assets/favmaps_logo.png";
+import useToastError from "../../hooks/useToastError.tsx";
 
 interface PlaceItemProps {
   place: Place;
 }
 
 const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
-  const toast = useToast();
+  const toastError = useToastError();
   const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { removePlaceFromUser, isRemovingPlaceFromUser } =
     useRemovePlaceFromUser();
   const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
   const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace = loggedInUser?.places.includes(place._id);
+  const alreadyLiked = loggedInUser?.places.includes(place._id);
+
+  const handleLikePlaceToggle = async () => {
+    if (!loggedInUser) {
+      toastError({
+        title: "Like Failed",
+        description: "Login to like places",
+      });
+      return;
+    }
+
+    const payload = {
+      placeId: place._id,
+      userId: loggedInUser._id,
+    };
+
+    try {
+      const updatedUser = alreadyLiked
+        ? await removePlaceFromUser(payload)
+        : await addPlaceToUser(payload);
+
+      setLoggedInUser(updatedUser);
+
+      if (alreadyLiked) {
+        await removePlaceLike(payload);
+        place.likes = place.likes.filter((id) => id !== loggedInUser._id);
+      } else {
+        await addPlaceLike(payload);
+        place.likes.push(loggedInUser._id);
+      }
+    } catch (error) {
+      toastError({
+        title: alreadyLiked ? "Unlike Failed" : "Like Failed",
+        description: (error as Error).message,
+      });
+    }
+  };
 
   const center = {
     lat: place.location.lat,
     lng: place.location.lng,
-  };
-
-  const toastError = (title: string, error: Error) => {
-    toast({
-      title,
-      description: error.message,
-      status: "error",
-      isClosable: true,
-    });
-  };
-
-  const handleAddPlace = async () => {
-    if (loggedInUser === null) {
-      toastError("Not Authorized", new Error("Please log in to like a place."));
-      return;
-    }
-    if (place && loggedInUser && !alreadyHasPlace) {
-      try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
-        const updatedUser = await addPlaceToUser(payload);
-        setLoggedInUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
-        // while liking a place, we need to make a heart button unable
-        place.likes.push(loggedInUser._id);
-      } catch (error) {
-        toastError("UseToastError Adding Place", error as Error);
-      }
-    }
-  };
-
-  const handleRemovePlace = async () => {
-    if (place && loggedInUser && alreadyHasPlace) {
-      try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
-        const updatedUser = await removePlaceFromUser(payload);
-        setLoggedInUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
-        // while unliking a place, we need to make a heart button unable
-        place.likes = place.likes.filter((like) => like !== loggedInUser._id);
-      } catch (error) {
-        toastError("UseToastError Removing PLace", error as Error);
-      }
-    }
   };
 
   return (
@@ -81,9 +76,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       imageUrl={place.photoUrl}
       likesCount={place.likes.length}
       // commentsCount={place.comments.length}
-      likedByUser={alreadyHasPlace}
-      onLike={handleAddPlace}
-      onUnlike={handleRemovePlace}
+      likedByUser={alreadyLiked}
+      onLikeToggle={handleLikePlaceToggle}
       isPending={
         isAddingPlaceLike ||
         isRemovingPlaceLike ||
