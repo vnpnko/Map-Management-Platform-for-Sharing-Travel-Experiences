@@ -7,10 +7,6 @@ import {
   Text,
   Avatar,
   useToast,
-  Button,
-  Tabs,
-  TabList,
-  Tab,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
@@ -26,6 +22,7 @@ import MapItem from "../../common/components/Map/MapItem.tsx";
 import { useUserStore } from "../../store/useUserStore.ts";
 import { User } from "../../models/User.ts";
 import UserItem from "../../common/components/User/UserItem.tsx";
+import ToggleButton from "../../common/components/ui/ToggleButton.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
@@ -38,9 +35,7 @@ const ProfilePage: React.FC = () => {
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 
-  const [selectedTab, setSelectedTab] = useState<
-    "followers" | "following" | "places" | "maps"
-  >("followers");
+  const [type, setType] = useState("maps");
 
   const handleFollow = async () => {
     if (user === null) {
@@ -96,11 +91,6 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    navigate("/");
-  };
-
   if (isFetchingUser) {
     return <Spinner color="black" />;
   }
@@ -125,33 +115,54 @@ const ProfilePage: React.FC = () => {
   const isOwnProfile = user && user._id === fetchedUser._id;
   const user_data = isOwnProfile ? user : fetchedUser;
 
-  const userStats = [
-    {
-      name: "maps",
-      value: user_data.maps.length,
-    },
-    {
-      name: "places",
-      value: user_data.places.length,
-    },
-    {
-      name: "followers",
-      value: fetchedUser.followers.length,
-    },
-    {
-      name: "following",
-      value: fetchedUser.following.length,
-    },
-  ];
+  const renderContent = () => {
+    switch (type) {
+      case "maps":
+        return (
+          <GenericVirtualList<Map, number>
+            items={user_data.maps}
+            type={"maps"}
+            pageSize={5}
+            renderItem={(map) => <MapItem key={map._id} map={map} />}
+          />
+        );
+      case "places":
+        return (
+          <GenericVirtualList<Place, string>
+            items={[...user_data.places].reverse()}
+            type={"places"}
+            pageSize={5}
+            renderItem={(place) => <PlaceItem key={place._id} place={place} />}
+          />
+        );
+      case "followers":
+        return (
+          <GenericVirtualList<User, number>
+            items={[...user_data.followers].reverse()}
+            type={"users"}
+            pageSize={10}
+            renderItem={(user) => <UserItem key={user._id} user={user} />}
+          />
+        );
+      case "following":
+        return (
+          <GenericVirtualList<User, number>
+            items={[...user_data.following].reverse()}
+            type={"users"}
+            pageSize={10}
+            renderItem={(user) => <UserItem key={user._id} user={user} />}
+          />
+        );
+    }
+  };
 
   return (
     <Flex
       direction="column"
       gap={8}
-      maxWidth="2xl"
-      w="full"
+      w="2xl"
       alignItems="center"
-      margin="auto"
+      justifyContent="center"
     >
       <Flex gap={8} w={"xl"}>
         <Avatar
@@ -159,44 +170,31 @@ const ProfilePage: React.FC = () => {
           src="" // Provide user profile pic URL if available
           size={"2xl"}
         />
-        <Flex direction="column" justifyContent={"space-between"} w={"full"}>
-          <Flex justifyContent={"space-between"} alignItems={"center"}>
+        <Flex direction="column" w={"full"} justifyContent={"center"}>
+          <Flex alignItems={"center"} justifyContent={"space-between"}>
             <Text
               color="black"
-              fontSize="3xl"
-              fontWeight={"thin"}
+              fontSize="5xl"
+              fontWeight="medium"
               textAlign="left"
             >
               {fetchedUser.username}
             </Text>
 
             {isOwnProfile ? (
-              <Flex gap={4} alignItems={"center"}>
-                <CustomButton
-                  width={120}
-                  isSelected={true}
-                  onClick={() => navigate(`/${fetchedUser.username}/edit`)}
-                >
-                  Edit Profile
-                </CustomButton>
-                <Button
-                  width={120}
-                  textColor="black"
-                  _hover={{
-                    bg: "red.500",
-                    textColor: "white",
-                  }}
-                  borderWidth={2}
-                  borderColor="blackAlpha.300"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </Flex>
+              <CustomButton
+                width={120}
+                height={50}
+                isSelected={true}
+                onClick={() => navigate(`/${fetchedUser.username}/edit`)}
+              >
+                Edit Profile
+              </CustomButton>
             ) : (
               user && (
                 <CustomButton
-                  width={220}
+                  width={120}
+                  height={50}
                   isSelected={true}
                   onClick={
                     fetchedUser.followers.includes(user._id)
@@ -217,15 +215,9 @@ const ProfilePage: React.FC = () => {
             )}
           </Flex>
 
-          <Flex justifyContent={"space-between"}>
-            {userStats.map((item) => (
-              <Status key={item.name} value={item.value} name={item.name} />
-            ))}
-          </Flex>
-
           <Text
             color="black"
-            fontSize="lg"
+            fontSize="xl"
             fontWeight="normal"
             textAlign="left"
           >
@@ -233,70 +225,51 @@ const ProfilePage: React.FC = () => {
           </Text>
         </Flex>
       </Flex>
-      <Flex direction={"column"} gap={4} w={"full"}>
-        <Tabs
-          onChange={(index) =>
-            setSelectedTab(
-              ["followers", "following", "places", "maps"][index] as
-                | "followers"
-                | "following"
-                | "places"
-                | "maps",
-            )
-          }
-          isFitted
-        >
-          <TabList borderColor="blackAlpha.300">
-            <Tab
-              color={selectedTab === "followers" ? "black" : "blackAlpha.700"}
-            >
-              Followers
-            </Tab>
-            <Tab
-              color={selectedTab === "following" ? "black" : "blackAlpha.700"}
-            >
-              Following
-            </Tab>
-            <Tab color={selectedTab === "places" ? "black" : "blackAlpha.700"}>
-              Places
-            </Tab>
-            <Tab color={selectedTab === "maps" ? "black" : "blackAlpha.700"}>
-              Maps
-            </Tab>
-          </TabList>
-        </Tabs>
-        {selectedTab === "followers" && (
-          <GenericVirtualList<User, number>
-            items={[...user_data.followers].reverse()}
-            type={"users"}
-            pageSize={10}
-            renderItem={(user) => <UserItem key={user._id} user={user} />}
-          />
-        )}
-        {selectedTab === "following" && (
-          <GenericVirtualList<User, number>
-            items={[...user_data.following].reverse()}
-            type={"users"}
-            pageSize={10}
-            renderItem={(user) => <UserItem key={user._id} user={user} />}
-          />
-        )}
-        {selectedTab === "places" && (
-          <GenericVirtualList<Place, string>
-            items={[...user_data.places].reverse()}
-            type={"places"}
-            pageSize={5}
-            renderItem={(place) => <PlaceItem key={place._id} place={place} />}
-          />
-        )}
-        {selectedTab === "maps" && (
-          <GenericVirtualList<Map, number>
-            items={user_data.maps}
-            type={"maps"}
-            pageSize={5}
-            renderItem={(map) => <MapItem key={map._id} map={map} />}
-          />
-        )}
+      <Flex direction="column" gap={4} w={"2xl"}>
+        <Flex justifyContent="space-between" gap={4}>
+          <ToggleButton
+            onClick={() => setType("maps")}
+            isSelected={type === "maps"}
+          >
+            <Status
+              value={user_data.maps.length}
+              name={"maps"}
+              isSelected={type === "maps"}
+            />
+          </ToggleButton>
+          <ToggleButton
+            onClick={() => setType("places")}
+            isSelected={type === "places"}
+          >
+            <Status
+              value={user_data.places.length}
+              name={"places"}
+              isSelected={type === "places"}
+            />
+          </ToggleButton>
+          <ToggleButton
+            onClick={() => setType("followers")}
+            isSelected={type === "followers"}
+          >
+            <Status
+              value={fetchedUser.followers.length}
+              name={"followers"}
+              isSelected={type === "followers"}
+            />
+          </ToggleButton>
+          <ToggleButton
+            onClick={() => setType("following")}
+            isSelected={type === "following"}
+          >
+            <Status
+              value={fetchedUser.following.length}
+              name={"following"}
+              isSelected={type === "following"}
+            />
+          </ToggleButton>
+        </Flex>
+
+        {renderContent()}
       </Flex>
     </Flex>
   );

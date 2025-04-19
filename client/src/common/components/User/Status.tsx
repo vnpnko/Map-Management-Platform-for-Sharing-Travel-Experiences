@@ -4,15 +4,24 @@ import { Text } from "@chakra-ui/react";
 interface StatusProps {
   value: string | number;
   name: string;
+  isSelected?: boolean;
 }
 
-const Status: React.FC<StatusProps> = ({ value, name }) => {
+const Status: React.FC<StatusProps> = ({ value, name, isSelected }) => {
   return (
     <Text fontSize="md">
-      <Text as="span" color="black" fontWeight="medium">
+      <Text
+        as="span"
+        color={isSelected ? "black" : "white"}
+        fontWeight="medium"
+      >
         {value}
       </Text>{" "}
-      <Text as="span" color="blackAlpha.600" fontWeight="normal">
+      <Text
+        as="span"
+        color={isSelected ? "black" : "white"}
+        fontWeight="normal"
+      >
         {name}
       </Text>
     </Text>
