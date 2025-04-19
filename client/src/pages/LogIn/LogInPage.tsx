@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import CustomBox from "../../common/components/ui/CustomBox.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
 import { Flex, Heading, Link, Text } from "@chakra-ui/react";
@@ -8,9 +7,9 @@ import { useUserStore } from "../../store/useUserStore.ts";
 import useLogIn from "./hooks/useLogIn.ts";
 
 const LogInPage: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const LogInPayload = { email, password };
+  const LogInPayload = { username, password };
 
   const [error, setError] = useState<Error | null>(null);
 
@@ -26,63 +25,57 @@ const LogInPage: React.FC = () => {
       setUser(user);
       navigate(`/${user.username}`);
     } catch (error) {
-      console.error("Login failed:", error);
       setError(error as Error);
     }
   };
 
   return (
-    <Flex direction="column">
-      <CustomBox p={8} w={"sm"}>
-        <Heading mb={8} color="black" size="lg">
-          Welcome back!
-        </Heading>
+    <Flex direction="column" w={"sm"} gap={8} alignItems={"center"}>
+      <Heading color="black" size="lg">
+        Log in to Favmaps
+      </Heading>
 
-        <Flex as="form" onSubmit={handleLogin} direction={"column"} gap={4}>
-          <CustomInput
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            isDisabled={isLoggingIn}
-          />
+      <Flex
+        as="form"
+        onSubmit={handleLogin}
+        direction={"column"}
+        w={"full"}
+        gap={4}
+      >
+        <CustomInput
+          name="Username"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          isDisabled={isLoggingIn}
+        />
 
-          <CustomInput
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            isDisabled={isLoggingIn}
-          />
+        <CustomInput
+          name="Password"
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          isDisabled={isLoggingIn}
+        />
 
-          <CustomButton
-            type="submit"
-            isSelected={isLoggingIn}
-            isDisabled={isLoggingIn}
-          >
-            {isLoggingIn ? "Logging in..." : "Log in"}
-          </CustomButton>
-        </Flex>
+        <CustomButton
+          type="submit"
+          isSelected={isLoggingIn}
+          isDisabled={isLoggingIn}
+        >
+          {isLoggingIn ? "Logging in..." : "Log In"}
+        </CustomButton>
+      </Flex>
 
-        {error && (
-          <Text mt={4} color="red.500">
-            {error.message}
-          </Text>
-        )}
-      </CustomBox>
+      {error && <Text color="red.500">{error.message}</Text>}
 
-      <CustomBox p={8} w={"sm"}>
-        <Text fontSize="md" color="black">
-          Don&apos;t have an account?{" "}
-          <Link
-            as={RouterLink}
-            to="/signup"
-            color="blue.500"
-            fontWeight={"bold"}
-          >
-            Sign up
-          </Link>
-        </Text>
-      </CustomBox>
+      <Text fontSize="md" color="black">
+        {"Don't have an account? "}
+        <Link as={RouterLink} to="/signup" color="blue.500" fontWeight={"bold"}>
+          Sign up
+        </Link>
+      </Text>
     </Flex>
   );
 };

@@ -99,9 +99,6 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	if user.Email == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email is required"})
-	}
 	if user.Name == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Name is required"})
 	}
@@ -138,7 +135,7 @@ func CreateUser(c *fiber.Ctx) error {
 
 func LoginUser(c *fiber.Ctx) error {
 	var payload struct {
-		Email    string `json:"email"`
+		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 
@@ -149,7 +146,7 @@ func LoginUser(c *fiber.Ctx) error {
 	}
 
 	filter := bson.M{
-		"email":    payload.Email,
+		"username": payload.Username,
 		"password": payload.Password,
 	}
 
@@ -298,25 +295,22 @@ func UnfollowUser(c *fiber.Ctx) error {
 func UpdateUserData(c *fiber.Ctx) error {
 	var body struct {
 		UserID   primitive.ObjectID `json:"id"`
-		Username string             `json:"username"`
 		Name     string             `json:"name"`
+		Username string             `json:"username"`
+		Password string             `json:"password"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request body",
 		})
 	}
-	if body.Username == "" || body.Name == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Username and name are required",
-		})
-	}
 
 	filter := bson.M{"_id": body.UserID}
 	update := bson.M{
 		"$set": bson.M{
-			"username": body.Username,
 			"name":     body.Name,
+			"username": body.Username,
+			"password": body.Password,
 		},
 	}
 

@@ -25,7 +25,7 @@ const ExploreItems = <T, ID>({
   const ids = data?.filter((id) => id !== user?._id) || [];
 
   return (
-    <Flex direction="column" w={"full"}>
+    <Flex direction="column" w={"full"} gap={4}>
       {user && (
         <GenericRecommendationsList<T>
           userId={user._id}
@@ -35,7 +35,6 @@ const ExploreItems = <T, ID>({
       )}
 
       <CustomInput
-        mt={4}
         placeholder={placeholder}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}

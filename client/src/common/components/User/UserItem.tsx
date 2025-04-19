@@ -66,6 +66,8 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       display={"flex"}
       alignItems="center"
       justifyContent={"space-between"}
+      borderBottomWidth={2}
+      borderColor={"blackAlpha.300"}
       py={2}
     >
       <Flex gap={4} alignItems="center">

@@ -4,8 +4,9 @@ import { User } from "../../../models/User.ts";
 
 interface UpdateUserDataPayload {
   id: number;
-  username?: string;
   name?: string;
+  username?: string;
+  password?: string;
 }
 
 type UpdateUserDataResponse = User;

@@ -10,10 +10,13 @@ import { useUserStore } from "../../store/useUserStore.ts";
 
 const EditProfilePage: React.FC = () => {
   const { user, setUser } = useUserStore();
-  const [updatedUsername, setUpdatedUsername] = useState(user!.username);
+
   const [updatedName, setUpdatedName] = useState(user!.name);
-  const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
+  const [updatedUsername, setUpdatedUsername] = useState(user!.username);
+  const [updatedPassword, setUpdatedPassword] = useState(user!.password);
+
   const { updateUserData, isUpdatingUserData } = useUpdateUser();
+  const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -58,8 +61,9 @@ const EditProfilePage: React.FC = () => {
       try {
         const payload = {
           id: user._id,
-          username: updatedUsername,
           name: updatedName,
+          username: updatedUsername,
+          password: updatedPassword,
         };
         const updatedUser = await updateUserData(payload);
         setUser(updatedUser);
@@ -89,6 +93,13 @@ const EditProfilePage: React.FC = () => {
           gap={4}
         >
           <CustomInput
+            name="Full name"
+            placeholder="Full name"
+            value={updatedName}
+            onChange={(e) => setUpdatedName(e.target.value)}
+          />
+
+          <CustomInput
             name="Username"
             placeholder="Username"
             value={updatedUsername}
@@ -97,15 +108,17 @@ const EditProfilePage: React.FC = () => {
           />
 
           <CustomInput
-            name="Name"
-            placeholder="Name"
-            value={updatedName}
-            onChange={(e) => setUpdatedName(e.target.value)}
+            name="Password"
+            placeholder="Password"
+            type="password"
+            value={updatedPassword}
+            onChange={(e) => setUpdatedPassword(e.target.value)}
+            isDisabled={isUpdatingUserData}
           />
 
           <CustomButton
             isSelected={false}
-            disabled={true}
+            isDisabled={isUpdatingUserData}
             onClick={handleUpdateUserData}
           >
             Save changes

@@ -3,7 +3,7 @@ import { BASE_URL } from "../../../App.tsx";
 import { User } from "../../../models/User.ts";
 
 interface LogInPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
