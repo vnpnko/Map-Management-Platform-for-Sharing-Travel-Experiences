@@ -9,5 +9,5 @@ export interface Place {
   };
   formattedAddress?: string;
   types?: string[];
-  photoUrl?: string;
+  photoUrl: string;
 }

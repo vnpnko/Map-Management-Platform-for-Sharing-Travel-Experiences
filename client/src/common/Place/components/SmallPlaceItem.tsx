@@ -8,8 +8,8 @@ import useRemovePlaceLike from "../hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import favmaps_logo from "../../../assets/favmaps_logo.png";
 import IconCover from "../../ui/IconCover.tsx";
+import { BASE_URL } from "../../../App.tsx";
 
 interface SmallPlaceItemProps {
   place: Place;
@@ -124,9 +124,8 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
           </Flex>
         </Flex>
         <Image
-          src={place.photoUrl || favmaps_logo}
+          src={`${BASE_URL}/proxy/photo?url=${encodeURIComponent(place.photoUrl)}`}
           alt={`${place.name} photo`}
-          borderRadius="md"
           width={"100%"}
           height={"200px"}
           objectFit="cover"

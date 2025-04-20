@@ -3,8 +3,8 @@ import { GoogleMap, Marker } from "@react-google-maps/api";
 import { Image, Flex } from "@chakra-ui/react";
 import CardItem from "../../components/CardItem.tsx";
 import { Place } from "../../../models/Place.ts";
-import favmaps_logo from "../../../assets/favmaps_logo.png";
 import useToggleLikePlace from "../hooks/useToggleLikePlace.ts";
+import { BASE_URL } from "../../../App.tsx";
 
 interface PlaceItemProps {
   place: Place;
@@ -17,8 +17,6 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
     lat: place.location.lat,
     lng: place.location.lng,
   };
-
-  console.log("PlaceItem", place);
 
   return (
     <CardItem
@@ -44,7 +42,7 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           <Marker position={center} />
         </GoogleMap>
         <Image
-          src={place.photoUrl || favmaps_logo}
+          src={`${BASE_URL}/proxy/googlephoto?url=${encodeURIComponent(place.photoUrl)}`}
           alt={`${place.name} photo`}
           width={"50%"}
           height={"300px"}
