@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Flex } from "@chakra-ui/react";
-import CustomInput from "./ui/CustomInput.tsx";
+import CustomInput from "../ui/CustomInput.tsx";
 import GenericVirtualList from "./GenericVirtualList.tsx";
 import useFetchIds from "../hooks/useFetchIds.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";

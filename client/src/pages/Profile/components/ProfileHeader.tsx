@@ -1,5 +1,5 @@
 import { Flex, Text, Avatar } from "@chakra-ui/react";
-import CustomButton from "../../../common/components/ui/CustomButton";
+import CustomButton from "../../../common/ui/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { User } from "../../../models/User";
 

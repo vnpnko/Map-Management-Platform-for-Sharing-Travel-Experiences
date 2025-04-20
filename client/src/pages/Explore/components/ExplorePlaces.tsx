@@ -1,6 +1,6 @@
 import React from "react";
 import ExploreItems from "../../../common/components/ExploreItems";
-import PlaceItem from "../../../common/components/Place/PlaceItem";
+import PlaceItem from "../../../common/Place/components/PlaceItem.tsx";
 import { Place } from "../../../models/Place";
 
 const ExplorePlaces: React.FC = () => {

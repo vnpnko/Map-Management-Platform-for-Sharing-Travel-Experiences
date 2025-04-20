@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import CustomButton from "../../common/components/ui/CustomButton.tsx";
-import CustomInput from "../../common/components/ui/CustomInput.tsx";
+import CustomButton from "../../common/ui/CustomButton.tsx";
+import CustomInput from "../../common/ui/CustomInput.tsx";
 import useSignUp from "./hooks/useSignUp.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 

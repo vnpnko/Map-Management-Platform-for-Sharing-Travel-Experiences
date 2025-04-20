@@ -7,8 +7,8 @@ import {
   FaRegMap,
   FaRegPaperPlane,
 } from "react-icons/fa6";
-import CustomBox from "./ui/CustomBox.tsx";
-import IconCover from "./ui/IconCover.tsx";
+import CustomBox from "../ui/CustomBox.tsx";
+import IconCover from "../ui/IconCover.tsx";
 
 interface GenericCardItemProps {
   id: string | number;
@@ -50,7 +50,16 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   return (
     <CustomBox key={id} borderBottomWidth={2} borderColor={"blackAlpha.300"}>
       <Flex direction={"column"}>
-        <Text py={4} fontSize={"medium"} textAlign={"left"} color={"black"}>
+        <Text
+          py={4}
+          fontSize={"lg"}
+          color={"black"}
+          textAlign={"left"}
+          w={"min"}
+          cursor={"pointer"}
+          _hover={{ textDecoration: "underline" }}
+          onClick={() => window.open(`/place/${id}`, "_blank")}
+        >
           {name}
         </Text>
 

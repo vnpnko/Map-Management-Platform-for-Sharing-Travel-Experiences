@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flex, Heading, useToast } from "@chakra-ui/react";
-import CustomButton from "../../common/components/ui/CustomButton.tsx";
-import CustomBox from "../../common/components/ui/CustomBox.tsx";
-import CustomInput from "../../common/components/ui/CustomInput.tsx";
+import CustomButton from "../../common/ui/CustomButton.tsx";
+import CustomBox from "../../common/ui/CustomBox.tsx";
+import CustomInput from "../../common/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";

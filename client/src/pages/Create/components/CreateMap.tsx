@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import MapForm from "../../../common/components/Map/MapForm.tsx";
+import MapForm from "../../../common/Map/components/MapForm.tsx";
 import { Map } from "../../../models/Map.ts";
-import MapItem from "../../../common/components/Map/MapItem.tsx";
+import MapItem from "../../../common/Map/components/MapItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import CustomDivider from "../../../common/components/ui/CustomDivider.tsx";
+import CustomDivider from "../../../common/ui/CustomDivider.tsx";
 import { useMapDraftStore } from "../../../store/mapDraftStore.ts";
 
 const CreateMap: React.FC = () => {

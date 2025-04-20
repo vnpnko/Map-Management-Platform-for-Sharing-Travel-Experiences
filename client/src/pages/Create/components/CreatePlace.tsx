@@ -1,10 +1,10 @@
 import React from "react";
-import PlaceForm from "../../../common/components/Place/PlaceForm.tsx";
+import PlaceForm from "../../../common/Place/components/PlaceForm.tsx";
 import { Place } from "../../../models/Place.ts";
-import PlaceItem from "../../../common/components/Place/PlaceItem.tsx";
+import PlaceItem from "../../../common/Place/components/PlaceItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import CustomDivider from "../../../common/components/ui/CustomDivider.tsx";
+import CustomDivider from "../../../common/ui/CustomDivider.tsx";
 
 const CreatePlace: React.FC = () => {
   const { loggedInUser } = loggedInUserStore();

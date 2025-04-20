@@ -1,6 +1,6 @@
 import React from "react";
 import ExploreItems from "../../../common/components/ExploreItems";
-import MapItem from "../../../common/components/Map/MapItem";
+import MapItem from "../../../common/Map/components/MapItem.tsx";
 import { Map } from "../../../models/Map";
 
 const ExploreMaps: React.FC = () => {

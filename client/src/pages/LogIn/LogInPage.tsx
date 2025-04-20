@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import CustomInput from "../../common/components/ui/CustomInput.tsx";
-import CustomButton from "../../common/components/ui/CustomButton.tsx";
+import CustomInput from "../../common/ui/CustomInput.tsx";
+import CustomButton from "../../common/ui/CustomButton.tsx";
 import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
