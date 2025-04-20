@@ -17,7 +17,7 @@ const CustomInput: React.FC<CustomInputProps> = ({
         color={"black"}
         borderColor="blackAlpha.300"
         _hover={{ borderColor: "blackAlpha.300" }}
-        _placeholder={{ color: "gray.500" }}
+        _placeholder={{ color: "blackAlpha.500" }}
         {...rest}
       >
         {children}

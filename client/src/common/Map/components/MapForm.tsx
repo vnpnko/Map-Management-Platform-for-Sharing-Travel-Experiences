@@ -4,7 +4,6 @@ import CustomInput from "../../ui/CustomInput.tsx";
 import CustomTextarea from "../../ui/CustomTextarea.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
 import PlaceForm from "../../Place/components/PlaceForm.tsx";
-import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
 import useAddMapToUser from "../hooks/useAddMapToUser.ts";
 import useAddMapLike from "../hooks/useAddMapLike.ts";
@@ -13,11 +12,12 @@ import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../../Place/components/PlaceItem.tsx";
 import GenericVirtualList from "../../components/GenericVirtualList.tsx";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
+import { mapDraftStore } from "../../../store/mapDraftStore.ts";
 
 const MapForm: React.FC = () => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
-  const { draftMap, dispatch } = useDraftMap();
+  const { mapDraft, setMapDraft } = mapDraftStore();
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
 
@@ -28,7 +28,7 @@ const MapForm: React.FC = () => {
   const payload = {
     name: mapName,
     description: mapDescription,
-    places: draftMap ? draftMap.places : [],
+    places: mapDraft ? mapDraft.places : [],
     likes: [loggedInUser!._id],
   };
 
@@ -36,7 +36,7 @@ const MapForm: React.FC = () => {
     e.preventDefault();
     try {
       const createdMap = await createMap(payload);
-      dispatch({ type: "SET_MAP", payload: createdMap });
+      setMapDraft(createdMap);
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,
         userId: loggedInUser!._id,
@@ -44,7 +44,7 @@ const MapForm: React.FC = () => {
       await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
 
-      dispatch({ type: "RESET" });
+      setMapDraft(null);
       setMapName("");
       setMapDescription("");
     } catch (error) {
@@ -86,10 +86,10 @@ const MapForm: React.FC = () => {
       </Flex>
 
       <Flex direction="column" gap={4} mt={4}>
-        <PlaceForm />
-        {draftMap && draftMap.places.length > 0 && (
+        <PlaceForm isDraftingMap={true} />
+        {mapDraft && mapDraft.places.length > 0 && (
           <GenericVirtualList<Place, string>
-            items={draftMap.places}
+            items={mapDraft.places}
             type={"places"}
             pageSize={5}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
