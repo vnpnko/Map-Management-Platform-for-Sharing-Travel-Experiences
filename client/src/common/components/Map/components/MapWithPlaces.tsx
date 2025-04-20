@@ -4,7 +4,7 @@ import Carousel from "../../Carousel";
 import CustomMarker from "../CustomMarker";
 import SmallPlaceItem from "../../Place/SmallPlaceItem";
 import { Place } from "../../../../models/Place";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 interface MapWithPlacesProps {
   places: Place[];
@@ -13,18 +13,27 @@ interface MapWithPlacesProps {
 const MapWithPlaces: React.FC<MapWithPlacesProps> = ({ places }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  if (places.length === 0) return null;
-
-  const bounds = new window.google.maps.LatLngBounds();
-  places.forEach((place) =>
-    bounds.extend({ lat: place.location.lat, lng: place.location.lng }),
+  const handleMapLoad = useCallback(
+    (map: google.maps.Map) => {
+      setTimeout(() => {
+        const bounds = new window.google.maps.LatLngBounds();
+        places.forEach((place) => {
+          bounds.extend({
+            lat: place.location.lat,
+            lng: place.location.lng,
+          });
+        });
+        map.fitBounds(bounds, 100);
+      }, 100);
+    },
+    [places],
   );
 
   return (
     <Flex>
       <GoogleMap
         mapContainerStyle={{ width: "50%", height: "300px" }}
-        onLoad={(map) => map.fitBounds(bounds)}
+        onLoad={handleMapLoad}
       >
         {places.map((place, idx) => (
           <CustomMarker
