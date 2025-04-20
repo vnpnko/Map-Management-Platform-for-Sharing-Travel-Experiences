@@ -210,7 +210,7 @@ func FollowUser(c *fiber.Ctx) error {
 	_, err = session.WithTransaction(context.Background(), callback)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Transaction failed: " + err.UseToastError(),
+			"error": "Transaction failed: " + err.Error(),
 		})
 	}
 
@@ -275,7 +275,7 @@ func UnfollowUser(c *fiber.Ctx) error {
 	_, err = session.WithTransaction(context.Background(), callback)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Transaction failed: " + err.UseToastError(),
+			"error": "Transaction failed: " + err.Error(),
 		})
 	}
 

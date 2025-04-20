@@ -22,7 +22,6 @@ func ConnectDB() *mongo.Client {
 		log.Fatal(err)
 	}
 
-	// Verify connection
 	err = client.Ping(Ctx, nil)
 	if err != nil {
 		log.Fatal(err)

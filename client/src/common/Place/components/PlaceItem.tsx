@@ -18,6 +18,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
     lng: place.location.lng,
   };
 
+  console.log("PlaceItem", place);
+
   return (
     <CardItem
       id={place._id}
