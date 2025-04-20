@@ -1,25 +1,25 @@
 import { Flex, Image, Text } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton.tsx";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../../../assets/favmaps_logo.png";
 
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useUserStore();
+  const { loggedInUser } = loggedInUserStore();
 
   const isAuthPage =
     location.pathname === "/" || location.pathname === "/signup";
 
   let buttons;
 
-  if (user) {
+  if (loggedInUser) {
     buttons = (
       <>
         <CustomButton
-          isSelected={location.pathname === `/${user.username}`}
-          onClick={() => navigate(`/${user.username}`)}
+          isSelected={location.pathname === `/${loggedInUser.username}`}
+          onClick={() => navigate(`/${loggedInUser.username}`)}
         >
           Home
         </CustomButton>
@@ -68,6 +68,12 @@ export function Header() {
       boxShadow="md"
       px={4}
       py={1}
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bg="white"
+      zIndex={1000}
     >
       <Flex align="center">
         <Image src={logo} alt="favmaps logo" boxSize={12} mr={2} />
@@ -77,7 +83,7 @@ export function Header() {
           color="black"
           fontFamily="heading"
         >
-          favmaps
+          Favmaps
         </Text>
       </Flex>
 

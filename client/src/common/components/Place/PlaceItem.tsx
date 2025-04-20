@@ -1,75 +1,21 @@
 import React from "react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { useToast, Image, Flex } from "@chakra-ui/react";
-import useAddPlaceToUser from "./hooks/useAddPlaceToUser";
-import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser";
-import useAddPlaceLike from "./hooks/useAddPlaceLike";
-import useRemovePlaceLike from "./hooks/useRemovePlaceLike";
+import { Image, Flex } from "@chakra-ui/react";
 import CardItem from "../CardItem";
 import { Place } from "../../../models/Place.ts";
-import { useUserStore } from "../../../store/useUserStore.ts";
 import favmaps_logo from "../../../assets/favmaps_logo.png";
+import useToggleLikePlace from "./hooks/useToggleLikePlace.ts";
 
 interface PlaceItemProps {
   place: Place;
 }
 
 const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
-  const toast = useToast();
-  const { user, setUser } = useUserStore();
-  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser, isRemovingPlaceFromUser } = useRemovePlaceFromUser();
-  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
-
-  const alreadyHasPlace = user?.places.includes(place._id);
+  const { alreadyLiked, handleToggle, isPending } = useToggleLikePlace(place);
 
   const center = {
     lat: place.location.lat,
     lng: place.location.lng,
-  };
-
-  const toastError = (title: string, error: Error) => {
-    toast({
-      title,
-      description: error.message,
-      status: "error",
-      isClosable: true,
-    });
-  };
-
-  const handleAddPlace = async () => {
-    if (user === null) {
-      toastError("Not Authorized", new Error("Please log in to like a place."));
-      return;
-    }
-    if (place && user && !alreadyHasPlace) {
-      try {
-        const payload = { placeId: place._id, userId: user._id };
-        const updatedUser = await addPlaceToUser(payload);
-        setUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: user._id });
-        // while liking a place, we need to make a heart button unable
-        place.likes.push(user._id);
-      } catch (error) {
-        toastError("Error Adding Place", error as Error);
-      }
-    }
-  };
-
-  const handleRemovePlace = async () => {
-    if (place && user && alreadyHasPlace) {
-      try {
-        const payload = { placeId: place._id, userId: user._id };
-        const updatedUser = await removePlaceFromUser(payload);
-        setUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: user._id });
-        // while unliking a place, we need to make a heart button unable
-        place.likes = place.likes.filter((like) => like !== user._id);
-      } catch (error) {
-        toastError("Error Removing PLace", error as Error);
-      }
-    }
   };
 
   return (
@@ -80,10 +26,9 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       imageUrl={place.photoUrl}
       likesCount={place.likes.length}
       // commentsCount={place.comments.length}
-      likedByUser={alreadyHasPlace}
-      onLike={handleAddPlace}
-      onUnlike={handleRemovePlace}
-      isPending={isAddingPlaceLike || isRemovingPlaceLike || isAddingPlaceToUser || isRemovingPlaceFromUser}
+      likedByUser={alreadyLiked}
+      onLikeToggle={handleToggle}
+      isPending={isPending}
     >
       <Flex>
         <GoogleMap

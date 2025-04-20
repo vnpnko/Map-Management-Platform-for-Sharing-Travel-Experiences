@@ -19,6 +19,7 @@ func SetupRoutes(app *fiber.App) {
 	users.Get("/username/:username", controllers.GetUserByUsername)
 	users.Get("/id/:id", controllers.GetUserByID)
 	users.Get("/get/ids", controllers.GetUsersIDs)
+	users.Get("/recommended/:userId", controllers.GetRecommendedUsers)
 
 	users.Post("/:followerId/following/:followeeId", controllers.FollowUser)
 	users.Delete("/:followerId/following/:followeeId", controllers.UnfollowUser)
@@ -37,6 +38,7 @@ func SetupRoutes(app *fiber.App) {
 	places.Get("/", controllers.GetPlaces)
 	places.Get("/:id", controllers.GetPlace)
 	places.Get("/get/ids", controllers.GetPlacesIDs)
+	places.Get("/recommended/:userId", controllers.GetRecommendedPlaces)
 
 	places.Post("/", controllers.CreatePlace)
 	places.Delete("/:id", controllers.DeletePlace)
@@ -49,6 +51,7 @@ func SetupRoutes(app *fiber.App) {
 	maps.Get("/", controllers.GetMaps)
 	maps.Get("/:id", controllers.GetMap)
 	maps.Get("/get/ids", controllers.GetMapsIDs)
+	maps.Get("/recommended/:userId", controllers.GetRecommendedMaps)
 
 	maps.Post("/", controllers.CreateMap)
 	maps.Delete("/:id", controllers.DeleteMap)

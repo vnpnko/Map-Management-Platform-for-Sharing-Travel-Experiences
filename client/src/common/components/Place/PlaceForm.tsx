@@ -9,7 +9,7 @@ import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
 import useFetchPlace from "./hooks/useFetchPlace.ts";
 import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 
 interface PlaceFormProps {
   onPlaceCreated?: (newPlaceId: string) => void;
@@ -36,7 +36,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
   };
 
   const toast = useToast();
-  const { user, setUser } = useUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { dispatch } = useDraftMap();
 
   const { place } = useFetchPlace({ place_id: placeId });
@@ -82,17 +82,17 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
       if (place) {
         updatedUser = await addPlaceToUser({
           placeId,
-          userId: user!._id,
+          userId: loggedInUser!._id,
         });
       } else {
         await createPlace(payload);
         updatedUser = await addPlaceToUser({
           placeId,
-          userId: user!._id,
+          userId: loggedInUser!._id,
         });
       }
-      await addPlaceLike({ placeId, userId: user!._id });
-      setUser(updatedUser);
+      await addPlaceLike({ placeId, userId: loggedInUser!._id });
+      setLoggedInUser(updatedUser);
 
       dispatch({ type: "ADD_PLACE", payload: placeId });
 

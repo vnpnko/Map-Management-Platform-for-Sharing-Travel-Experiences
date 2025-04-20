@@ -1,5 +1,5 @@
 import React from "react";
-import {Flex, Text, useToast, Image, IconButton} from "@chakra-ui/react";
+import { Flex, Text, useToast, Image, IconButton } from "@chakra-ui/react";
 import CustomBox from "../ui/CustomBox.tsx";
 import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
 import useRemovePlaceFromUser from "./hooks/useRemovePlaceFromUser.ts";
@@ -7,26 +7,28 @@ import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import favmaps_logo from "../../../assets/favmaps_logo.png";
 import IconCover from "../ui/IconCover.tsx";
 
-interface PlaceItemProps {
+interface SmallPlaceItemProps {
   place: Place;
 }
 
-const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
+const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   const toast = useToast();
-  const { user, setUser } = useUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser, isRemovingPlaceFromUser } = useRemovePlaceFromUser();
+  const { removePlaceFromUser, isRemovingPlaceFromUser } =
+    useRemovePlaceFromUser();
   const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
   const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
 
-  const alreadyHasPlace = user && user.places.includes(place._id);
+  const alreadyHasPlace =
+    loggedInUser && loggedInUser.places.includes(place._id);
 
   const handleAddPlace = async () => {
-    if (user === null) {
+    if (loggedInUser === null) {
       toast({
         title: "Not Authorized",
         description: "Please log in to like a place.",
@@ -35,15 +37,15 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
       });
       return;
     }
-    if (place && user && !alreadyHasPlace) {
+    if (place && loggedInUser && !alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: user._id };
+        const payload = { placeId: place._id, userId: loggedInUser._id };
         const updatedUser = await addPlaceToUser(payload);
-        setUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: user._id });
+        setLoggedInUser(updatedUser);
+        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
         toast({
-          title: "Error Adding hooks",
+          title: "UseToastError Adding hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,
@@ -53,15 +55,15 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   };
 
   const handleRemovePlace = async () => {
-    if (place && user && alreadyHasPlace) {
+    if (place && loggedInUser && alreadyHasPlace) {
       try {
-        const payload = { placeId: place._id, userId: user._id };
+        const payload = { placeId: place._id, userId: loggedInUser._id };
         const updatedUser = await removePlaceFromUser(payload);
-        setUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: user._id });
+        setLoggedInUser(updatedUser);
+        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
       } catch (error) {
         toast({
-          title: "Error Removing hooks",
+          title: "UseToastError Removing hooks",
           description: (error as Error).message,
           status: "error",
           isClosable: true,
@@ -70,11 +72,11 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
     }
   };
 
-  const handleLikeToggle = () => (alreadyHasPlace ? handleRemovePlace() : handleAddPlace());
-
+  const handleLikeToggle = () =>
+    alreadyHasPlace ? handleRemovePlace() : handleAddPlace();
 
   return (
-    <CustomBox  borderTopWidth="2px" borderTopColor={"blackAlpha.300"} height="300px">
+    <CustomBox bgColor={"blackAlpha.100"} borderWidth={0} height="300px">
       <Flex direction="column">
         <Flex justifyContent="space-between" alignItems="center">
           <Text
@@ -92,20 +94,31 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
           <Flex alignItems={"center"} gap={2} py={2}>
             <IconCover>
               <IconButton
-                  aria-label={"Open in Google Maps"}
-                  icon={<FaRegMap size={25}/>}
-                  color={"gray.600"}
-                  onClick={() => window.open(place.url, "_blank")}
+                aria-label={"Open in Google Maps"}
+                icon={<FaRegMap size={25} />}
+                color={"gray.600"}
+                onClick={() => window.open(place.url, "_blank")}
               />
             </IconCover>
             <IconCover>
               <IconButton
-                  aria-label={alreadyHasPlace ? "Unlike" : "Like"}
-                  // size={"lg"}
-                  icon={alreadyHasPlace ? <FaHeart size={25}/> : <FaRegHeart size={25}/>}
-                  color={alreadyHasPlace ? "red.500" : "gray.600"}
-                  onClick={handleLikeToggle}
-                  disabled={isAddingPlaceLike || isRemovingPlaceLike || isAddingPlaceToUser || isRemovingPlaceFromUser}
+                aria-label={alreadyHasPlace ? "Unlike" : "Like"}
+                // size={"lg"}
+                icon={
+                  alreadyHasPlace ? (
+                    <FaHeart size={25} />
+                  ) : (
+                    <FaRegHeart size={25} />
+                  )
+                }
+                color={alreadyHasPlace ? "red.500" : "gray.600"}
+                onClick={handleLikeToggle}
+                disabled={
+                  isAddingPlaceLike ||
+                  isRemovingPlaceLike ||
+                  isAddingPlaceToUser ||
+                  isRemovingPlaceFromUser
+                }
               />
             </IconCover>
           </Flex>
@@ -123,4 +136,4 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
   );
 };
 
-export default PlaceItem;
+export default SmallPlaceItem;

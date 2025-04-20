@@ -6,14 +6,21 @@ import CustomBox from "../../common/components/ui/CustomBox.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
-import { useUserStore } from "../../store/useUserStore.ts";
+import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 
 const EditProfilePage: React.FC = () => {
-  const { user, setUser } = useUserStore();
-  const [updatedUsername, setUpdatedUsername] = useState(user!.username);
-  const [updatedName, setUpdatedName] = useState(user!.name);
-  const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
+
+  const [updatedName, setUpdatedName] = useState(loggedInUser!.name);
+  const [updatedUsername, setUpdatedUsername] = useState(
+    loggedInUser!.username,
+  );
+  const [updatedPassword, setUpdatedPassword] = useState(
+    loggedInUser!.password,
+  );
+
   const { updateUserData, isUpdatingUserData } = useUpdateUser();
+  const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -29,12 +36,17 @@ const EditProfilePage: React.FC = () => {
     }
   }, [deleteUserError, toast]);
 
+  const handleLogout = () => {
+    setLoggedInUser(null);
+    navigate("/");
+  };
+
   const handleDeleteUser = async () => {
-    if (user) {
+    if (loggedInUser) {
       try {
-        const data = await deleteUser({ _id: user._id });
+        const data = await deleteUser({ _id: loggedInUser._id });
         if (data) {
-          setUser(null);
+          setLoggedInUser(null);
           navigate("/");
         }
       } catch (error) {
@@ -49,15 +61,16 @@ const EditProfilePage: React.FC = () => {
   };
 
   const handleUpdateUserData = async () => {
-    if (user) {
+    if (loggedInUser) {
       try {
         const payload = {
-          id: user._id,
-          username: updatedUsername,
+          id: loggedInUser._id,
           name: updatedName,
+          username: updatedUsername,
+          password: updatedPassword,
         };
         const updatedUser = await updateUserData(payload);
-        setUser(updatedUser);
+        setLoggedInUser(updatedUser);
         navigate(`/${updatedUsername}`);
       } catch (error) {
         toast({
@@ -74,7 +87,7 @@ const EditProfilePage: React.FC = () => {
     <Flex direction="column">
       <CustomBox p={8} w={"sm"}>
         <Heading mb={8} color="black" size="lg">
-          Edit Profile
+          Edit profile
         </Heading>
 
         <Flex
@@ -84,6 +97,13 @@ const EditProfilePage: React.FC = () => {
           gap={4}
         >
           <CustomInput
+            name="Full name"
+            placeholder="Full name"
+            value={updatedName}
+            onChange={(e) => setUpdatedName(e.target.value)}
+          />
+
+          <CustomInput
             name="Username"
             placeholder="Username"
             value={updatedUsername}
@@ -92,37 +112,41 @@ const EditProfilePage: React.FC = () => {
           />
 
           <CustomInput
-            name="Name"
-            placeholder="Name"
-            value={updatedName}
-            onChange={(e) => setUpdatedName(e.target.value)}
+            name="Password"
+            placeholder="Password"
+            type="password"
+            value={updatedPassword}
+            onChange={(e) => setUpdatedPassword(e.target.value)}
+            isDisabled={isUpdatingUserData}
           />
 
-          <Flex gap={4}>
-            <CustomButton
-              flex={1}
-              isSelected={false}
-              onClick={handleUpdateUserData}
-            >
-              Save Changes
-            </CustomButton>
-            <CustomButton
-              flex={1}
-              bg="gray.50"
-              textColor="black"
-              _hover={{
-                bg: "red.500",
-                textColor: "white",
-              }}
-              borderColor="blackAlpha.300"
-              borderWidth={2}
-              w={"full"}
-              onClick={handleDeleteUser}
-              isDisabled={isDeletingUser}
-            >
-              Delete Account
-            </CustomButton>
-          </Flex>
+          <CustomButton
+            isSelected={false}
+            isDisabled={isUpdatingUserData}
+            onClick={handleUpdateUserData}
+          >
+            Save changes
+          </CustomButton>
+          <CustomButton
+            isSelected={true}
+            textColor="black"
+            borderColor="blackAlpha.300"
+            onClick={handleLogout}
+          >
+            Logout
+          </CustomButton>
+          <CustomButton
+            isSelected={true}
+            textColor="red.500"
+            _hover={{
+              bg: "red.500",
+              textColor: "white",
+            }}
+            onClick={handleDeleteUser}
+            isDisabled={isDeletingUser}
+          >
+            Delete account
+          </CustomButton>
         </Flex>
       </CustomBox>
     </Flex>

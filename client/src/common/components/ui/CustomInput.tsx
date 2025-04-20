@@ -15,9 +15,8 @@ const CustomInput: React.FC<CustomInputProps> = ({
       {name && <FormLabel color="black">{name}</FormLabel>}
       <Input
         color={"black"}
-        borderColor="gray.400"
-        _hover={{ borderColor: "blue.400" }}
-        _focus={{ borderColor: "blue.500" }}
+        borderColor="blackAlpha.300"
+        _hover={{ borderColor: "blackAlpha.300" }}
         _placeholder={{ color: "gray.500" }}
         {...rest}
       >

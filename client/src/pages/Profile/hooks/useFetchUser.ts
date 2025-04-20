@@ -24,7 +24,11 @@ const useFetchUser = (payload: FetchUserPayload) => {
     refetchOnWindowFocus: false,
   });
 
-  return { fetchedUser: data, isFetchingUser: isLoading, userError: error };
+  return {
+    fetchedUser: data,
+    isFetchingUser: isLoading,
+    fetchedUserError: error,
+  };
 };
 
 export default useFetchUser;

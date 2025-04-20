@@ -1,32 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Flex } from "@chakra-ui/react";
 import ToggleButton from "../../common/components/ui/ToggleButton.tsx";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import CreatePlace from "./components/CreatePlace.tsx";
+import CreateMap from "./components/CreateMap.tsx";
 
 const CreatePage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [type, setType] = useState("places");
 
-  const currentPath =
-    location.pathname === "/create" ? "/create/places" : location.pathname;
+  const renderContent = () => {
+    switch (type) {
+      case "places":
+        return <CreatePlace />;
+      case "maps":
+        return <CreateMap />;
+    }
+  };
 
   return (
     <Flex direction="column" gap={4} w={"2xl"}>
       <Flex justifyContent="space-between" gap={4}>
         <ToggleButton
-          onClick={() => navigate("/create/places")}
-          isSelected={currentPath === "/create/places"}
+          onClick={() => setType("places")}
+          isSelected={type === "places"}
         >
           Places
         </ToggleButton>
         <ToggleButton
-          onClick={() => navigate("/create/maps")}
-          isSelected={currentPath === "/create/maps"}
+          onClick={() => setType("maps")}
+          isSelected={type === "maps"}
         >
           Maps
         </ToggleButton>
       </Flex>
-      <Outlet />
+
+      {renderContent()}
     </Flex>
   );
 };

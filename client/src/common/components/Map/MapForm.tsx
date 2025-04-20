@@ -12,11 +12,11 @@ import CustomBox from "../ui/CustomBox";
 import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../Place/PlaceItem.tsx";
 import GenericVirtualList from "../GenericVirtualList.tsx";
-import { useUserStore } from "../../../store/useUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 
 const MapForm: React.FC = () => {
   const toast = useToast();
-  const { user, setUser } = useUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { draftMap, dispatch } = useDraftMap();
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
@@ -29,7 +29,7 @@ const MapForm: React.FC = () => {
     name: mapName,
     description: mapDescription,
     places: draftMap ? draftMap.places : [],
-    likes: [user!._id],
+    likes: [loggedInUser!._id],
   };
 
   const handleCreateMap = async (e: React.FormEvent) => {
@@ -39,10 +39,10 @@ const MapForm: React.FC = () => {
       dispatch({ type: "SET_MAP", payload: createdMap });
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,
-        userId: user!._id,
+        userId: loggedInUser!._id,
       });
-      await addMapLike({ mapId: createdMap._id, userId: user!._id });
-      setUser(updatedUser);
+      await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
+      setLoggedInUser(updatedUser);
 
       dispatch({ type: "RESET" });
       setMapName("");
@@ -58,7 +58,7 @@ const MapForm: React.FC = () => {
   };
 
   return (
-    <CustomBox w="full" p={4}>
+    <CustomBox w="full">
       <Flex
         as="form"
         onSubmit={handleCreateMap}
@@ -76,7 +76,7 @@ const MapForm: React.FC = () => {
           value={mapDescription}
           onChange={(e) => setMapDescription(e.target.value)}
         />
-        <CustomButton type="submit" ml="auto" isSelected={false}>
+        <CustomButton w={"full"} type="submit" ml="auto" isSelected={false}>
           {isCreatingMap || isAddingMapToUser ? (
             <Spinner size="md" />
           ) : (
@@ -91,6 +91,7 @@ const MapForm: React.FC = () => {
           <GenericVirtualList<Place, string>
             items={draftMap.places}
             type={"places"}
+            pageSize={5}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
           />
         )}

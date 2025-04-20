@@ -1,38 +1,48 @@
-import React from "react";
+import React, { useState } from "react";
 import { Flex } from "@chakra-ui/react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import ToggleButton from "../../common/components/ui/ToggleButton.tsx";
+import ExploreUsers from "./components/ExploreUsers.tsx";
+import ExplorePlaces from "./components/ExplorePlaces.tsx";
+import ExploreMaps from "./components/ExploreMaps.tsx";
 
 const ExplorePage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [type, setType] = useState("users");
 
-  const currentPath =
-    location.pathname === "/search" ? "/search/users" : location.pathname;
+  const renderContent = () => {
+    switch (type) {
+      case "users":
+        return <ExploreUsers />;
+      case "places":
+        return <ExplorePlaces />;
+      case "maps":
+        return <ExploreMaps />;
+    }
+  };
 
   return (
     <Flex direction="column" gap={4} w={"2xl"}>
       <Flex justifyContent="space-between" gap={4}>
         <ToggleButton
-          onClick={() => navigate("/search/users")}
-          isSelected={currentPath === "/search/users"}
+          onClick={() => setType("users")}
+          isSelected={type === "users"}
         >
           Users
         </ToggleButton>
         <ToggleButton
-          onClick={() => navigate("/search/places")}
-          isSelected={currentPath === "/search/places"}
+          onClick={() => setType("places")}
+          isSelected={type === "places"}
         >
           Places
         </ToggleButton>
         <ToggleButton
-          onClick={() => navigate("/search/maps")}
-          isSelected={currentPath === "/search/maps"}
+          onClick={() => setType("maps")}
+          isSelected={type === "maps"}
         >
           Maps
         </ToggleButton>
       </Flex>
-      <Outlet />
+
+      {renderContent()}
     </Flex>
   );
 };

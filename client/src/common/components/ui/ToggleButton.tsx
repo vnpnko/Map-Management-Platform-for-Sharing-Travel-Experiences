@@ -13,11 +13,11 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({
 }) => {
   return (
     <Button
-      _hover={{ bg: isSelected ? "" : "blue.600" }}
       textColor={isSelected ? "blue.500" : "white"}
-      bg={isSelected ? "gray.50" : "blue.500"}
-      borderColor={isSelected ? "blue.500" : ""}
+      _hover={{ bg: isSelected ? "transparent" : "blue.600" }}
+      bg={isSelected ? "transparent" : "blue.500"}
       borderWidth={2}
+      borderColor={"blue.500"}
       w={"full"}
       {...props}
     >
