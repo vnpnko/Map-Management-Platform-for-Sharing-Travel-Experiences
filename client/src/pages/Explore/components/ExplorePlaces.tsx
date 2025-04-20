@@ -8,6 +8,7 @@ const ExplorePlaces: React.FC = () => {
     <ExploreItems<Place, string>
       resource="places"
       placeholder="Search places by name"
+      pageSize={5}
       renderItem={(place) => <PlaceItem key={place._id} place={place} />}
     />
   );

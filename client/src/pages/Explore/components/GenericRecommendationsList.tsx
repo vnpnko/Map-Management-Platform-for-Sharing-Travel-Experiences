@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Flex, IconButton, Text, Spinner, Box } from "@chakra-ui/react";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
 import { FaRegListAlt } from "react-icons/fa";
 import useRecommended from "../hooks/useRecommended.ts";
+import CustomSpinner from "../../../common/ui/CustomSpinner.tsx";
+import CustomAlert from "../../../common/ui/CustomAlert.tsx";
 
 interface GenericRecommendationsListProps<T> {
   userId: number;
@@ -32,15 +34,14 @@ function GenericRecommendationsList<T>({
 
       {isOpen && (
         <>
-          {isLoadingRecommendations && (
-            <Box textAlign="center" p={4}>
-              <Spinner color={"black"} />
-            </Box>
-          )}
+          {isLoadingRecommendations && <CustomSpinner />}
           {recommendationsError && (
-            <Box textAlign="center" p={4}>
-              <Text color="red.500">{recommendationsError.message}</Text>
-            </Box>
+            <CustomAlert title={recommendationsError.message} />
+          )}
+          {recommendations.length === 0 && (
+            <Text textAlign={"center"} color={"black"} p={4}>
+              no {resource} found
+            </Text>
           )}
           {recommendations.map(renderItem)}
         </>

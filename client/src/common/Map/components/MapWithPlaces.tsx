@@ -4,7 +4,7 @@ import Carousel from "../../components/Carousel.tsx";
 import CustomMarker from "./CustomMarker.tsx";
 import SmallPlaceItem from "../../Place/components/SmallPlaceItem.tsx";
 import { Place } from "../../../models/Place.ts";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 interface MapWithPlacesProps {
   places: Place[];
@@ -13,21 +13,25 @@ interface MapWithPlacesProps {
 const MapWithPlaces: React.FC<MapWithPlacesProps> = ({ places }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handleMapLoad = useCallback(
-    (map: google.maps.Map) => {
-      setTimeout(() => {
-        const bounds = new window.google.maps.LatLngBounds();
-        places.forEach((place) => {
-          bounds.extend({
-            lat: place.location.lat,
-            lng: place.location.lng,
-          });
-        });
-        map.fitBounds(bounds, 100);
-      }, 100);
-    },
-    [places],
-  );
+  const mapRef = useRef<google.maps.Map | null>(null);
+
+  const handleMapLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const bounds = new window.google.maps.LatLngBounds();
+    places.forEach((place) => {
+      bounds.extend({
+        lat: place.location.lat,
+        lng: place.location.lng,
+      });
+    });
+
+    mapRef.current.fitBounds(bounds, 100);
+  }, [places]);
 
   return (
     <Flex>

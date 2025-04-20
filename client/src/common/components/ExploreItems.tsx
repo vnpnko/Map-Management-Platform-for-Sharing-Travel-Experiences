@@ -10,14 +10,14 @@ interface ExploreItemsProps<T> {
   resource: "users" | "places" | "maps";
   renderItem: (item: T) => React.ReactNode;
   placeholder: string;
-  pageSize?: number;
+  pageSize: number;
 }
 
 const ExploreItems = <T, ID>({
   resource,
   renderItem,
   placeholder,
-  pageSize = 5,
+  pageSize,
 }: ExploreItemsProps<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { loggedInUser } = loggedInUserStore();
