@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { DraftMapProvider } from "./context/DraftMapContext";
 import { Layout } from "./common/layout/Layout";
 import GoogleMapsLoader from "./common/components/GoogleMapsLoader.tsx";
 import SignUpPage from "./pages/SignUp/SignUpPage.tsx";
@@ -48,11 +47,9 @@ function App() {
           <Route
             path="/create"
             element={
-              <DraftMapProvider>
-                <GoogleMapsLoader>
-                  <CreatePage />
-                </GoogleMapsLoader>
-              </DraftMapProvider>
+              <GoogleMapsLoader>
+                <CreatePage />
+              </GoogleMapsLoader>
             }
           />
           <Route

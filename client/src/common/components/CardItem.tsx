@@ -55,7 +55,9 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           fontSize={"lg"}
           color={"black"}
           textAlign={"left"}
-          w={"min"}
+          noOfLines={0}
+          // isTruncated
+          w={"fit-content"}
           cursor={"pointer"}
           _hover={{ textDecoration: "underline" }}
           onClick={() => window.open(`/place/${id}`, "_blank")}
