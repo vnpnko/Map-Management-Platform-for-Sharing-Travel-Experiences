@@ -1,13 +1,13 @@
 import { Flex, Image, Text } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton.tsx";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../../../assets/favmaps_logo.png";
 
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { loggedInUser } = useLoggedInUserStore();
+  const { loggedInUser } = loggedInUserStore();
 
   const isAuthPage =
     location.pathname === "/" || location.pathname === "/signup";

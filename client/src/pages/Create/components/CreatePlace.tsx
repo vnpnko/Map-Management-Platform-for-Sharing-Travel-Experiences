@@ -3,11 +3,11 @@ import PlaceForm from "../../../common/components/Place/PlaceForm.tsx";
 import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../../../common/components/Place/PlaceItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import CustomDivider from "../../../common/components/ui/CustomDivider.tsx";
 
 const CreatePlace: React.FC = () => {
-  const { loggedInUser } = useLoggedInUserStore();
+  const { loggedInUser } = loggedInUserStore();
 
   if (loggedInUser === null) {
     return;

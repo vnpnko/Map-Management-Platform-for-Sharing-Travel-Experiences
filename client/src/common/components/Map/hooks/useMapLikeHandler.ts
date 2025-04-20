@@ -4,10 +4,10 @@
 // import useAddMapLike from "./useAddMapLike";
 // import useRemoveMapLike from "./useRemoveMapLike";
 // import { Map } from "../../../../models/Map";
-// import { useLoggedInUserStore } from "../../../../store/useLoggedInUserStore";
+// import { loggedInUserStore } from "../../../../store/loggedInUserStore";
 //
 // export const useMapLikeHandler = (map: Map) => {
-//   const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+//   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
 //   const toastError = useToastError();
 //
 //   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();

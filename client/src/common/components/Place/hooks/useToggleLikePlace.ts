@@ -2,12 +2,12 @@ import useAddPlaceToUser from "./useAddPlaceToUser";
 import useRemovePlaceFromUser from "./useRemovePlaceFromUser";
 import useAddPlaceLike from "./useAddPlaceLike";
 import useRemovePlaceLike from "./useRemovePlaceLike";
-import { useLoggedInUserStore } from "../../../../store/useLoggedInUserStore";
-import useToastError from "../../../hooks/useToastError";
+import { loggedInUserStore } from "../../../../store/loggedInUserStore.ts";
+import useToastError from "../../../hooks/useToastError.ts";
 import { Place } from "../../../../models/Place";
 
 const useToggleLikePlace = (place: Place) => {
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const toastError = useToastError();
 
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();

@@ -13,6 +13,8 @@ interface MapWithPlacesProps {
 const MapWithPlaces: React.FC<MapWithPlacesProps> = ({ places }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  if (places.length === 0) return null;
+
   const bounds = new window.google.maps.LatLngBounds();
   places.forEach((place) =>
     bounds.extend({ lat: place.location.lat, lng: place.location.lng }),

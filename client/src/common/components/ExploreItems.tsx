@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Flex } from "@chakra-ui/react";
 import CustomInput from "./ui/CustomInput.tsx";
 import GenericVirtualList from "./GenericVirtualList.tsx";
-import useFetchIds from "../hooks/useFetchIds.tsx";
-import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
+import useFetchIds from "../hooks/useFetchIds.ts";
+import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 import GenericRecommendationsList from "../../pages/Explore/components/GenericRecommendationsList.tsx";
 
 interface ExploreItemsProps<T> {
@@ -20,7 +20,7 @@ const ExploreItems = <T, ID>({
   pageSize = 5,
 }: ExploreItemsProps<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { loggedInUser } = useLoggedInUserStore();
+  const { loggedInUser } = loggedInUserStore();
   const { data } = useFetchIds<ID>(resource, searchQuery);
   const ids = data?.filter((id) => id !== loggedInUser?._id) || [];
 

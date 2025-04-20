@@ -7,7 +7,7 @@ import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "./hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import favmaps_logo from "../../../assets/favmaps_logo.png";
 import IconCover from "../ui/IconCover.tsx";
 
@@ -17,7 +17,7 @@ interface SmallPlaceItemProps {
 
 const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { removePlaceFromUser, isRemovingPlaceFromUser } =
     useRemovePlaceFromUser();

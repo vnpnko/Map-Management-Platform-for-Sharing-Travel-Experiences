@@ -1,21 +1,19 @@
 import React, { useEffect } from "react";
 import MapForm from "../../../common/components/Map/MapForm.tsx";
-import { useDraftMap } from "../../../context/DraftMapContext.tsx";
 import { Map } from "../../../models/Map.ts";
 import MapItem from "../../../common/components/Map/MapItem.tsx";
 import GenericVirtualList from "../../../common/components/GenericVirtualList.tsx";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import CustomDivider from "../../../common/components/ui/CustomDivider.tsx";
+import { useMapDraftStore } from "../../../store/mapDraftStore.ts";
 
 const CreateMap: React.FC = () => {
-  const { loggedInUser } = useLoggedInUserStore();
-  const { dispatch } = useDraftMap();
+  const { loggedInUser } = loggedInUserStore();
+  const { setMap } = useMapDraftStore();
 
   useEffect(() => {
-    return () => {
-      dispatch({ type: "RESET" });
-    };
-  }, [dispatch]);
+    return () => setMap(null);
+  }, [setMap]);
 
   if (loggedInUser === null) {
     return;

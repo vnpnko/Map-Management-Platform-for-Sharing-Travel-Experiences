@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import Status from "../../common/components/User/Status.tsx";
+import Status from "./components/Status.tsx";
 import useFollow from "./hooks/useFollow.ts";
 import useUnfollow from "./hooks/useUnfollow.ts";
 import useFetchUser from "./hooks/useFetchUser.ts";
@@ -14,17 +14,17 @@ import { Map } from "../../models/Map.ts";
 import UserItem from "../../common/components/User/UserItem.tsx";
 import PlaceItem from "../../common/components/Place/PlaceItem.tsx";
 import MapItem from "../../common/components/Map/MapItem.tsx";
-import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 import ProfileHeader from "./components/ProfileHeader.tsx";
-import useToastError from "../../common/hooks/useToastError.tsx";
-import CustomSpinner from "../../common/components/CustomSpinner.tsx";
-import CustomAlert from "../../common/components/CustomAlert.tsx";
+import useToastError from "../../common/hooks/useToastError.ts";
+import CustomSpinner from "../../common/components/ui/CustomSpinner.tsx";
+import CustomAlert from "../../common/components/ui/CustomAlert.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
   const toastError = useToastError();
 
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { fetchedUser, isFetchingUser, fetchedUserError } = useFetchUser({
     username,
   });

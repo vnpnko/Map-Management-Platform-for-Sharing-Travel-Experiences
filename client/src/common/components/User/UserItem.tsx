@@ -6,7 +6,7 @@ import useFollow from "../../../pages/Profile/hooks/useFollow.ts";
 import useUnfollow from "../../../pages/Profile/hooks/useUnfollow.ts";
 import CustomBox from "../ui/CustomBox.tsx";
 import { useNavigate } from "react-router-dom";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 
 interface UserItemProps {
   user: User;
@@ -16,8 +16,7 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const { loggedInUser: loggedInUser, setLoggedInUser } =
-    useLoggedInUserStore();
+  const { loggedInUser: loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { follow, isFollowing } = useFollow();
   const { unfollow, isUnfollowing } = useUnfollow();
 

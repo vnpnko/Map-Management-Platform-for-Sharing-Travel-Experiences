@@ -2,13 +2,13 @@ import useAddMapToUser from "../hooks/useAddMapToUser";
 import useRemoveMapFromUser from "../hooks/useRemoveMapFromUser";
 import useAddMapLike from "../hooks/useAddMapLike";
 import useRemoveMapLike from "../hooks/useRemoveMapLike";
-import { useLoggedInUserStore } from "../../../../store/useLoggedInUserStore";
-import useToastError from "../../../hooks/useToastError";
+import { loggedInUserStore } from "../../../../store/loggedInUserStore.ts";
+import useToastError from "../../../hooks/useToastError.ts";
 import { Map } from "../../../../models/Map";
 
 const useToggleLikeMap = (map: Map) => {
   const toastError = useToastError();
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
 
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { removeMap, isRemovingMap } = useRemoveMapFromUser();

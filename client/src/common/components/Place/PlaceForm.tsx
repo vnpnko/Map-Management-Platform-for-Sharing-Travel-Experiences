@@ -9,7 +9,7 @@ import useAddPlaceToUser from "./hooks/useAddPlaceToUser.ts";
 import useFetchPlace from "./hooks/useFetchPlace.ts";
 import useAddPlaceLike from "./hooks/useAddPlaceLike.ts";
 import { useDraftMap } from "../../../context/DraftMapContext.tsx";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 
 interface PlaceFormProps {
   onPlaceCreated?: (newPlaceId: string) => void;
@@ -36,7 +36,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ onPlaceCreated }) => {
   };
 
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { dispatch } = useDraftMap();
 
   const { place } = useFetchPlace({ place_id: placeId });

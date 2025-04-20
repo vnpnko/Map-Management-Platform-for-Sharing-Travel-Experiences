@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import { User } from "../models/User";
 import { LoggedInUserStore } from "../models/LoggedInUserStore.ts";
 
-export const useLoggedInUserStore = create<LoggedInUserStore>()(
+export const loggedInUserStore = create<LoggedInUserStore>()(
   persist(
     (set) => ({
       loggedInUser: null,

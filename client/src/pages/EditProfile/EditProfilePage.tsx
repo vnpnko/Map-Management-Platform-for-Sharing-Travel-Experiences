@@ -6,10 +6,10 @@ import CustomBox from "../../common/components/ui/CustomBox.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
-import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 
 const EditProfilePage: React.FC = () => {
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
 
   const [updatedName, setUpdatedName] = useState(loggedInUser!.name);
   const [updatedUsername, setUpdatedUsername] = useState(

@@ -12,11 +12,11 @@ import CustomBox from "../ui/CustomBox";
 import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../Place/PlaceItem.tsx";
 import GenericVirtualList from "../GenericVirtualList.tsx";
-import { useLoggedInUserStore } from "../../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 
 const MapForm: React.FC = () => {
   const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = useLoggedInUserStore();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { draftMap, dispatch } = useDraftMap();
   const [mapName, setMapName] = useState("");
   const [mapDescription, setMapDescription] = useState("");
@@ -76,7 +76,7 @@ const MapForm: React.FC = () => {
           value={mapDescription}
           onChange={(e) => setMapDescription(e.target.value)}
         />
-        <CustomButton type="submit" ml="auto" isSelected={false}>
+        <CustomButton w={"full"} type="submit" ml="auto" isSelected={false}>
           {isCreatingMap || isAddingMapToUser ? (
             <Spinner size="md" />
           ) : (

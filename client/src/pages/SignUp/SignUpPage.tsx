@@ -4,7 +4,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import CustomButton from "../../common/components/ui/CustomButton.tsx";
 import CustomInput from "../../common/components/ui/CustomInput.tsx";
 import useSignUp from "./hooks/useSignUp.ts";
-import { useLoggedInUserStore } from "../../store/useLoggedInUserStore.ts";
+import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -17,7 +17,7 @@ const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
 
   const { signup, isSigningUp } = useSignUp();
-  const { setLoggedInUser } = useLoggedInUserStore();
+  const { setLoggedInUser } = loggedInUserStore();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
