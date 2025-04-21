@@ -242,8 +242,9 @@ func RemoveMapLike(c *fiber.Ctx) error {
 	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Map not found",
+		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
+			Error:   "Map not found",
+			Details: err.Error(),
 		})
 	}
 
@@ -366,12 +367,18 @@ func GetMapsIDs(c *fiber.Ctx) error {
 func GetRecommendedMaps(c *fiber.Ctx) error {
 	userID, err := primitive.ObjectIDFromHex(c.Params("userId"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID format"})
+		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid user ID format",
+			Details: err.Error(),
+		})
 	}
 
 	var currentUser models.User
 	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
+			Error:   "User not found",
+			Details: err.Error(),
+		})
 	}
 
 	if len(currentUser.Following) == 0 {
@@ -382,12 +389,18 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": currentUser.Following},
 	})
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch followed users"})
+		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to fetch followed users",
+			Details: err.Error(),
+		})
 	}
 
 	var followedUsers []models.User
 	if err := cursor.All(context.Background(), &followedUsers); err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode followed users"})
+		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to decode followed users",
+			Details: err.Error(),
+		})
 	}
 
 	mapFrequency := map[primitive.ObjectID]int{}
@@ -412,12 +425,18 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": candidateIDs},
 	})
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch maps"})
+		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to fetch maps",
+			Details: err.Error(),
+		})
 	}
 
 	var candidates []models.Map
 	if err := cursor.All(context.Background(), &candidates); err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode maps"})
+		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to decode maps",
+			Details: err.Error(),
+		})
 	}
 
 	scored := make([]models.ScoredMap, 0)

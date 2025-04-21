@@ -211,12 +211,18 @@ func GetPlacesIDs(c *fiber.Ctx) error {
 func GetRecommendedPlaces(c *fiber.Ctx) error {
 	userID, err := primitive.ObjectIDFromHex(c.Params("userId"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID format"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid user ID format",
+			Details: err.Error(),
+		})
 	}
 
 	var currentUser models.User
 	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+			Error:   "User not found",
+			Details: err.Error(),
+		})
 	}
 
 	if len(currentUser.Following) == 0 {
@@ -227,12 +233,18 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": currentUser.Following},
 	})
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch followed users"})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to fetch followed users",
+			Details: err.Error(),
+		})
 	}
 
 	var followedUsers []models.User
 	if err := cursor.All(context.Background(), &followedUsers); err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode followed users"})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to fetch followed users",
+			Details: err.Error(),
+		})
 	}
 
 	placeFrequency := map[string]int{}
@@ -257,12 +269,18 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": candidateIDs},
 	})
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch places"})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to fetch users",
+			Details: err.Error(),
+		})
 	}
 
 	var candidates []models.Place
 	if err := cursor.All(context.Background(), &candidates); err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode places"})
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error:   "Failed to decode users",
+			Details: err.Error(),
+		})
 	}
 
 	scored := make([]models.ScoredPlace, 0)
