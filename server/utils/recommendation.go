@@ -1,34 +1,19 @@
 package utils
 
-import "sort"
+import (
+	"math"
+)
 
-// Generic scoring + sorting function for any item type
-func ScoreAndSortItems[T comparable](items []T, exclude map[T]struct{}, limit int) []T {
-	freq := make(map[T]int)
-	for _, item := range items {
-		if _, skip := exclude[item]; skip {
-			continue
+func ComputeScore(freq int, likes int) float64 {
+	return float64(freq)*0.7 + math.Log(float64(likes)+1)*0.3
+}
+
+func FilterCandidates[T comparable](frequency map[T]int, exclude map[T]struct{}) []T {
+	result := make([]T, 0)
+	for id := range frequency {
+		if _, skip := exclude[id]; !skip {
+			result = append(result, id)
 		}
-		freq[item]++
-	}
-
-	type scored struct {
-		ID    T
-		Score int
-	}
-
-	var scoredItems []scored
-	for id, score := range freq {
-		scoredItems = append(scoredItems, scored{ID: id, Score: score})
-	}
-
-	sort.Slice(scoredItems, func(i, j int) bool {
-		return scoredItems[i].Score > scoredItems[j].Score
-	})
-
-	result := make([]T, 0, len(scoredItems))
-	for i := 0; i < len(scoredItems) && i < limit; i++ {
-		result = append(result, scoredItems[i].ID)
 	}
 	return result
 }

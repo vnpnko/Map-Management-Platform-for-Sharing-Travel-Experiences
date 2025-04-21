@@ -592,12 +592,9 @@ func GetUsersIDs(c *fiber.Ctx) error {
 }
 
 func GetRecommendedUsers(c *fiber.Ctx) error {
-	userIDHex := c.Params("userId")
-	userID, err := primitive.ObjectIDFromHex(userIDHex)
+	userID, err := primitive.ObjectIDFromHex(c.Params("userId"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid user ID format",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid user ID format"})
 	}
 
 	var currentUser models.User
@@ -605,46 +602,68 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
-	cursor, err := config.DB.Collection("users").Find(context.Background(), bson.M{"_id": bson.M{"$ne": userID}})
+	if len(currentUser.Following) == 0 {
+		return c.JSON([]models.User{})
+	}
+
+	cursor, err := config.DB.Collection("users").Find(context.Background(), bson.M{
+		"_id": bson.M{"$in": currentUser.Following},
+	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch users"})
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch followings"})
 	}
 
-	var users []models.User
-	if err := cursor.All(context.Background(), &users); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to decode users"})
+	var followedUsers []models.User
+	if err := cursor.All(context.Background(), &followedUsers); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode users"})
 	}
 
-	followingSet := make(map[primitive.ObjectID]struct{})
-	for _, fid := range currentUser.Following {
-		followingSet[fid] = struct{}{}
-	}
-
-	type ScoredUser struct {
-		User  models.User
-		Score int
-	}
-
-	var scored []ScoredUser
-	for _, u := range users {
-		if _, alreadyFollowing := followingSet[u.ID]; alreadyFollowing {
-			continue
+	userFrequency := map[primitive.ObjectID]int{}
+	for _, user := range followedUsers {
+		for _, id := range user.Following {
+			userFrequency[id]++
 		}
+	}
 
-		commonFollowers := utils.IntersectCount(currentUser.Followers, u.Followers)
-		commonFollowing := utils.IntersectCount(currentUser.Following, u.Following)
-		score := commonFollowers + commonFollowing
-		scored = append(scored, ScoredUser{User: u, Score: score})
+	exclude := make(map[primitive.ObjectID]struct{})
+	for _, fid := range currentUser.Following {
+		exclude[fid] = struct{}{}
+	}
+	exclude[userID] = struct{}{}
+
+	candidateIDs := utils.FilterCandidates(userFrequency, exclude)
+
+	if len(candidateIDs) == 0 {
+		return c.JSON([]models.User{})
+	}
+
+	cursor, err = config.DB.Collection("users").Find(context.Background(), bson.M{
+		"_id": bson.M{"$in": candidateIDs},
+	})
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch users"})
+	}
+
+	var candidates []models.User
+	if err := cursor.All(context.Background(), &candidates); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to decode candidate users"})
+	}
+
+	scored := make([]models.ScoredUser, 0)
+	for _, user := range candidates {
+		freq := userFrequency[user.ID]
+		score := utils.ComputeScore(freq, len(user.Followers))
+		scored = append(scored, models.ScoredUser{User: user, Score: score})
 	}
 
 	sort.Slice(scored, func(i, j int) bool {
 		return scored[i].Score > scored[j].Score
 	})
 
-	var topUsers []models.User
+	top := make([]models.User, 0, 3)
 	for i := 0; i < len(scored) && i < 3; i++ {
-		topUsers = append(topUsers, scored[i].User)
+		top = append(top, scored[i].User)
 	}
 
-	return c.Status(fiber.StatusOK).JSON(topUsers)
+	return c.JSON(top)
 }
