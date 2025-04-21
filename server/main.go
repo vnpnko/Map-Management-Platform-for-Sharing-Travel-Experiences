@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/handlers"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/routes"
 	"log"
 	"os"
@@ -14,10 +15,12 @@ import (
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("UseToastError loading .env file:", err)
+		log.Fatal("Error loading .env file:", err)
 	}
 
 	app := fiber.New()
+
+	handlers.RegisterGooglePhotoProxy(app)
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:5173",
@@ -34,5 +37,4 @@ func main() {
 		port = "5000"
 	}
 	log.Fatal(app.Listen(":" + port))
-	//log.Fatal(app.Listen("0.0.0.0:" + port))
 }

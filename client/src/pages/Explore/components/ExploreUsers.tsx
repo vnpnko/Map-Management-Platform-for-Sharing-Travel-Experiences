@@ -1,6 +1,6 @@
 import React from "react";
 import ExploreItems from "../../../common/components/ExploreItems";
-import UserItem from "../../../common/components/User/UserItem";
+import UserItem from "../../../common/User/components/UserItem.tsx";
 import { User } from "../../../models/User";
 
 const ExploreUsers: React.FC = () => {

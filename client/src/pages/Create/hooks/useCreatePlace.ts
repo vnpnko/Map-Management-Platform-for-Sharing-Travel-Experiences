@@ -16,7 +16,7 @@ const createPlaceRequest = async (
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Failed to create place");
+    throw data;
   }
   return data;
 };

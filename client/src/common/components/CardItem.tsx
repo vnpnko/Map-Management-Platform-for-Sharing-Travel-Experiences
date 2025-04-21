@@ -7,10 +7,12 @@ import {
   FaRegMap,
   FaRegPaperPlane,
 } from "react-icons/fa6";
-import CustomBox from "./ui/CustomBox.tsx";
-import IconCover from "./ui/IconCover.tsx";
+import CustomBox from "../ui/CustomBox.tsx";
+import IconCover from "../ui/IconCover.tsx";
 
 interface GenericCardItemProps {
+  type: string;
+  isDetailPage?: boolean;
   id: string | number;
   name: string;
   url?: string;
@@ -24,6 +26,8 @@ interface GenericCardItemProps {
 }
 
 const CardItem: React.FC<GenericCardItemProps> = ({
+  type,
+  isDetailPage = false,
   id,
   name,
   url,
@@ -50,10 +54,23 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   return (
     <CustomBox key={id} borderBottomWidth={2} borderColor={"blackAlpha.300"}>
       <Flex direction={"column"}>
-        <Text py={4} fontSize={"medium"} textAlign={"left"} color={"black"}>
+        <Text
+          py={4}
+          fontSize={"lg"}
+          color={"black"}
+          textAlign={"left"}
+          noOfLines={0}
+          w={"fit-content"}
+          cursor={isDetailPage ? undefined : "pointer"}
+          _hover={{ textDecoration: isDetailPage ? undefined : "underline" }}
+          onClick={
+            isDetailPage
+              ? undefined
+              : () => window.open(`/${type}/${id}`, "_blank")
+          }
+        >
           {name}
         </Text>
-
         {children}
 
         <Flex py={2} gap={2}>

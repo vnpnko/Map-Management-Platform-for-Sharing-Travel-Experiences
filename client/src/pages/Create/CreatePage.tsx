@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Flex } from "@chakra-ui/react";
-import ToggleButton from "../../common/components/ui/ToggleButton.tsx";
+import ToggleButton from "../../common/ui/ToggleButton.tsx";
 import CreatePlace from "./components/CreatePlace.tsx";
 import CreateMap from "./components/CreateMap.tsx";
 

@@ -20,7 +20,7 @@ const useSignUpRequest = async (
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Failed to sign up");
+    throw data;
   }
   return data;
 };

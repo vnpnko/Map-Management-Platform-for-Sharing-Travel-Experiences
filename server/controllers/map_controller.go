@@ -31,8 +31,8 @@ func GetMaps(c *fiber.Ctx) error {
 	cursor, err := config.DB.Collection("maps").Find(context.Background(), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Database error",
-			Details: err.UseToastError(),
+			Error:   "Database error",
+			Details: err.Error(),
 		})
 	}
 	defer cursor.Close(context.Background())
@@ -41,8 +41,8 @@ func GetMaps(c *fiber.Ctx) error {
 		var mapData models.Map
 		if err := cursor.Decode(&mapData); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-				UseToastError:   "Failed to decode map",
-				Details: err.UseToastError(),
+				Error:   "Failed to decode map",
+				Details: err.Error(),
 			})
 		}
 		maps = append(maps, mapData)
@@ -54,15 +54,15 @@ func GetMap(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "ID is required",
+			Error: "ID is required",
 		})
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid ID format",
+			Details: err.Error(),
 		})
 	}
 
@@ -70,8 +70,8 @@ func GetMap(c *fiber.Ctx) error {
 	err = config.DB.Collection("maps").FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&mapData)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			UseToastError:   "Map not found",
-			Details: err.UseToastError(),
+			Error:   "Map not found",
+			Details: err.Error(),
 		})
 	}
 
@@ -82,40 +82,37 @@ func CreateMap(c *fiber.Ctx) error {
 	var mapData models.Map
 	if err := c.BodyParser(&mapData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid request body",
-			Details: err.UseToastError(),
+			Error:   "Invalid request body",
+			Details: err.Error(),
 		})
 	}
 
 	if mapData.Name == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Map name is required",
+			Error:   "Could not create map",
+			Details: "Map name is required",
 		})
 	}
 
 	if mapData.Description == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Map description is required",
+			Error:   "Could not create map",
+			Details: "Map description is required",
 		})
 	}
 
-	if mapData.Places == nil {
+	if len(mapData.Places) < 2 {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Map places are required",
-		})
-	}
-
-	if mapData.Likes == nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Map likes are required",
+			Error:   "Could not create map",
+			Details: "Map must have at least 2 places",
 		})
 	}
 
 	res, err := config.DB.Collection("maps").InsertOne(context.Background(), mapData)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Could not create map",
-			Details: err.UseToastError(),
+			Error:   "Could not create map",
+			Details: err.Error(),
 		})
 	}
 
@@ -127,15 +124,15 @@ func DeleteMap(c *fiber.Ctx) error {
 	mapID := c.Params("id")
 	if mapID == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Map ID is required",
+			Error: "Map ID is required",
 		})
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(mapID)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid map ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid map ID format",
+			Details: err.Error(),
 		})
 	}
 
@@ -143,8 +140,8 @@ func DeleteMap(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("maps").DeleteOne(context.Background(), filter)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Could not delete map",
-			Details: err.UseToastError(),
+			Error:   "Could not delete map",
+			Details: err.Error(),
 		})
 	}
 
@@ -160,7 +157,7 @@ func AddMapLike(c *fiber.Ctx) error {
 
 	if mapIDStr == "" || userIDStr == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Both mapId and userId are required",
+			Error: "Both mapId and userId are required",
 		})
 	}
 
@@ -168,15 +165,15 @@ func AddMapLike(c *fiber.Ctx) error {
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid map ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid map ID format",
+			Details: err.Error(),
 		})
 	}
 	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid user ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid user ID format",
+			Details: err.Error(),
 		})
 	}
 
@@ -186,8 +183,8 @@ func AddMapLike(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Could not add like to map",
-			Details: err.UseToastError(),
+			Error:   "Could not add like to map",
+			Details: err.Error(),
 		})
 	}
 
@@ -196,8 +193,8 @@ func AddMapLike(c *fiber.Ctx) error {
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
 		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
-			UseToastError:   "Map not found",
-			Details: err.UseToastError(),
+			Error:   "Map not found",
+			Details: err.Error(),
 		})
 	}
 
@@ -210,22 +207,22 @@ func RemoveMapLike(c *fiber.Ctx) error {
 
 	if mapIDStr == "" || userIDStr == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Both mapId and userId are required",
+			Error: "Both mapId and userId are required",
 		})
 	}
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid map ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid map ID format",
+			Details: err.Error(),
 		})
 	}
 	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid user ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid user ID format",
+			Details: err.Error(),
 		})
 	}
 
@@ -235,8 +232,8 @@ func RemoveMapLike(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Could not remove like from map",
-			Details: err.UseToastError(),
+			Error:   "Could not remove like from map",
+			Details: err.Error(),
 		})
 	}
 
@@ -258,15 +255,15 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 
 	if mapIDStr == "" || placeIDStr == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Both mapId and placeId are required",
+			Error: "Both mapId and placeId are required",
 		})
 	}
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid map ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid map ID format",
+			Details: err.Error(),
 		})
 	}
 
@@ -278,8 +275,8 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Failed to update map",
-			Details: err.UseToastError(),
+			Error:   "Failed to update map",
+			Details: err.Error(),
 		})
 	}
 
@@ -288,8 +285,8 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
 		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
-			UseToastError:   "Could not add place to map; map not found",
-			Details: err.UseToastError(),
+			Error:   "Could not add place to map; map not found",
+			Details: err.Error(),
 		})
 	}
 
@@ -302,15 +299,15 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 
 	if mapIDStr == "" || placeIDStr == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError: "Both mapId and placeId are required",
+			Error: "Both mapId and placeId are required",
 		})
 	}
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			UseToastError:   "Invalid map ID format",
-			Details: err.UseToastError(),
+			Error:   "Invalid map ID format",
+			Details: err.Error(),
 		})
 	}
 
@@ -322,8 +319,8 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Failed to update map",
-			Details: err.UseToastError(),
+			Error:   "Failed to update map",
+			Details: err.Error(),
 		})
 	}
 
@@ -332,8 +329,8 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
 		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
-			UseToastError:   "Could not remove place from map; map not found",
-			Details: err.UseToastError(),
+			Error:   "Could not remove place from map; map not found",
+			Details: err.Error(),
 		})
 	}
 
@@ -357,8 +354,8 @@ func GetMapsIDs(c *fiber.Ctx) error {
 	ids, err := dbhelpers.GetItemIDs[primitive.ObjectID](config.DB.Collection("maps"), filter)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
-			UseToastError:   "Failed to fetch map IDs",
-			Details: err.UseToastError(),
+			Error:   "Failed to fetch map IDs",
+			Details: err.Error(),
 		})
 	}
 

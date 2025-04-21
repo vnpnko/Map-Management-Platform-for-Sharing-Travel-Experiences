@@ -3,16 +3,16 @@ import { persist } from "zustand/middleware";
 import { Map } from "../models/Map";
 import { MapDraftStore } from "../models/MapDraftStore.ts";
 
-export const useMapDraftStore = create<MapDraftStore>()(
+export const mapDraftStore = create<MapDraftStore>()(
   persist(
     (set, get) => ({
-      draftMap: null,
-      setMap: (map: Map | null) => set({ draftMap: map }),
+      mapDraft: null,
+      setMapDraft: (map: Map | null) => set({ mapDraft: map }),
       addPlace: (placeId) => {
-        const current = get().draftMap;
+        const current = get().mapDraft;
         if (!current) {
           set({
-            draftMap: {
+            mapDraft: {
               _id: 0,
               name: "",
               description: "",
@@ -24,7 +24,7 @@ export const useMapDraftStore = create<MapDraftStore>()(
         }
         if (!current.places.includes(placeId)) {
           set({
-            draftMap: {
+            mapDraft: {
               ...current,
               places: [...current.places, placeId],
             },
@@ -32,17 +32,17 @@ export const useMapDraftStore = create<MapDraftStore>()(
         }
       },
       removePlace: (placeId) => {
-        const current = get().draftMap;
+        const current = get().mapDraft;
         if (current) {
           set({
-            draftMap: {
+            mapDraft: {
               ...current,
               places: current.places.filter((id) => id !== placeId),
             },
           });
         }
       },
-      reset: () => set({ draftMap: null }),
+      reset: () => set({ mapDraft: null }),
     }),
     {
       name: "map-draft",

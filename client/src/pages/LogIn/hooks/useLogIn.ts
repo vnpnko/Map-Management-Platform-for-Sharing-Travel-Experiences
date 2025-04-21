@@ -19,7 +19,7 @@ const useLogInRequest = async (
   });
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || "Failed to log in");
+    throw data;
   }
   return data;
 };

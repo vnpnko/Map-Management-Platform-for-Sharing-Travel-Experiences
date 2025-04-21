@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Flex } from "@chakra-ui/react";
-import CustomInput from "./ui/CustomInput.tsx";
+import CustomInput from "../ui/CustomInput.tsx";
 import GenericVirtualList from "./GenericVirtualList.tsx";
 import useFetchIds from "../hooks/useFetchIds.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
@@ -10,14 +10,14 @@ interface ExploreItemsProps<T> {
   resource: "users" | "places" | "maps";
   renderItem: (item: T) => React.ReactNode;
   placeholder: string;
-  pageSize?: number;
+  pageSize: number;
 }
 
 const ExploreItems = <T, ID>({
   resource,
   renderItem,
   placeholder,
-  pageSize = 5,
+  pageSize,
 }: ExploreItemsProps<T>) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { loggedInUser } = loggedInUserStore();

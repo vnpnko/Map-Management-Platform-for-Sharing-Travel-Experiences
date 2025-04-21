@@ -1,6 +1,7 @@
 package controllers
 
 type ErrorResponse struct {
-	UseToastError   string `json:"error"`
+	Error   string `json:"error"`
 	Details string `json:"details,omitempty"`
+	Type    string `json:"type,omitempty"`
 }
