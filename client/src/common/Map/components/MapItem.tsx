@@ -8,15 +8,18 @@ import useToggleLikeMap from "../hooks/useToggleLikeMap.ts";
 
 interface MapItemProps {
   map: Map;
+  isDetailPage?: boolean;
 }
 
-const MapItem: React.FC<MapItemProps> = ({ map }) => {
+const MapItem: React.FC<MapItemProps> = ({ map, isDetailPage }) => {
   const { alreadyLiked, handleToggle, isPending } = useToggleLikeMap(map);
 
   const { places, isLoading } = useFetchPlaces({ placeIds: map.places });
 
   return (
     <CardItem
+      type={"map"}
+      isDetailPage={isDetailPage}
       id={map._id}
       name={map.name}
       likesCount={map.likes.length}

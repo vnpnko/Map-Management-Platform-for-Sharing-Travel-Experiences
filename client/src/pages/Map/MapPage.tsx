@@ -1,16 +1,14 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import useFetchMap from "../../common/Map/hooks/useFetchMap";
 import MapItem from "../../common/Map/components/MapItem.tsx";
 import CustomSpinner from "../../common/ui/CustomSpinner.tsx";
 import CustomAlert from "../../common/ui/CustomAlert.tsx";
 
 const MapPage: React.FC = () => {
-  const { mapId = "" } = useParams<{ mapId: string }>();
-  const { map, isFetchingMap, mapError } = useFetchMap({
-    mapId: Number(mapId),
-  });
+  const { id = "" } = useParams<{ id: string }>();
+  const { map, isFetchingMap, mapError } = useFetchMap({ mapId: id });
 
   if (isFetchingMap) return <CustomSpinner />;
 
@@ -20,7 +18,11 @@ const MapPage: React.FC = () => {
     return <Text color={"red"}>map not found</Text>;
   }
 
-  return <MapItem map={map} />;
+  return (
+    <Flex direction="column" gap={4} w={"2xl"}>
+      <MapItem map={map} isDetailPage={true} />
+    </Flex>
+  );
 };
 
 export default MapPage;

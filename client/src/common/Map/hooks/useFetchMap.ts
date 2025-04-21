@@ -3,21 +3,21 @@ import { BASE_URL } from "../../../App.tsx";
 import { Map } from "../../../models/Map.ts";
 
 interface FetchMapPayload {
-  mapId: number;
+  mapId: string;
 }
 
-const useFetchMap = (payload: FetchMapPayload) => {
+const useFetchMap = ({ mapId }: FetchMapPayload) => {
   const { data, isLoading, error } = useQuery<Map>({
-    queryKey: ["map", payload.mapId],
+    queryKey: ["map", mapId],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/maps/${payload.mapId}`);
+      const response = await fetch(`${BASE_URL}/maps/${mapId}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch map");
       }
       return response.json();
     },
-    enabled: !!payload.mapId,
+    enabled: !!mapId,
     retry: false,
     refetchOnWindowFocus: false,
   });

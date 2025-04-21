@@ -8,9 +8,10 @@ import { BASE_URL } from "../../../App.tsx";
 
 interface PlaceItemProps {
   place: Place;
+  isDetailPage?: boolean;
 }
 
-const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
+const PlaceItem: React.FC<PlaceItemProps> = ({ place, isDetailPage }) => {
   const { alreadyLiked, handleToggle, isPending } = useToggleLikePlace(place);
 
   const center = {
@@ -20,6 +21,8 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place }) => {
 
   return (
     <CardItem
+      type={"place"}
+      isDetailPage={isDetailPage}
       id={place._id}
       name={place.name}
       url={place.url}

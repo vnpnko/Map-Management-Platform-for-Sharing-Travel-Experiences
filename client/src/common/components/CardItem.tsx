@@ -11,6 +11,8 @@ import CustomBox from "../ui/CustomBox.tsx";
 import IconCover from "../ui/IconCover.tsx";
 
 interface GenericCardItemProps {
+  type: string;
+  isDetailPage?: boolean;
   id: string | number;
   name: string;
   url?: string;
@@ -24,6 +26,8 @@ interface GenericCardItemProps {
 }
 
 const CardItem: React.FC<GenericCardItemProps> = ({
+  type,
+  isDetailPage = false,
   id,
   name,
   url,
@@ -56,15 +60,17 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           color={"black"}
           textAlign={"left"}
           noOfLines={0}
-          // isTruncated
           w={"fit-content"}
-          cursor={"pointer"}
-          _hover={{ textDecoration: "underline" }}
-          onClick={() => window.open(`/place/${id}`, "_blank")}
+          cursor={isDetailPage ? undefined : "pointer"}
+          _hover={{ textDecoration: isDetailPage ? undefined : "underline" }}
+          onClick={
+            isDetailPage
+              ? undefined
+              : () => window.open(`/${type}/${id}`, "_blank")
+          }
         >
           {name}
         </Text>
-
         {children}
 
         <Flex py={2} gap={2}>
