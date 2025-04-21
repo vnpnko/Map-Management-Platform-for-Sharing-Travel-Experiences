@@ -24,7 +24,7 @@ const SignUpPage: React.FC = () => {
   const { signup, isSigningUp } = useSignUp();
   const { setLoggedInUser } = loggedInUserStore();
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.name.trim())
@@ -58,7 +58,13 @@ const SignUpPage: React.FC = () => {
         Sign up to Favmaps
       </Heading>
 
-      <Flex as="form" onSubmit={onSubmit} direction="column" w="full" gap={4}>
+      <Flex
+        as="form"
+        onSubmit={handleSignUp}
+        direction="column"
+        w="full"
+        gap={4}
+      >
         <CustomInput
           name="Full name"
           placeholder="Full name"

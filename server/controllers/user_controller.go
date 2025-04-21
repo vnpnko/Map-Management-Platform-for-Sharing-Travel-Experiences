@@ -156,8 +156,8 @@ func CreateUser(c *fiber.Ctx) error {
 
 	res, err := config.DB.Collection("users").InsertOne(context.Background(), user)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Could not create user",
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			Error: "Could not create user",
 		})
 	}
 
@@ -172,8 +172,24 @@ func LoginUser(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&payload); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Invalid request body",
+		})
+	}
+
+	payload.Username = strings.TrimSpace(payload.Username)
+	payload.Password = strings.TrimSpace(payload.Password)
+
+	if payload.Username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Username is required",
+			Type:  "username",
+		})
+	}
+	if payload.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Password is required",
+			Type:  "password",
 		})
 	}
 
@@ -185,8 +201,8 @@ func LoginUser(c *fiber.Ctx) error {
 	var user models.User
 	err := config.DB.Collection("users").FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Invalid credentials",
+		return c.Status(fiber.StatusUnauthorized).JSON(ErrorResponse{
+			Error: "Invalid credentials",
 		})
 	}
 

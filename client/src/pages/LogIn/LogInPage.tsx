@@ -8,25 +8,43 @@ import useLogIn from "./hooks/useLogIn.ts";
 import ErrorMessage from "../../common/ui/ErrorMessage.tsx";
 
 const LogInPage: React.FC = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const LogInPayload = { username, password };
+  // const [username, setUsername] = useState("");
+  // const [password, setPassword] = useState("");
+  // const LogInPayload = { username, password };
+  //
+  // const [error, setError] = useState<Error | null>(null);
+  type LogInForm = { username: string; password: string };
+  type LogInError = { type: string; message: string } | null;
 
-  const [error, setError] = useState<Error | null>(null);
+  const [form, setForm] = useState<LogInForm>({
+    username: "",
+    password: "",
+  });
+
+  const [error, setError] = useState<LogInError>(null);
 
   const navigate = useNavigate();
-
   const { login, isLoggingIn } = useLogIn();
   const { setLoggedInUser } = loggedInUserStore();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogIn = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.username.trim())
+      return setError({ type: "username", message: "Username is required" });
+    if (!form.password.trim())
+      return setError({ type: "password", message: "Password is required" });
+
     try {
-      const user = await login(LogInPayload);
+      const user = await login(form);
       setLoggedInUser(user);
       navigate(`/${user.username}`);
-    } catch (error) {
-      setError(error as Error);
+    } catch (err) {
+      const apiErr = err as { type: string; error: string };
+      setError({
+        type: apiErr.type,
+        message: apiErr.error,
+      });
     }
   };
 
@@ -38,7 +56,7 @@ const LogInPage: React.FC = () => {
 
       <Flex
         as="form"
-        onSubmit={handleLogin}
+        onSubmit={handleLogIn}
         direction={"column"}
         w={"full"}
         gap={4}
@@ -46,18 +64,20 @@ const LogInPage: React.FC = () => {
         <CustomInput
           name="Username"
           placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
           isDisabled={isLoggingIn}
+          isError={error?.type === "username"}
         />
 
         <CustomInput
           name="Password"
           placeholder="Password"
           type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
           isDisabled={isLoggingIn}
+          isError={error?.type === "password"}
         />
 
         <CustomButton
