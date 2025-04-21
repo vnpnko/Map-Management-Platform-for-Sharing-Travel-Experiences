@@ -23,12 +23,9 @@ const MapWithPlaces: React.FC<MapWithPlacesProps> = ({ places }) => {
     if (!mapRef.current) return;
 
     const bounds = new window.google.maps.LatLngBounds();
-    places.forEach((place) => {
-      bounds.extend({
-        lat: place.location.lat,
-        lng: place.location.lng,
-      });
-    });
+    places.forEach((place) =>
+      bounds.extend({ lat: place.location.lat, lng: place.location.lng }),
+    );
 
     mapRef.current.fitBounds(bounds, 100);
   }, [places]);
