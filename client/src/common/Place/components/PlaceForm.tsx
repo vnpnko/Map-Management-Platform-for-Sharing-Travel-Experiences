@@ -45,8 +45,6 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
         selPlace.url &&
         selPlace.geometry &&
         selPlace.geometry.location &&
-        selPlace.formatted_address &&
-        selPlace.types &&
         selPlace.photos &&
         selPlace.photos.length > 0
       ) {
@@ -59,8 +57,6 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
             lat: selPlace.geometry.location.lat(),
             lng: selPlace.geometry.location.lng(),
           },
-          formattedAddress: selPlace.formatted_address,
-          types: selPlace.types,
           photoUrl: selPlace.photos[0].getUrl(),
         });
         setInputValue(selPlace.name);

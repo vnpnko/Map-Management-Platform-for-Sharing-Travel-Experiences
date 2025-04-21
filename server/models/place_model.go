@@ -8,12 +8,10 @@ type Location struct {
 }
 
 type Place struct {
-	ID               string               `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name             string               `json:"name" bson:"name"`
-	URL              string               `json:"url" bson:"url"`
-	Likes            []primitive.ObjectID `json:"likes" bson:"likes"`
-	Location         Location             `json:"location" bson:"location"`
-	FormattedAddress string               `json:"formattedAddress,omitempty" bson:"formattedAddress,omitempty"`
-	Types            []string             `json:"types,omitempty" bson:"types,omitempty"`
-	PhotoURL         string               `json:"photoUrl,omitempty" bson:"photoUrl,omitempty"`
+	ID       string               `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name     string               `json:"name" bson:"name"`
+	URL      string               `json:"url" bson:"url"`
+	Likes    []primitive.ObjectID `json:"likes" bson:"likes"`
+	Location Location             `json:"location" bson:"location"`
+	PhotoURL string               `json:"photoUrl" bson:"photoUrl"`
 }
