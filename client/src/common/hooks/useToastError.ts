@@ -2,7 +2,7 @@ import { ToastProps, useToast } from "@chakra-ui/react";
 
 export interface ToastErrorProps extends ToastProps {
   title: string;
-  description: string;
+  description?: string;
 }
 
 const useToastError = () => {

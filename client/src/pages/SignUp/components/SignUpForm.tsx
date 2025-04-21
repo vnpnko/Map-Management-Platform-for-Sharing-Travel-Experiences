@@ -7,10 +7,11 @@ import useSignUp from "../hooks/useSignUp";
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import { useNavigate } from "react-router-dom";
 
-const SignUpForm: React.FC = () => {
-  type FormState = { name: string; username: string; password: string };
-  type FieldError = { type: string; message: string } | null;
+type FormState = { name: string; username: string; password: string };
 
+type FieldError = { type: string; message: string } | null;
+
+const SignUpForm: React.FC = () => {
   const [form, setForm] = useState<FormState>({
     name: "",
     username: "",

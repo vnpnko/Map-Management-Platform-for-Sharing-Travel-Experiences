@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Autocomplete } from "@react-google-maps/api";
-import { Box, Flex, Spinner, useToast } from "@chakra-ui/react";
+import { Box, Flex, Spinner } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../../ui/CustomInput.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
@@ -10,36 +10,21 @@ import useFetchPlace from "../hooks/useFetchPlace.ts";
 import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
+import { Place } from "../../../models/Place.ts";
+import useToastError from "../../hooks/useToastError.ts";
 
 interface PlaceFormProps {
   isDraftingMap?: boolean;
 }
 
 const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
-  const [placeId, setPlaceId] = useState("");
-  const [placeName, setPlaceName] = useState("");
-  const [placeURL, setPlaceURL] = useState("");
-  const [placeLocation, setPlaceLocation] = useState({ lat: 0, lng: 0 });
-  const [formattedAddress, setFormattedAddress] = useState("");
-  const [placeTypes, setPlaceTypes] = useState<string[]>([]);
-  const [photoURL, setPhotoURL] = useState("");
-
-  const payload = {
-    _id: placeId,
-    name: placeName,
-    url: placeURL,
-    likes: [],
-    location: placeLocation,
-    formattedAddress: formattedAddress,
-    types: placeTypes,
-    photoUrl: photoURL,
-  };
-
-  const toast = useToast();
+  const toastError = useToastError();
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { addPlace } = mapDraftStore();
 
-  const { place } = useFetchPlace({ place_id: placeId });
+  const [inputValue, setInputValue] = useState("");
+  const [form, setForm] = useState<Place | null>(null);
+  const { place } = useFetchPlace({ place_id: form?._id ?? "" });
 
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
@@ -47,70 +32,90 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
+  if (!loggedInUser) return null;
+
   const handlePlaceSelect = () => {
     if (autocompleteRef.current) {
       const selPlace = autocompleteRef.current.getPlace();
-      if (selPlace && selPlace.place_id && selPlace.name && selPlace.url) {
-        setPlaceId(selPlace.place_id);
-        setPlaceName(selPlace.name);
-        setPlaceURL(selPlace.url);
 
-        if (selPlace.geometry && selPlace.geometry.location) {
-          setPlaceLocation({
+      if (
+        selPlace &&
+        selPlace.place_id &&
+        selPlace.name &&
+        selPlace.url &&
+        selPlace.geometry &&
+        selPlace.geometry.location &&
+        selPlace.formatted_address &&
+        selPlace.types &&
+        selPlace.photos &&
+        selPlace.photos.length > 0
+      ) {
+        setForm({
+          _id: selPlace.place_id,
+          name: selPlace.name,
+          url: selPlace.url,
+          likes: [],
+          location: {
             lat: selPlace.geometry.location.lat(),
             lng: selPlace.geometry.location.lng(),
-          });
-        }
-        if (selPlace.formatted_address) {
-          setFormattedAddress(selPlace.formatted_address);
-        }
-        if (selPlace.types) {
-          setPlaceTypes(selPlace.types);
-        }
-        if (selPlace.photos && selPlace.photos.length > 0) {
-          setPhotoURL(selPlace.photos[0].getUrl());
-        }
+          },
+          formattedAddress: selPlace.formatted_address,
+          types: selPlace.types,
+          photoUrl: selPlace.photos[0].getUrl(),
+        });
+        setInputValue(selPlace.name);
       }
     }
   };
 
   const handleCreatePlace = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form) {
+      setForm(null);
+      toastError({
+        title: "Failed to create place",
+        description: "Find a place using the search bar",
+      });
+      return;
+    }
+
+    if (loggedInUser.places.includes(form._id)) {
+      setInputValue("");
+      setForm(null);
+      toastError({
+        title: "Failed to create place",
+        description: "Place already exists in your list",
+      });
+      return;
+    }
 
     try {
       let updatedUser;
       if (place) {
         updatedUser = await addPlaceToUser({
-          placeId,
+          placeId: form._id,
           userId: loggedInUser!._id,
         });
       } else {
-        await createPlace(payload);
+        await createPlace(form);
         updatedUser = await addPlaceToUser({
-          placeId,
+          placeId: form._id,
           userId: loggedInUser!._id,
         });
       }
-      await addPlaceLike({ placeId, userId: loggedInUser!._id });
+      await addPlaceLike({ placeId: form._id, userId: loggedInUser._id });
       setLoggedInUser(updatedUser);
-
+      setInputValue("");
+      setForm(null);
       if (isDraftingMap) {
-        addPlace(placeId);
+        addPlace(form._id);
       }
-
-      setPlaceId("");
-      setPlaceName("");
-      setPlaceURL("");
-      setPlaceLocation({ lat: 0, lng: 0 });
-      setFormattedAddress("");
-      setPlaceTypes([]);
-      setPhotoURL("");
-    } catch (error) {
-      toast({
+    } catch {
+      setInputValue("");
+      setForm(null);
+      toastError({
         title: "Failed to create place",
-        description: (error as Error).message,
-        status: "error",
-        isClosable: true,
+        description: "Find a place using the search bar",
       });
     }
   };
@@ -125,18 +130,12 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
           <CustomInput
             w="full"
             placeholder="Search for a place"
-            value={placeName}
-            onChange={(e) => setPlaceName(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
         </Autocomplete>
       </Box>
-      <CustomButton
-        type="submit"
-        w="min"
-        ml="auto"
-        isSelected={false}
-        disabled={!placeId}
-      >
+      <CustomButton type="submit" w="min" ml="auto" isSelected={false}>
         {isCreatingPlace || isAddingPlaceToUser ? (
           <Spinner size="md" />
         ) : (
