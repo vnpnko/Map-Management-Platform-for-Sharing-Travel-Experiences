@@ -1,5 +1,5 @@
-import useAddPlaceToUser from "./useAddPlaceToUser.ts";
-import useRemovePlaceFromUser from "./useRemovePlaceFromUser.ts";
+import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
+import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
 import useAddPlaceLike from "./useAddPlaceLike.ts";
 import useRemovePlaceLike from "./useRemovePlaceLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";

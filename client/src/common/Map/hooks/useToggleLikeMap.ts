@@ -1,5 +1,5 @@
-import useAddMapToUser from "./useAddMapToUser.ts";
-import useRemoveMapFromUser from "./useRemoveMapFromUser.ts";
+import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
+import useRemoveMapFromUser from "../../User/hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "./useAddMapLike.ts";
 import useRemoveMapLike from "./useRemoveMapLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";

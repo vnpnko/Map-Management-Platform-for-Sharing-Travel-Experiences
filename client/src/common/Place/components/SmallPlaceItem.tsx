@@ -1,8 +1,8 @@
 import React from "react";
 import { Flex, Text, useToast, Image, IconButton } from "@chakra-ui/react";
 import CustomBox from "../../ui/CustomBox.tsx";
-import useAddPlaceToUser from "../hooks/useAddPlaceToUser.ts";
-import useRemovePlaceFromUser from "../hooks/useRemovePlaceFromUser.ts";
+import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
+import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
 import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
 import useRemovePlaceLike from "../hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";

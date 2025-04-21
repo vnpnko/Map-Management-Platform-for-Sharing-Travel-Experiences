@@ -5,7 +5,7 @@ import CustomTextarea from "../../ui/CustomTextarea.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
 import PlaceForm from "../../Place/components/PlaceForm.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
-import useAddMapToUser from "../hooks/useAddMapToUser.ts";
+import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
 import useAddMapLike from "../hooks/useAddMapLike.ts";
 import CustomBox from "../../ui/CustomBox.tsx";
 import { Place } from "../../../models/Place.ts";

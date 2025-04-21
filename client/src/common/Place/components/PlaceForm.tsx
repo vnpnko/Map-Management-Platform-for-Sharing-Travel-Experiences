@@ -5,7 +5,7 @@ import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../../ui/CustomInput.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
 import useCreatePlace from "../../../pages/Create/hooks/useCreatePlace.ts";
-import useAddPlaceToUser from "../hooks/useAddPlaceToUser.ts";
+import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
 import useFetchPlace from "../hooks/useFetchPlace.ts";
 import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
