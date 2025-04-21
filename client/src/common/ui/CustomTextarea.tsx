@@ -1,17 +1,21 @@
 import React from "react";
 import { Textarea, TextareaProps } from "@chakra-ui/react";
 
-type CustomTextareaProps = TextareaProps;
+interface CustomTextareaProps extends TextareaProps {
+  isError?: boolean;
+}
 
 const CustomTextarea: React.FC<CustomTextareaProps> = ({
+  isError,
   children,
   ...rest
 }) => {
   return (
     <Textarea
       color={"black"}
-      borderColor="blackAlpha.300"
-      _hover={{ borderColor: "blackAlpha.300" }}
+      borderWidth={2}
+      borderColor={isError ? "red.400" : "blackAlpha.300"}
+      _hover={{ borderColor: isError ? "red.400" : "blackAlpha.300" }}
       _placeholder={{ color: "blackAlpha.500" }}
       {...rest}
     >

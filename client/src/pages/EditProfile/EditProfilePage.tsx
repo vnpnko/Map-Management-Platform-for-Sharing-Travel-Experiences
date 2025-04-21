@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flex, Heading, useToast } from "@chakra-ui/react";
 import CustomButton from "../../common/ui/CustomButton.tsx";
-import CustomBox from "../../common/ui/CustomBox.tsx";
 import CustomInput from "../../common/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
@@ -84,71 +83,73 @@ const EditProfilePage: React.FC = () => {
   };
 
   return (
-    <Flex direction="column">
-      <CustomBox p={8} w={"sm"}>
-        <Heading mb={8} color="black" size="lg">
-          Edit profile
-        </Heading>
+    <Flex direction="column" w="sm" gap={8} alignItems="center">
+      <Heading color="black" size="lg">
+        Edit profile
+      </Heading>
 
-        <Flex
-          as={"form"}
-          // onSubmit={handleSignUp}
-          direction={"column"}
-          gap={4}
+      <Flex
+        as={"form"}
+        direction={"column"}
+        alignItems={"center"}
+        w="full"
+        gap={4}
+      >
+        <CustomInput
+          name="Full name"
+          placeholder="Full name"
+          value={updatedName}
+          onChange={(e) => setUpdatedName(e.target.value)}
+        />
+
+        <CustomInput
+          name="Username"
+          placeholder="Username"
+          value={updatedUsername}
+          onChange={(e) => setUpdatedUsername(e.target.value)}
+          isDisabled={isUpdatingUserData}
+        />
+
+        <CustomInput
+          name="Password"
+          placeholder="Password"
+          type="password"
+          value={updatedPassword}
+          onChange={(e) => setUpdatedPassword(e.target.value)}
+          isDisabled={isUpdatingUserData}
+        />
+
+        <CustomButton
+          w="full"
+          isSelected={false}
+          isDisabled={isUpdatingUserData}
+          onClick={handleUpdateUserData}
         >
-          <CustomInput
-            name="Full name"
-            placeholder="Full name"
-            value={updatedName}
-            onChange={(e) => setUpdatedName(e.target.value)}
-          />
-
-          <CustomInput
-            name="Username"
-            placeholder="Username"
-            value={updatedUsername}
-            onChange={(e) => setUpdatedUsername(e.target.value)}
-            isDisabled={isUpdatingUserData}
-          />
-
-          <CustomInput
-            name="Password"
-            placeholder="Password"
-            type="password"
-            value={updatedPassword}
-            onChange={(e) => setUpdatedPassword(e.target.value)}
-            isDisabled={isUpdatingUserData}
-          />
-
-          <CustomButton
-            isSelected={false}
-            isDisabled={isUpdatingUserData}
-            onClick={handleUpdateUserData}
-          >
-            Save changes
-          </CustomButton>
-          <CustomButton
-            isSelected={true}
-            textColor="black"
-            borderColor="blackAlpha.300"
-            onClick={handleLogout}
-          >
-            Logout
-          </CustomButton>
-          <CustomButton
-            isSelected={true}
-            textColor="red.500"
-            _hover={{
-              bg: "red.500",
-              textColor: "white",
-            }}
-            onClick={handleDeleteUser}
-            isDisabled={isDeletingUser}
-          >
-            Delete account
-          </CustomButton>
-        </Flex>
-      </CustomBox>
+          Save changes
+        </CustomButton>
+        <CustomButton
+          w="full"
+          isSelected={true}
+          textColor="black"
+          borderColor="blackAlpha.300"
+          onClick={handleLogout}
+        >
+          Logout
+        </CustomButton>
+        <CustomButton
+          w="full"
+          isSelected={true}
+          textColor="red.500"
+          _hover={{
+            bg: "red.500",
+            textColor: "white",
+          }}
+          onClick={handleDeleteUser}
+          isDisabled={isDeletingUser}
+        >
+          Delete account
+        </CustomButton>
+      </Flex>
     </Flex>
   );
 };

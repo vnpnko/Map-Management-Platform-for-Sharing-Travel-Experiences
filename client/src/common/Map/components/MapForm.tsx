@@ -14,28 +14,52 @@ import GenericVirtualList from "../../components/GenericVirtualList.tsx";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
 
+type FormState = {
+  name: string;
+  description: string;
+  places: string[];
+  likes: number[];
+};
+
+type FieldError = { type: string; message: string } | null;
+
 const MapForm: React.FC = () => {
   const toast = useToast();
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { mapDraft, setMapDraft } = mapDraftStore();
-  const [mapName, setMapName] = useState("");
-  const [mapDescription, setMapDescription] = useState("");
 
   const { createMap, isCreatingMap } = useCreateMap();
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { addMapLike } = useAddMapLike();
 
-  const payload = {
-    name: mapName,
-    description: mapDescription,
+  const [form, setForm] = useState<FormState>({
+    name: "",
+    description: "",
     places: mapDraft ? mapDraft.places : [],
     likes: [loggedInUser!._id],
-  };
+  });
+  const [error, setError] = useState<FieldError>(null);
 
   const handleCreateMap = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.name.trim())
+      return setError({ type: "name", message: "Name is required" });
+
+    if (!form.description.trim())
+      return setError({
+        type: "description",
+        message: "Description is required",
+      });
+
+    if (form.places.length < 2)
+      return setError({
+        type: "places",
+        message: "At least two places are required",
+      });
+
     try {
-      const createdMap = await createMap(payload);
+      const createdMap = await createMap(form);
       setMapDraft(createdMap);
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,
@@ -43,10 +67,7 @@ const MapForm: React.FC = () => {
       });
       await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
-
       setMapDraft(null);
-      setMapName("");
-      setMapDescription("");
     } catch (error) {
       toast({
         title: "Failed to create map",
@@ -68,15 +89,17 @@ const MapForm: React.FC = () => {
       >
         <CustomInput
           placeholder="Map Name"
-          value={mapName}
-          onChange={(e) => setMapName(e.target.value)}
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          isError={error?.type === "name"}
         />
         <CustomTextarea
           placeholder="Map Description"
-          value={mapDescription}
-          onChange={(e) => setMapDescription(e.target.value)}
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          isError={error?.type === "description"}
         />
-        <CustomButton w={"full"} type="submit" ml="auto" isSelected={false}>
+        <CustomButton w={"full"} type="submit" isSelected={false}>
           {isCreatingMap || isAddingMapToUser ? (
             <Spinner size="md" />
           ) : (
