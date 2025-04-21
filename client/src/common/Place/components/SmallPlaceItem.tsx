@@ -124,7 +124,7 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
           </Flex>
         </Flex>
         <Image
-          src={`${BASE_URL}/proxy/photo?url=${encodeURIComponent(place.photoUrl)}`}
+          src={`${BASE_URL}/proxy/googlephoto?url=${encodeURIComponent(place.photoUrl)}`}
           alt={`${place.name} photo`}
           width={"100%"}
           height={"200px"}
