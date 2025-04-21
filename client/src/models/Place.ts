@@ -6,7 +6,5 @@ export interface Place {
   url: string;
   likes: number[];
   location: Location;
-  formattedAddress?: string;
-  types?: string[];
   photoUrl: string;
 }
