@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"sort"
+	"strings"
 )
 
 func GetUsers(c *fiber.Ctx) error {
@@ -99,14 +100,45 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	user.Name = strings.TrimSpace(user.Name)
+	user.Username = strings.TrimSpace(user.Username)
+	user.Password = strings.TrimSpace(user.Password)
+
 	if user.Name == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Name is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Full name is required",
+			Type:  "name",
+		})
 	}
+
 	if user.Username == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Username is required",
+			Type:  "username",
+		})
 	}
+
 	if user.Password == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Password is required",
+			Type:  "password",
+		})
+	}
+
+	if len(user.Password) < 6 {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Password must be at least 6 characters",
+			Type:  "password",
+		})
+	}
+
+	var existing models.User
+	err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"username": user.Username}).Decode(&existing)
+	if err == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error: "Username already exists",
+			Type:  "username",
+		})
 	}
 
 	if user.Followers == nil {

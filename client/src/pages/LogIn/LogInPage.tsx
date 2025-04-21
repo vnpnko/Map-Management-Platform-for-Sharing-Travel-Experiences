@@ -5,6 +5,7 @@ import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 import useLogIn from "./hooks/useLogIn.ts";
+import ErrorMessage from "../../common/ui/ErrorMessage.tsx";
 
 const LogInPage: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -68,7 +69,7 @@ const LogInPage: React.FC = () => {
         </CustomButton>
       </Flex>
 
-      {error && <Text color="red.500">{error.message}</Text>}
+      {error && <ErrorMessage error={error.message} />}
 
       <Text fontSize="md" color="black">
         {"Don't have an account? "}

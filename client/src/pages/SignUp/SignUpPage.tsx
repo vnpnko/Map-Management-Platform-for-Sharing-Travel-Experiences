@@ -1,70 +1,92 @@
 import React, { useState } from "react";
-import { Flex, Heading, Link, Text } from "@chakra-ui/react";
+import { Flex, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import CustomButton from "../../common/ui/CustomButton.tsx";
-import CustomInput from "../../common/ui/CustomInput.tsx";
-import useSignUp from "./hooks/useSignUp.ts";
-import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
+
+import CustomInput from "../../common/ui/CustomInput";
+import CustomButton from "../../common/ui/CustomButton";
+import ErrorMessage from "../../common/ui/ErrorMessage";
+import useSignUp from "./hooks/useSignUp";
+import { loggedInUserStore } from "../../store/loggedInUserStore";
 
 const SignUpPage: React.FC = () => {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const SignUpPayload = { name, username, password };
+  type SingUpForm = { name: string; username: string; password: string };
+  type SingUpError = { type: string; message: string } | null;
 
-  const [error, setError] = useState<Error | null>(null);
+  const [form, setForm] = useState<SingUpForm>({
+    name: "",
+    username: "",
+    password: "",
+  });
+
+  const [error, setError] = useState<SingUpError>(null);
 
   const navigate = useNavigate();
-
   const { signup, isSigningUp } = useSignUp();
   const { setLoggedInUser } = loggedInUserStore();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!form.name.trim())
+      return setError({ type: "name", message: "Full name is required" });
+    if (!form.username.trim())
+      return setError({ type: "username", message: "Username is required" });
+    if (!form.password.trim())
+      return setError({ type: "password", message: "Password is required" });
+    if (form.password.length < 6)
+      return setError({
+        type: "password",
+        message: "Password must be at least 6 characters",
+      });
+
     try {
-      const user = await signup(SignUpPayload);
+      const user = await signup(form);
       setLoggedInUser(user);
       navigate(`/${user.username}`);
-    } catch (error) {
-      setError(error as Error);
+    } catch (err) {
+      const apiErr = err as { type: string; error: string };
+      setError({
+        type: apiErr.type,
+        message: apiErr.error,
+      });
     }
   };
 
   return (
-    <Flex direction="column" w={"sm"} gap={8} alignItems={"center"}>
+    <Flex direction="column" w="sm" gap={8} alignItems="center">
       <Heading color="black" size="lg">
         Sign up to Favmaps
       </Heading>
 
-      <Flex
-        as={"form"}
-        onSubmit={handleSignup}
-        direction={"column"}
-        w={"full"}
-        gap={4}
-      >
+      <Flex as="form" onSubmit={onSubmit} direction="column" w="full" gap={4}>
         <CustomInput
           name="Full name"
           placeholder="Full name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
           isDisabled={isSigningUp}
+          isError={error?.type === "name"}
         />
+
         <CustomInput
           name="Username"
           placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
           isDisabled={isSigningUp}
+          isError={error?.type === "username"}
         />
+
         <CustomInput
           name="Password"
           type="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
           isDisabled={isSigningUp}
+          isError={error?.type === "password"}
         />
+
         <CustomButton
           type="submit"
           isSelected={isSigningUp}
@@ -74,13 +96,13 @@ const SignUpPage: React.FC = () => {
         </CustomButton>
       </Flex>
 
-      {error && <Text color="red.500">{error.message}</Text>}
+      {error && <ErrorMessage error={error.message} />}
 
       <Text fontSize="md" color="black">
-        {"Have an account? "}
-        <Link as={RouterLink} to="/" color="blue.500" fontWeight={"bold"}>
+        Have an account?{" "}
+        <ChakraLink as={RouterLink} to="/" color="blue.500" fontWeight="bold">
           Log in
-        </Link>
+        </ChakraLink>
       </Text>
     </Flex>
   );
