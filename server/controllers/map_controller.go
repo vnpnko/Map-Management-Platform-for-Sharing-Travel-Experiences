@@ -89,25 +89,22 @@ func CreateMap(c *fiber.Ctx) error {
 
 	if mapData.Name == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Map name is required",
+			Error:   "Could not create map",
+			Details: "Map name is required",
 		})
 	}
 
 	if mapData.Description == "" {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Map description is required",
+			Error:   "Could not create map",
+			Details: "Map description is required",
 		})
 	}
 
-	if mapData.Places == nil {
+	if len(mapData.Places) < 2 {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Map places are required",
-		})
-	}
-
-	if mapData.Likes == nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Map likes are required",
+			Error:   "Could not create map",
+			Details: "Map must have at least 2 places",
 		})
 	}
 

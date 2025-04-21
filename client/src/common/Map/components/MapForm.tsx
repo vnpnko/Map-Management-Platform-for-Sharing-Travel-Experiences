@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, Flex, Spinner, useToast } from "@chakra-ui/react";
+import { Text, Flex, Spinner } from "@chakra-ui/react";
 import CustomInput from "../../ui/CustomInput.tsx";
 import CustomTextarea from "../../ui/CustomTextarea.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
@@ -13,6 +13,7 @@ import PlaceItem from "../../Place/components/PlaceItem.tsx";
 import GenericVirtualList from "../../components/GenericVirtualList.tsx";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
+import useToastError from "../../hooks/useToastError.ts";
 
 type FormState = {
   name: string;
@@ -24,7 +25,7 @@ type FormState = {
 type FieldError = { type: string; message: string } | null;
 
 const MapForm: React.FC = () => {
-  const toast = useToast();
+  const toastError = useToastError();
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { mapDraft, setMapDraft } = mapDraftStore();
 
@@ -35,7 +36,7 @@ const MapForm: React.FC = () => {
   const [form, setForm] = useState<FormState>({
     name: "",
     description: "",
-    places: mapDraft ? mapDraft.places : [],
+    places: [],
     likes: [loggedInUser!._id],
   });
   const [error, setError] = useState<FieldError>(null);
@@ -43,23 +44,30 @@ const MapForm: React.FC = () => {
   const handleCreateMap = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.name.trim())
-      return setError({ type: "name", message: "Name is required" });
+    const finalForm = {
+      ...form,
+      places: mapDraft?.places ?? [],
+    };
 
-    if (!form.description.trim())
+    if (!finalForm.name.trim())
+      return setError({ type: "name", message: "Map name is required" });
+
+    if (!finalForm.description.trim())
       return setError({
         type: "description",
-        message: "Description is required",
+        message: "Map description is required",
       });
 
-    if (form.places.length < 2)
-      return setError({
-        type: "places",
-        message: "At least two places are required",
+    setError(null);
+
+    if (finalForm.places.length < 2)
+      return toastError({
+        title: "Failed to create map",
+        description: "Map must have at least 2 places",
       });
 
     try {
-      const createdMap = await createMap(form);
+      const createdMap = await createMap(finalForm);
       setMapDraft(createdMap);
       const updatedUser = await addMapToUser({
         mapId: createdMap._id,
@@ -69,11 +77,10 @@ const MapForm: React.FC = () => {
       setLoggedInUser(updatedUser);
       setMapDraft(null);
     } catch (error) {
-      toast({
-        title: "Failed to create map",
-        description: (error as Error).message,
-        status: "error",
-        isClosable: true,
+      const apiError = error as { error: string; details: string };
+      toastError({
+        title: apiError.error,
+        description: apiError.details,
       });
     }
   };

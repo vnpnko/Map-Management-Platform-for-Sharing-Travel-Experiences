@@ -79,7 +79,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
       return;
     }
 
-    if (loggedInUser.places.includes(form._id)) {
+    if (!isDraftingMap && loggedInUser.places.includes(form._id)) {
       setInputValue("");
       setForm(null);
       toastError({
@@ -105,11 +105,11 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
       }
       await addPlaceLike({ placeId: form._id, userId: loggedInUser._id });
       setLoggedInUser(updatedUser);
-      setInputValue("");
-      setForm(null);
       if (isDraftingMap) {
         addPlace(form._id);
       }
+      setInputValue("");
+      setForm(null);
     } catch {
       setInputValue("");
       setForm(null);

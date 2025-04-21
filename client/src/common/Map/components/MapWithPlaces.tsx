@@ -20,14 +20,19 @@ const MapWithPlaces: React.FC<MapWithPlacesProps> = ({ places }) => {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || places.length === 0) return;
 
     const bounds = new window.google.maps.LatLngBounds();
-    places.forEach((place) =>
-      bounds.extend({ lat: place.location.lat, lng: place.location.lng }),
-    );
+    places.forEach((place) => {
+      bounds.extend({
+        lat: place.location.lat,
+        lng: place.location.lng,
+      });
+    });
 
-    mapRef.current.fitBounds(bounds, 100);
+    setTimeout(() => {
+      mapRef.current?.fitBounds(bounds, 100);
+    }, 100);
   }, [places]);
 
   return (
