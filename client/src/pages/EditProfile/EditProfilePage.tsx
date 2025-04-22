@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Flex,
-  Heading,
-  IconButton,
-  InputGroup,
-  InputRightElement,
-  useToast,
-} from "@chakra-ui/react";
+import { Flex, Heading, useToast } from "@chakra-ui/react";
 import CustomButton from "../../common/ui/CustomButton.tsx";
 import CustomInput from "../../common/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import PasswordInput from "../../common/ui/PasswordInput.tsx";
 
 const EditProfilePage: React.FC = () => {
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
@@ -90,8 +83,6 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  const [showPassword, setShowPassword] = useState(false);
-
   return (
     <Flex direction="column" w="sm" gap={8} alignItems="center">
       <Heading color="black" size="lg">
@@ -120,26 +111,13 @@ const EditProfilePage: React.FC = () => {
           isDisabled={isUpdatingUserData}
         />
 
-        <InputGroup>
-          <CustomInput
-            name="Password"
-            placeholder="Password"
-            type={showPassword ? "text" : "password"}
-            value={updatedPassword}
-            onChange={(e) => setUpdatedPassword(e.target.value)}
-            isDisabled={isUpdatingUserData}
-          />
-          <InputRightElement>
-            <IconButton
-              color={"black"}
-              variant="ghost"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-              onClick={() => setShowPassword(!showPassword)}
-              mb={3}
-            />
-          </InputRightElement>
-        </InputGroup>
+        <PasswordInput
+          name="Password"
+          placeholder="Password"
+          value={updatedPassword}
+          onChange={(e) => setUpdatedPassword(e.target.value)}
+          isDisabled={isUpdatingUserData}
+        />
 
         <CustomButton
           w="full"

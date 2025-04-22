@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import {
-  Flex,
-  IconButton,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import CustomInput from "../../../common/ui/CustomInput";
 import CustomButton from "../../../common/ui/CustomButton";
 import ErrorMessage from "../../../common/ui/ErrorMessage";
 import useLogIn from "../hooks/useLogIn";
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import { useNavigate } from "react-router-dom";
-import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import PasswordInput from "../../../common/ui/PasswordInput.tsx";
 
 type FormState = { username: string; password: string };
 type FieldError = { type: string; message: string } | null;
@@ -43,8 +38,6 @@ const LoginForm: React.FC = () => {
     }
   };
 
-  const [showPassword, setShowPassword] = useState(false);
-
   return (
     <Flex
       as="form"
@@ -63,27 +56,14 @@ const LoginForm: React.FC = () => {
         isError={error?.type === "username"}
       />
 
-      <InputGroup>
-        <CustomInput
-          name="Password"
-          placeholder="Password"
-          type={showPassword ? "text" : "password"}
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          isDisabled={isLoggingIn}
-          isError={error?.type === "password"}
-        />
-        <InputRightElement>
-          <IconButton
-            color={"black"}
-            variant="ghost"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
-            onClick={() => setShowPassword(!showPassword)}
-            mb={3}
-          />
-        </InputRightElement>
-      </InputGroup>
+      <PasswordInput
+        name="Password"
+        placeholder="Password"
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
+        isDisabled={isLoggingIn}
+        isError={error?.type === "password"}
+      />
 
       <CustomButton
         type="submit"

@@ -1,6 +1,6 @@
 import React from "react";
 import { Marker } from "@react-google-maps/api";
-import Pin from "../../../assets/favmaps_logo.png";
+import Pin from "../../../assets/logo.png";
 
 interface CustomMarkerProps {
   position: google.maps.LatLngLiteral;

@@ -6,7 +6,7 @@ const LogInPage: React.FC = () => {
   return (
     <Flex direction="column" w="sm" gap={8} alignItems="center">
       <Heading color="black" size="lg">
-        Log in to Favmaps
+        Log in
       </Heading>
 
       <LoginForm />
