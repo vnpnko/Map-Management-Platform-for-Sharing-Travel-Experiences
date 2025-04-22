@@ -117,7 +117,7 @@ const EditProfilePage: React.FC = () => {
         <CustomButton
           w="full"
           isSelected={false}
-          isDisabled={isUpdatingUserData}
+          isLoading={isUpdatingUserData}
           onClick={handleUpdateUserData}
         >
           Save changes
@@ -140,7 +140,7 @@ const EditProfilePage: React.FC = () => {
             textColor: "white",
           }}
           onClick={handleDeleteUser}
-          isDisabled={isDeletingUser}
+          isLoading={isDeletingUser}
         >
           Delete account
         </CustomButton>

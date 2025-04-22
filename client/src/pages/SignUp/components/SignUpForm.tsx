@@ -91,7 +91,7 @@ const SignUpForm: React.FC = () => {
       <CustomButton
         type="submit"
         isSelected={isSigningUp}
-        isDisabled={isSigningUp}
+        isLoading={isSigningUp}
         w="full"
       >
         {isSigningUp ? "Signing up…" : "Sign Up"}

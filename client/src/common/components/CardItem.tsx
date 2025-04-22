@@ -88,7 +88,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
                 icon={likedByUser ? <FaHeart /> : <FaRegHeart />}
                 color={likedByUser ? "red.500" : "blackAlpha.700"}
                 onClick={onLikeToggle}
-                disabled={isPending}
+                isLoading={isPending}
               />
               <Text fontSize="sm" color="blackAlpha.700">
                 {likesCount}

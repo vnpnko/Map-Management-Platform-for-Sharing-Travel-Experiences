@@ -55,7 +55,7 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
                 }
                 color={alreadyLiked ? "red.500" : "blackAlpha.700"}
                 onClick={handleToggle}
-                disabled={isPending}
+                isLoading={isPending}
               />
             </IconCover>
           </Flex>

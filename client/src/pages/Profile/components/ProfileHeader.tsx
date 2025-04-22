@@ -2,22 +2,14 @@ import { Flex, Text, Avatar } from "@chakra-ui/react";
 import CustomButton from "../../../common/ui/CustomButton";
 import { useNavigate } from "react-router-dom";
 import { User } from "../../../models/User";
+import FollowButton from "../../../common/ui/FollowButton.tsx";
 
 interface Props {
   user: User;
   isOwnProfile: boolean;
-  isFollowingUser: boolean;
-  onFollowToggle: () => void;
-  isFollowLoading: boolean;
 }
 
-const ProfileHeader = ({
-  user,
-  isOwnProfile,
-  isFollowingUser,
-  onFollowToggle,
-  isFollowLoading,
-}: Props) => {
+const ProfileHeader = ({ user, isOwnProfile }: Props) => {
   const navigate = useNavigate();
 
   return (
@@ -28,6 +20,7 @@ const ProfileHeader = ({
           <Text color={"black"} fontSize="5xl" fontWeight="medium">
             {user.username}
           </Text>
+
           {isOwnProfile ? (
             <CustomButton
               width={120}
@@ -38,15 +31,7 @@ const ProfileHeader = ({
               Edit profile
             </CustomButton>
           ) : (
-            <CustomButton
-              width={120}
-              height={50}
-              isSelected
-              onClick={onFollowToggle}
-              isDisabled={isFollowLoading}
-            >
-              {isFollowingUser ? "Unfollow" : "Follow"}
-            </CustomButton>
+            <FollowButton user={user} />
           )}
         </Flex>
         <Text color={"black"} fontSize="xl">

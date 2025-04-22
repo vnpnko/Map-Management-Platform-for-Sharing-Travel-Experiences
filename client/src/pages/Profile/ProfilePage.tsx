@@ -2,8 +2,6 @@ import React from "react";
 import { Flex } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 import Status from "./components/Status.tsx";
-import useFollow from "../../common/User/hooks/useFollow.ts";
-import useUnfollow from "../../common/User/hooks/useUnfollow.ts";
 import useFetchUser from "../../common/User/hooks/useFetchUser.ts";
 import GenericVirtualList from "../../common/components/GenericVirtualList.tsx";
 import ToggleButton from "../../common/ui/ToggleButton.tsx";
@@ -16,67 +14,24 @@ import PlaceItem from "../../common/Place/components/PlaceItem.tsx";
 import MapItem from "../../common/Map/components/MapItem.tsx";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 import ProfileHeader from "./components/ProfileHeader.tsx";
-import useToastError from "../../common/hooks/toast/useToastError.ts";
 import CustomSpinner from "../../common/ui/CustomSpinner.tsx";
 import CustomAlert from "../../common/ui/CustomAlert.tsx";
 
 const ProfilePage: React.FC = () => {
   const { username = "" } = useParams<{ username: string }>();
-  const toastError = useToastError();
-
-  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
+  const { loggedInUser } = loggedInUserStore();
   const { fetchedUser, isFetchingUser, fetchedUserError } = useFetchUser({
     username,
   });
-  const { follow, isFollowing } = useFollow();
-  const { unfollow, isUnfollowing } = useUnfollow();
+
   const { activeTab, setActiveTab } = useProfileTabs();
 
   if (isFetchingUser) return <CustomSpinner />;
-
   if (fetchedUserError) return <CustomAlert title={fetchedUserError.message} />;
+  if (!fetchedUser) return <CustomAlert title={"User not found"} />;
 
-  if (!fetchedUser) return null;
-
-  const isOwnProfile = loggedInUser?._id === fetchedUser._id;
+  const isOwnProfile = loggedInUser?.username === username;
   const user = isOwnProfile ? loggedInUser : fetchedUser;
-  const isFollowingUser = loggedInUser
-    ? fetchedUser.followers.includes(loggedInUser._id)
-    : false;
-
-  const handleFollowToggle = async () => {
-    if (!loggedInUser) {
-      toastError({
-        title: "Follow Failed",
-        description: "Login to follow users",
-      });
-      return;
-    }
-
-    const payload = {
-      followerId: loggedInUser._id,
-      followeeId: fetchedUser._id,
-    };
-
-    try {
-      const updatedUser = isFollowingUser
-        ? await unfollow(payload)
-        : await follow(payload);
-      setLoggedInUser(updatedUser);
-      if (isFollowingUser) {
-        fetchedUser.followers = fetchedUser.followers.filter(
-          (id) => id !== loggedInUser._id,
-        );
-      } else {
-        fetchedUser.followers.push(loggedInUser._id);
-      }
-    } catch (error) {
-      toastError({
-        title: "Follow Failed",
-        description: (error as Error).message,
-      });
-    }
-  };
 
   const tabMap: Record<ProfileTab, React.ReactNode> = {
     maps: (
@@ -115,13 +70,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <Flex direction="column" alignItems="center" gap={8}>
-      <ProfileHeader
-        user={fetchedUser}
-        isOwnProfile={isOwnProfile}
-        isFollowingUser={isFollowingUser}
-        isFollowLoading={isFollowing || isUnfollowing}
-        onFollowToggle={handleFollowToggle}
-      />
+      <ProfileHeader user={fetchedUser} isOwnProfile={isOwnProfile} />
 
       <Flex direction="column" gap={4} w={"2xl"}>
         <Flex justifyContent="space-between" gap={4}>

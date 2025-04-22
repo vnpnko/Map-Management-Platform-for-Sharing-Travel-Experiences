@@ -68,7 +68,7 @@ const LoginForm: React.FC = () => {
       <CustomButton
         type="submit"
         isSelected={isLoggingIn}
-        isDisabled={isLoggingIn}
+        isLoading={isLoggingIn}
         w="full"
       >
         {isLoggingIn ? "Logging in…" : "Log In"}
