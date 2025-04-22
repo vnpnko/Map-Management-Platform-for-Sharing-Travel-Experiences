@@ -39,7 +39,7 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
                 to={place.url}
                 target="_blank"
                 aria-label={"Open in Google Maps"}
-                icon={<FaRegMap size={25} />}
+                icon={<FaRegMap size={20} />}
                 color={"blackAlpha.700"}
               />
             </IconCover>
@@ -49,9 +49,9 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
                 aria-label={alreadyLiked ? "Unlike" : "Like"}
                 icon={
                   alreadyLiked ? (
-                    <FaHeart size={25} />
+                    <FaHeart size={20} />
                   ) : (
-                    <FaRegHeart size={25} />
+                    <FaRegHeart size={20} />
                   )
                 }
                 color={alreadyLiked ? "red.500" : "blackAlpha.700"}

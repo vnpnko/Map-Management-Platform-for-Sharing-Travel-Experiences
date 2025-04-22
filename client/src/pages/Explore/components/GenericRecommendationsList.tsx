@@ -27,7 +27,7 @@ function GenericRecommendationsList<T>({
         <Text fontWeight="medium">Recommended {resource}</Text>
         <IconButton
           aria-label={isOpen ? "Hide recommendations" : "Show recommendations"}
-          icon={<FaRegListAlt />}
+          icon={<FaRegListAlt size={20} />}
           onClick={() => setIsOpen(!isOpen)}
         />
       </Flex>

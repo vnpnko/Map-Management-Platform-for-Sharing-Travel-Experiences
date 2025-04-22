@@ -6,7 +6,7 @@ import {
   FaRegHeart,
   FaRegComment,
   FaRegMap,
-  FaRegPaperPlane,
+  FaLink,
 } from "react-icons/fa6";
 import CustomBox from "../ui/CustomBox.tsx";
 import IconCover from "../ui/IconCover.tsx";
@@ -85,7 +85,9 @@ const CardItem: React.FC<GenericCardItemProps> = ({
             <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
               <IconButton
                 aria-label={likedByUser ? "Unlike" : "Like"}
-                icon={likedByUser ? <FaHeart /> : <FaRegHeart />}
+                icon={
+                  likedByUser ? <FaHeart size={20} /> : <FaRegHeart size={20} />
+                }
                 color={likedByUser ? "red.500" : "blackAlpha.700"}
                 onClick={onLikeToggle}
                 isLoading={isPending}
@@ -101,7 +103,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
                 as={RouterLink}
                 to={`/${type}/${id}`}
                 aria-label="Comment"
-                icon={<FaRegComment />}
+                icon={<FaRegComment size={20} />}
                 color="blackAlpha.700"
               />
 
@@ -117,7 +119,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
                 to={url}
                 target="_blank"
                 aria-label="Open in Google Maps"
-                icon={<FaRegMap />}
+                icon={<FaRegMap size={20} />}
                 color="blackAlpha.700"
               />
             </IconCover>
@@ -125,7 +127,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           <IconCover>
             <IconButton
               aria-label="Share"
-              icon={<FaRegPaperPlane />}
+              icon={<FaLink size={20} />}
               onClick={() =>
                 copyLink(`${window.location.origin}/${type}/${id}`)
               }
