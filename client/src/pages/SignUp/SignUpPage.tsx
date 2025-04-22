@@ -6,7 +6,7 @@ const SignUpPage: React.FC = () => {
   return (
     <Flex direction="column" w="sm" gap={8} alignItems="center">
       <Heading color="black" size="lg">
-        Sign up to Favmaps
+        Sign up
       </Heading>
 
       <SignUpForm />

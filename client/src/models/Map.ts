@@ -4,4 +4,5 @@ export interface Map {
   description: string;
   places: string[];
   likes: number[];
+  creatorUsername: number;
 }

@@ -6,6 +6,7 @@ import ErrorMessage from "../../../common/ui/ErrorMessage";
 import useLogIn from "../hooks/useLogIn";
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "../../../common/ui/PasswordInput.tsx";
 
 type FormState = { username: string; password: string };
 type FieldError = { type: string; message: string } | null;
@@ -55,10 +56,9 @@ const LoginForm: React.FC = () => {
         isError={error?.type === "username"}
       />
 
-      <CustomInput
+      <PasswordInput
         name="Password"
         placeholder="Password"
-        type="password"
         value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}
         isDisabled={isLoggingIn}

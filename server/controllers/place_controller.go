@@ -270,7 +270,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to fetch users",
+			Error:   "Failed to fetch places",
 			Details: err.Error(),
 		})
 	}
@@ -278,7 +278,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 	var candidates []models.Place
 	if err := cursor.All(context.Background(), &candidates); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to decode users",
+			Error:   "Failed to decode places",
 			Details: err.Error(),
 		})
 	}

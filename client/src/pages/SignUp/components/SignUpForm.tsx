@@ -6,6 +6,7 @@ import ErrorMessage from "../../../common/ui/ErrorMessage";
 import useSignUp from "../hooks/useSignUp";
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "../../../common/ui/PasswordInput.tsx";
 
 type FormState = { name: string; username: string; password: string };
 
@@ -78,9 +79,8 @@ const SignUpForm: React.FC = () => {
         isError={error?.type === "username"}
       />
 
-      <CustomInput
+      <PasswordInput
         name="Password"
-        type="password"
         placeholder="Password"
         value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}

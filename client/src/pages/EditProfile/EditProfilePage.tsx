@@ -6,6 +6,7 @@ import CustomInput from "../../common/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
+import PasswordInput from "../../common/ui/PasswordInput.tsx";
 
 const EditProfilePage: React.FC = () => {
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
@@ -110,10 +111,9 @@ const EditProfilePage: React.FC = () => {
           isDisabled={isUpdatingUserData}
         />
 
-        <CustomInput
+        <PasswordInput
           name="Password"
           placeholder="Password"
-          type="password"
           value={updatedPassword}
           onChange={(e) => setUpdatedPassword(e.target.value)}
           isDisabled={isUpdatingUserData}

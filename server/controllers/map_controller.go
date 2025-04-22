@@ -80,6 +80,14 @@ func GetMap(c *fiber.Ctx) error {
 }
 
 func CreateMap(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid username",
+			Details: "Username parameter is required",
+		})
+	}
+
 	var mapData models.Map
 	if err := c.BodyParser(&mapData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
@@ -108,6 +116,8 @@ func CreateMap(c *fiber.Ctx) error {
 			Details: "Map must have at least 2 places",
 		})
 	}
+
+	mapData.CreatorUsername = username
 
 	res, err := config.DB.Collection("maps").InsertOne(context.Background(), mapData)
 	if err != nil {
@@ -389,7 +399,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": currentUser.Following},
 	})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 			Error:   "Failed to fetch followed users",
 			Details: err.Error(),
 		})
@@ -397,22 +407,22 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 
 	var followedUsers []models.User
 	if err := cursor.All(context.Background(), &followedUsers); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 			Error:   "Failed to decode followed users",
 			Details: err.Error(),
 		})
 	}
 
 	mapFrequency := map[primitive.ObjectID]int{}
-	for _, u := range followedUsers {
-		for _, mid := range u.Maps {
-			mapFrequency[mid]++
+	for _, user := range followedUsers {
+		for _, id := range user.Maps {
+			mapFrequency[id]++
 		}
 	}
 
 	exclude := make(map[primitive.ObjectID]struct{})
-	for _, mid := range currentUser.Maps {
-		exclude[mid] = struct{}{}
+	for _, id := range currentUser.Maps {
+		exclude[id] = struct{}{}
 	}
 
 	candidateIDs := utils.FilterCandidates(mapFrequency, exclude)
@@ -425,7 +435,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": candidateIDs},
 	})
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 			Error:   "Failed to fetch maps",
 			Details: err.Error(),
 		})
@@ -433,7 +443,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 
 	var candidates []models.Map
 	if err := cursor.All(context.Background(), &candidates); err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
 			Error:   "Failed to decode maps",
 			Details: err.Error(),
 		})

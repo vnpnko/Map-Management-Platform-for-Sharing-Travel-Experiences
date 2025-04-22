@@ -20,6 +20,7 @@ type FormState = {
   description: string;
   places: string[];
   likes: number[];
+  username: string;
 };
 
 type FieldError = { type: string; message: string } | null;
@@ -38,6 +39,7 @@ const MapForm: React.FC = () => {
     description: "",
     places: [],
     likes: [loggedInUser!._id],
+    username: loggedInUser!.username,
   });
   const [error, setError] = useState<FieldError>(null);
 
