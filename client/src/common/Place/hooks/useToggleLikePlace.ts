@@ -1,7 +1,7 @@
 import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
 import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
-import useAddPlaceLike from "./useAddPlaceLike.ts";
-import useRemovePlaceLike from "./useRemovePlaceLike.ts";
+import useLikePlace from "./useLikePlace.ts";
+import useUnlikePlace from "./useUnlikePlace.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import useToastError from "../../hooks/toast/useToastError.ts";
 import { Place } from "../../../models/Place.ts";
@@ -13,8 +13,8 @@ const useToggleLikePlace = (place: Place) => {
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { removePlaceFromUser, isRemovingPlaceFromUser } =
     useRemovePlaceFromUser();
-  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
+  const { likePlace, isLikingPlace } = useLikePlace();
+  const { unlikePlace, isUnlikingPlace } = useUnlikePlace();
 
   const alreadyLiked = loggedInUser?.places.includes(place._id) ?? false;
 
@@ -40,10 +40,10 @@ const useToggleLikePlace = (place: Place) => {
       setLoggedInUser(updatedUser);
 
       if (alreadyLiked) {
-        await removePlaceLike(payload);
+        await unlikePlace(payload);
         place.likes = place.likes.filter((id) => id !== loggedInUser._id);
       } else {
-        await addPlaceLike(payload);
+        await likePlace(payload);
         place.likes.push(loggedInUser._id);
       }
     } catch (error) {
@@ -57,8 +57,8 @@ const useToggleLikePlace = (place: Place) => {
   const isPending =
     isAddingPlaceToUser ||
     isRemovingPlaceFromUser ||
-    isAddingPlaceLike ||
-    isRemovingPlaceLike;
+    isLikingPlace ||
+    isUnlikingPlace;
 
   return {
     alreadyLiked,

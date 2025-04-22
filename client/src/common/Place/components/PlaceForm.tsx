@@ -7,7 +7,7 @@ import CustomButton from "../../ui/CustomButton.tsx";
 import useCreatePlace from "../../../pages/Create/hooks/useCreatePlace.ts";
 import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
 import useFetchPlace from "../hooks/useFetchPlace.ts";
-import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
+import useLikePlace from "../hooks/useLikePlace.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
 import { Place } from "../../../models/Place.ts";
@@ -28,7 +28,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
 
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
-  const { addPlaceLike } = useAddPlaceLike();
+  const { likePlace } = useLikePlace();
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
@@ -99,7 +99,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
           userId: loggedInUser!._id,
         });
       }
-      await addPlaceLike({ placeId: form._id, userId: loggedInUser._id });
+      await likePlace({ placeId: form._id, userId: loggedInUser._id });
       setLoggedInUser(updatedUser);
       if (isDraftingMap) {
         addPlace(form._id);

@@ -1,18 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 
-interface AddPlaceLikePayload {
+interface LikePlacePayload {
   placeId: string;
   userId: number;
 }
 
-interface AddPlaceLikeResponse {
+interface LikePlaceResponse {
   success: boolean;
 }
 
-const addPlaceLikeRequest = async (
-  payload: AddPlaceLikePayload,
-): Promise<AddPlaceLikeResponse> => {
+const likePlaceRequest = async (
+  payload: LikePlacePayload,
+): Promise<LikePlaceResponse> => {
   const { placeId, userId } = payload;
 
   const response = await fetch(
@@ -29,20 +29,20 @@ const addPlaceLikeRequest = async (
   return data;
 };
 
-const useAddPlaceLike = () => {
+const useLikePlace = () => {
   const { mutateAsync, isPending, error } = useMutation<
-    AddPlaceLikeResponse,
+    LikePlaceResponse,
     Error,
-    AddPlaceLikePayload
+    LikePlacePayload
   >({
-    mutationFn: addPlaceLikeRequest,
+    mutationFn: likePlaceRequest,
   });
 
   return {
-    addPlaceLike: mutateAsync,
-    isAddingPlaceLike: isPending,
-    addPlaceLikeError: error,
+    likePlace: mutateAsync,
+    isLikingPlace: isPending,
+    likePlaceError: error,
   };
 };
 
-export default useAddPlaceLike;
+export default useLikePlace;

@@ -1,18 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 
-interface RemovePlaceLikePayload {
+interface UnlikePlacePayload {
   placeId: string;
   userId: number;
 }
 
-interface RemovePlaceLikeResponse {
+interface UnlikePlaceResponse {
   success: boolean;
 }
 
-const removePlaceLikeRequest = async (
-  payload: RemovePlaceLikePayload,
-): Promise<RemovePlaceLikeResponse> => {
+const unlikePlaceRequest = async (
+  payload: UnlikePlacePayload,
+): Promise<UnlikePlaceResponse> => {
   const { placeId, userId } = payload;
 
   const response = await fetch(
@@ -26,20 +26,20 @@ const removePlaceLikeRequest = async (
   return data;
 };
 
-const useRemovePlaceLike = () => {
+const useUnlikePlace = () => {
   const { mutateAsync, isPending, error } = useMutation<
-    RemovePlaceLikeResponse,
+    UnlikePlaceResponse,
     Error,
-    RemovePlaceLikePayload
+    UnlikePlacePayload
   >({
-    mutationFn: removePlaceLikeRequest,
+    mutationFn: unlikePlaceRequest,
   });
 
   return {
-    removePlaceLike: mutateAsync,
-    isRemovingPlaceLike: isPending,
-    removePlaceLikeError: error,
+    unlikePlace: mutateAsync,
+    isUnlikingPlace: isPending,
+    unlikePlaceError: error,
   };
 };
 
-export default useRemovePlaceLike;
+export default useUnlikePlace;
