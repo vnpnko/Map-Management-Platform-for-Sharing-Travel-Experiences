@@ -12,7 +12,6 @@ type UnfollowResponse = User;
 const unfollowRequest = async (
   payload: UnfollowPayload,
 ): Promise<UnfollowResponse> => {
-  // DELETE /users/:followerId/following/:followeeId
   const response = await fetch(
     `${BASE_URL}/users/${payload.followerId}/following/${payload.followeeId}`,
     {

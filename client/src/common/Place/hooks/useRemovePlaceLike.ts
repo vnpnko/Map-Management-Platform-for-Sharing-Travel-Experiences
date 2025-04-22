@@ -15,7 +15,6 @@ const removePlaceLikeRequest = async (
 ): Promise<RemovePlaceLikeResponse> => {
   const { placeId, userId } = payload;
 
-  // DELETE /places/:placeId/likes/:userId
   const response = await fetch(
     `${BASE_URL}/places/${placeId}/likes/${userId}`,
     { method: "DELETE" },

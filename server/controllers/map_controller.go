@@ -162,7 +162,6 @@ func DeleteMap(c *fiber.Ctx) error {
 }
 
 func AddMapLike(c *fiber.Ctx) error {
-	// Extract route params
 	mapIDStr := c.Params("mapId")
 	userIDStr := c.Params("userId")
 
@@ -172,7 +171,6 @@ func AddMapLike(c *fiber.Ctx) error {
 		})
 	}
 
-	// Convert to ObjectID (assuming your map and user IDs are stored as ObjectIDs)
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{

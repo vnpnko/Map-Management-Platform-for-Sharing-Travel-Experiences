@@ -15,7 +15,6 @@ const addPlaceLikeRequest = async (
 ): Promise<AddPlaceLikeResponse> => {
   const { placeId, userId } = payload;
 
-  // POST /places/:placeId/likes/:userId
   const response = await fetch(
     `${BASE_URL}/places/${placeId}/likes/${userId}`,
     {
