@@ -53,7 +53,7 @@ func SetupRoutes(app *fiber.App) {
 	maps.Get("/get/ids", controllers.GetMapsIDs)
 	maps.Get("/recommended/:userId", controllers.GetRecommendedMaps)
 
-	maps.Post("/", controllers.CreateMap)
+	maps.Post("/:username", controllers.CreateMap)
 	maps.Delete("/:id", controllers.DeleteMap)
 
 	maps.Post("/:mapId/likes/:userId", controllers.AddMapLike)

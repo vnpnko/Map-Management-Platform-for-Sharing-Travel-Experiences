@@ -31,7 +31,7 @@ const MapItem: React.FC<MapItemProps> = ({ map, isDetailPage }) => {
       <Flex direction={"column"} gap={4}>
         <MapWithPlaces places={places} />
         <Flex color={"black"} textAlign={"left"} gap={2}>
-          <Text fontWeight={"medium"}>username</Text>
+          <Text fontWeight={"medium"}>{map.creatorUsername}</Text>
           <Text>{map.description}</Text>
         </Flex>
       </Flex>

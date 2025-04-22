@@ -3,6 +3,7 @@ import { BASE_URL } from "../../../App.tsx";
 import { Map } from "../../../models/Map.ts";
 
 interface CreateMapPayload {
+  username: string;
   name: string;
   description: string;
   places: string[];
@@ -14,7 +15,7 @@ type CreateMapResponse = Map;
 const createMapRequest = async (
   payload: CreateMapPayload,
 ): Promise<CreateMapResponse> => {
-  const response = await fetch(`${BASE_URL}/maps`, {
+  const response = await fetch(`${BASE_URL}/maps/${payload.username}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

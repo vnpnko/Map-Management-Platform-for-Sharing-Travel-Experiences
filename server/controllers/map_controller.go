@@ -80,6 +80,14 @@ func GetMap(c *fiber.Ctx) error {
 }
 
 func CreateMap(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Invalid username",
+			Details: "Username parameter is required",
+		})
+	}
+
 	var mapData models.Map
 	if err := c.BodyParser(&mapData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
@@ -108,6 +116,8 @@ func CreateMap(c *fiber.Ctx) error {
 			Details: "Map must have at least 2 places",
 		})
 	}
+
+	mapData.CreatorUsername = username
 
 	res, err := config.DB.Collection("maps").InsertOne(context.Background(), mapData)
 	if err != nil {
