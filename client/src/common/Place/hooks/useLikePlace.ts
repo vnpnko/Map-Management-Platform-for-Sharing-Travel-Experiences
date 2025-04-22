@@ -1,43 +1,29 @@
+// useLikePlace.ts
 import { useMutation } from "@tanstack/react-query";
-import { BASE_URL } from "../../../App.tsx";
+import { BASE_URL } from "../../../App";
+import { User } from "../../../models/User";
 
-interface LikePlacePayload {
+interface Payload {
   placeId: string;
   userId: number;
 }
 
-interface LikePlaceResponse {
-  success: boolean;
-}
-
-const likePlaceRequest = async (
-  payload: LikePlacePayload,
-): Promise<LikePlaceResponse> => {
-  const { placeId, userId } = payload;
-
-  const response = await fetch(
-    `${BASE_URL}/places/${placeId}/likes/${userId}`,
+export const likePlaceRequest = async (payload: Payload): Promise<User> => {
+  const res = await fetch(
+    `${BASE_URL}/places/${payload.placeId}/likes/${payload.userId}`,
     {
       method: "POST",
     },
   );
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to add like to place");
-  }
-  return data;
+  const user = await res.json();
+  if (!res.ok) throw new Error(user.error || "Failed to like place");
+  return user;
 };
 
 const useLikePlace = () => {
-  const { mutateAsync, isPending, error } = useMutation<
-    LikePlaceResponse,
-    Error,
-    LikePlacePayload
-  >({
+  const { mutateAsync, isPending, error } = useMutation<User, Error, Payload>({
     mutationFn: likePlaceRequest,
   });
-
   return {
     likePlace: mutateAsync,
     isLikingPlace: isPending,

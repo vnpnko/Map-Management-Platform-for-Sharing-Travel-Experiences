@@ -1,40 +1,27 @@
+// useUnlikePlace.ts
 import { useMutation } from "@tanstack/react-query";
-import { BASE_URL } from "../../../App.tsx";
+import { BASE_URL } from "../../../App";
+import { User } from "../../../models/User";
 
-interface UnlikePlacePayload {
+interface Payload {
   placeId: string;
   userId: number;
 }
 
-interface UnlikePlaceResponse {
-  success: boolean;
-}
-
-const unlikePlaceRequest = async (
-  payload: UnlikePlacePayload,
-): Promise<UnlikePlaceResponse> => {
-  const { placeId, userId } = payload;
-
-  const response = await fetch(
-    `${BASE_URL}/places/${placeId}/likes/${userId}`,
+export const unlikePlaceRequest = async (payload: Payload): Promise<User> => {
+  const res = await fetch(
+    `${BASE_URL}/places/${payload.placeId}/likes/${payload.userId}`,
     { method: "DELETE" },
   );
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to remove like from place");
-  }
-  return data;
+  const user = await res.json();
+  if (!res.ok) throw new Error(user.error || "Failed to unlike place");
+  return user;
 };
 
 const useUnlikePlace = () => {
-  const { mutateAsync, isPending, error } = useMutation<
-    UnlikePlaceResponse,
-    Error,
-    UnlikePlacePayload
-  >({
+  const { mutateAsync, isPending, error } = useMutation<User, Error, Payload>({
     mutationFn: unlikePlaceRequest,
   });
-
   return {
     unlikePlace: mutateAsync,
     isUnlikingPlace: isPending,

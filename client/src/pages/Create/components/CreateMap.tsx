@@ -24,7 +24,7 @@ const CreateMap: React.FC = () => {
       <MapForm />
       <CustomDivider text={"your maps"} />
       <GenericVirtualList<Map, number>
-        items={[...loggedInUser.maps].reverse()}
+        items={loggedInUser.maps}
         type={"maps"}
         pageSize={5}
         renderItem={(map) => <MapItem key={map._id} map={map} />}

@@ -22,7 +22,7 @@ const useInfiniteFetchItems = <T, ID>({
   const fetchItemsPage = async ({ pageParam = 0 }): Promise<ItemsPage<T>> => {
     const start = pageParam * pageSize;
     const end = start + pageSize;
-    const selectedItemIds = itemIds.slice(start, end);
+    const selectedItemIds = [...itemIds].reverse().slice(start, end);
 
     const items: T[] = await Promise.all(
       selectedItemIds.map(async (id) => {

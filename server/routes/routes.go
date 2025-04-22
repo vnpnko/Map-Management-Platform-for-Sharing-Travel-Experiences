@@ -23,8 +23,8 @@ func SetupRoutes(app *fiber.App) {
 	users.Post("/:followerId/following/:followeeId", controllers.FollowUser)
 	users.Delete("/:followerId/following/:followeeId", controllers.UnfollowUser)
 
-	users.Post("/:userId/places/:placeId", controllers.AddPlaceToUser)
-	users.Delete("/:userId/places/:placeId", controllers.RemovePlaceFromUser)
+	//users.Post("/:userId/places/:placeId", controllers.AddPlaceToUser)
+	//users.Delete("/:userId/places/:placeId", controllers.RemovePlaceFromUser)
 
 	users.Post("/:userId/maps/:mapId", controllers.AddMapToUser)
 	users.Delete("/:userId/maps/:mapId", controllers.RemoveMapFromUser)

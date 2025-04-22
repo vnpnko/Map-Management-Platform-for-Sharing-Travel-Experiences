@@ -4,14 +4,13 @@ import { Box, Flex, Spinner } from "@chakra-ui/react";
 import { IoMdAdd } from "react-icons/io";
 import CustomInput from "../../ui/CustomInput.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
-import useCreatePlace from "../../../pages/Create/hooks/useCreatePlace.ts";
-import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
-import useFetchPlace from "../hooks/useFetchPlace.ts";
-import useLikePlace from "../hooks/useLikePlace.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
 import { Place } from "../../../models/Place.ts";
 import useToastError from "../../hooks/toast/useToastError.ts";
+import useCreatePlace from "../../../pages/Create/hooks/useCreatePlace.ts";
+import useFetchPlace from "../hooks/useFetchPlace.ts";
+import useLikePlace from "../hooks/useLikePlace.ts";
 
 interface PlaceFormProps {
   isDraftingMap?: boolean;
@@ -26,9 +25,8 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
   const [form, setForm] = useState<Place | null>(null);
   const { place } = useFetchPlace({ placeId: form?._id ?? "" });
 
-  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
-  const { likePlace } = useLikePlace();
+  const { likePlace, isLikingPlace } = useLikePlace();
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
@@ -86,21 +84,14 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
     }
 
     try {
-      let updatedUser;
-      if (place) {
-        updatedUser = await addPlaceToUser({
-          placeId: form._id,
-          userId: loggedInUser!._id,
-        });
-      } else {
+      if (!place) {
         await createPlace(form);
-        updatedUser = await addPlaceToUser({
-          placeId: form._id,
-          userId: loggedInUser!._id,
-        });
       }
       await likePlace({ placeId: form._id, userId: loggedInUser._id });
-      setLoggedInUser(updatedUser);
+      setLoggedInUser({
+        ...loggedInUser,
+        places: [...loggedInUser.places, form._id],
+      });
       if (isDraftingMap) {
         addPlace(form._id);
       }
@@ -132,7 +123,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
         </Autocomplete>
       </Box>
       <CustomButton type="submit" w="min" ml="auto" isSelected={false}>
-        {isCreatingPlace || isAddingPlaceToUser ? (
+        {isCreatingPlace || isLikingPlace ? (
           <Spinner size="md" />
         ) : (
           <IoMdAdd size={30} />

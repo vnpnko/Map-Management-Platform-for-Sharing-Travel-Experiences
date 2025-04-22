@@ -36,7 +36,7 @@ const ProfilePage: React.FC = () => {
   const tabMap: Record<ProfileTab, React.ReactNode> = {
     maps: (
       <GenericVirtualList<Map, number>
-        items={[...user.maps].reverse()}
+        items={user.maps}
         type="maps"
         pageSize={5}
         renderItem={(map) => <MapItem key={map._id} map={map} />}
@@ -44,7 +44,7 @@ const ProfilePage: React.FC = () => {
     ),
     places: (
       <GenericVirtualList<Place, string>
-        items={[...user.places].reverse()}
+        items={user.places}
         type="places"
         pageSize={5}
         renderItem={(place) => <PlaceItem key={place._id} place={place} />}
@@ -52,7 +52,7 @@ const ProfilePage: React.FC = () => {
     ),
     followers: (
       <GenericVirtualList<User, number>
-        items={[...user.followers].reverse()}
+        items={user.followers}
         type="users"
         pageSize={10}
         renderItem={(u) => <UserItem key={u._id} user={u} />}
@@ -60,7 +60,7 @@ const ProfilePage: React.FC = () => {
     ),
     following: (
       <GenericVirtualList<User, number>
-        items={[...user.following].reverse()}
+        items={user.following}
         type="users"
         pageSize={10}
         renderItem={(u) => <UserItem key={u._id} user={u} />}

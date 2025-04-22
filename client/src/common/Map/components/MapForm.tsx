@@ -121,7 +121,7 @@ const MapForm: React.FC = () => {
         <PlaceForm isDraftingMap={true} />
         {mapDraft && mapDraft.places.length > 0 && (
           <GenericVirtualList<Place, string>
-            items={[...mapDraft.places].reverse()}
+            items={mapDraft.places}
             type={"places"}
             pageSize={5}
             renderItem={(place) => <PlaceItem key={place._id} place={place} />}
