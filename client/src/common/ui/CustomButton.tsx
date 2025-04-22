@@ -4,11 +4,13 @@ import { Button, ButtonProps } from "@chakra-ui/react";
 interface CustomButtonProps extends ButtonProps {
   isSelected?: boolean;
   children?: React.ReactNode;
+  to?: string;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   isSelected,
   children,
+  to,
   ...props
 }) => {
   return (
@@ -20,6 +22,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       bg={isSelected ? "blackAlpha.300" : "blue.500"}
       borderWidth={2}
       borderColor="blackAlpha.300"
+      to={to}
       {...props}
     >
       {children}

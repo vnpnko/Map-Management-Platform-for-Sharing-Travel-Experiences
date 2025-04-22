@@ -97,13 +97,13 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           </IconCover>
           <IconCover>
             <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
-              <Link as={RouterLink} to={`/${type}/${id}`}>
-                <IconButton
-                  aria-label="Comment"
-                  icon={<FaRegComment />}
-                  color="blackAlpha.700"
-                />
-              </Link>
+              <IconButton
+                as={RouterLink}
+                to={`/${type}/${id}`}
+                aria-label="Comment"
+                icon={<FaRegComment />}
+                color="blackAlpha.700"
+              />
 
               <Text fontSize="sm" color="blackAlpha.700">
                 21
@@ -112,13 +112,14 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           </IconCover>
           {url && (
             <IconCover>
-              <Link as={RouterLink} to={url} isExternal>
-                <IconButton
-                  aria-label="Open in Google Maps"
-                  icon={<FaRegMap />}
-                  color="blackAlpha.700"
-                />
-              </Link>
+              <IconButton
+                as={RouterLink}
+                to={url}
+                target="_blank"
+                aria-label="Open in Google Maps"
+                icon={<FaRegMap />}
+                color="blackAlpha.700"
+              />
             </IconCover>
           )}
           <IconCover>

@@ -33,15 +33,16 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
           </Link>
 
           <Flex alignItems={"center"} gap={2} py={2}>
-            <Link as={RouterLink} to={place.url} isExternal>
-              <IconCover>
-                <IconButton
-                  aria-label={"Open in Google Maps"}
-                  icon={<FaRegMap size={25} />}
-                  color={"blackAlpha.700"}
-                />
-              </IconCover>
-            </Link>
+            <IconCover>
+              <IconButton
+                as={RouterLink}
+                to={place.url}
+                target="_blank"
+                aria-label={"Open in Google Maps"}
+                icon={<FaRegMap size={25} />}
+                color={"blackAlpha.700"}
+              />
+            </IconCover>
 
             <IconCover>
               <IconButton

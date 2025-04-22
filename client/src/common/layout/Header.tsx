@@ -1,10 +1,13 @@
 import { Flex } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton.tsx";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 export function Header() {
+  const location = useLocation();
   const { loggedInUser } = loggedInUserStore();
+  const isAuthPage =
+    location.pathname === "/" || location.pathname === "/signup";
 
   const navItems = loggedInUser
     ? [
@@ -12,11 +15,13 @@ export function Header() {
         { to: "/search", label: "Explore" },
         { to: "/create", label: "Create" },
       ]
-    : [
-        { to: "/", label: "Login", end: true },
-        { to: "/signup", label: "Signup" },
-        { to: "/search", label: "Explore" },
-      ];
+    : isAuthPage
+      ? [{ to: "/search", label: "Explore" }]
+      : [
+          { to: "/", label: "Login", end: true },
+          { to: "/signup", label: "Signup" },
+          { to: "/search", label: "Explore" },
+        ];
 
   return (
     <Flex
