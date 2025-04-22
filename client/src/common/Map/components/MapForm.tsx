@@ -34,13 +34,22 @@ const MapForm: React.FC = () => {
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { likeMap } = useLikeMap();
 
-  const [form, setForm] = useState<FormState>({
+  // const [form, setForm] = useState<FormState>({
+  //   name: "",
+  //   description: "",
+  //   places: [],
+  //   likes: [loggedInUser!._id],
+  //   username: loggedInUser!.username,
+  // });
+  const initialForm: FormState = {
     name: "",
     description: "",
     places: [],
     likes: [loggedInUser!._id],
     username: loggedInUser!.username,
-  });
+  };
+  const [form, setForm] = useState<FormState>(initialForm);
+
   const [error, setError] = useState<FieldError>(null);
 
   const handleCreateMap = async (e: React.FormEvent) => {
@@ -77,6 +86,7 @@ const MapForm: React.FC = () => {
       });
       await likeMap({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
+      setForm(initialForm);
       setMapDraft(null);
     } catch (error) {
       const apiError = error as { error: string; details: string };
