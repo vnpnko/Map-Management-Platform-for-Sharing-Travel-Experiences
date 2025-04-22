@@ -1,4 +1,4 @@
-import { Flex, Heading, Link as ChakraLink, Text } from "@chakra-ui/react";
+import { Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import LoginForm from "./components/LogInForm";
 
@@ -13,14 +13,9 @@ const LogInPage: React.FC = () => {
 
       <Text fontSize="md" color="black">
         {"Don't have an account? "}
-        <ChakraLink
-          as={RouterLink}
-          to="/signup"
-          color="blue.500"
-          fontWeight="bold"
-        >
+        <Link as={RouterLink} to="/signup" color="blue.500" fontWeight="bold">
           Sign up
-        </ChakraLink>
+        </Link>
       </Text>
     </Flex>
   );
