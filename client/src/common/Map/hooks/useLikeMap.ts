@@ -9,7 +9,7 @@ interface LikeMapPayload {
 
 type LikeMapResponse = Map;
 
-const addMapLikeRequest = async (
+const likeMapRequest = async (
   payload: LikeMapPayload,
 ): Promise<LikeMapResponse> => {
   const { mapId, userId } = payload;
@@ -31,7 +31,7 @@ const useLikeMap = () => {
     Error,
     LikeMapPayload
   >({
-    mutationFn: addMapLikeRequest,
+    mutationFn: likeMapRequest,
   });
 
   return {

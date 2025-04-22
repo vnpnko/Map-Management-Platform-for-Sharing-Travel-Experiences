@@ -1,7 +1,7 @@
 import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
 import useRemoveMapFromUser from "../../User/hooks/useRemoveMapFromUser.ts";
 import useLikeMap from "./useLikeMap.ts";
-import useRemoveMapLike from "./useRemoveMapLike.ts";
+import useUnlikeMap from "./useUnlikeMap.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import useToastError from "../../hooks/toast/useToastError.ts";
 import { Map } from "../../../models/Map.ts";
@@ -13,7 +13,7 @@ const useToggleLikeMap = (map: Map) => {
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { removeMap, isRemovingMap } = useRemoveMapFromUser();
   const { likeMap, isLikingMap } = useLikeMap();
-  const { removeMapLike, isRemovingMapLike } = useRemoveMapLike();
+  const { unlikeMap, isUnlikingMap } = useUnlikeMap();
 
   const alreadyLiked = loggedInUser?.maps.includes(map._id) ?? false;
 
@@ -39,7 +39,7 @@ const useToggleLikeMap = (map: Map) => {
       setLoggedInUser(updatedUser);
 
       if (alreadyLiked) {
-        await removeMapLike(payload);
+        await unlikeMap(payload);
         map.likes = map.likes.filter((id) => id !== loggedInUser._id);
       } else {
         await likeMap(payload);
@@ -54,7 +54,7 @@ const useToggleLikeMap = (map: Map) => {
   };
 
   const isPending =
-    isAddingMapToUser || isRemovingMap || isLikingMap || isRemovingMapLike;
+    isAddingMapToUser || isRemovingMap || isLikingMap || isUnlikingMap;
 
   return {
     alreadyLiked,

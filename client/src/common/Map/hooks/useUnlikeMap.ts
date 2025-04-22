@@ -2,16 +2,16 @@ import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 import { Map } from "../../../models/Map.ts";
 
-interface RemoveMapLikePayload {
+interface UnlikeMapPayload {
   mapId: number;
   userId: number;
 }
 
-type RemoveMapLikeResponse = Map;
+type UnlikeMapResponse = Map;
 
-const removeMapLikeRequest = async (
-  payload: RemoveMapLikePayload,
-): Promise<RemoveMapLikeResponse> => {
+const unlikeMapRequest = async (
+  payload: UnlikeMapPayload,
+): Promise<UnlikeMapResponse> => {
   const { mapId, userId } = payload;
 
   const response = await fetch(`${BASE_URL}/maps/${mapId}/likes/${userId}`, {
@@ -24,20 +24,20 @@ const removeMapLikeRequest = async (
   return data;
 };
 
-const useRemoveMapLike = () => {
+const useUnlikeMap = () => {
   const { mutateAsync, isPending, error } = useMutation<
-    RemoveMapLikeResponse,
+    UnlikeMapResponse,
     Error,
-    RemoveMapLikePayload
+    UnlikeMapPayload
   >({
-    mutationFn: removeMapLikeRequest,
+    mutationFn: unlikeMapRequest,
   });
 
   return {
-    removeMapLike: mutateAsync,
-    isRemovingMapLike: isPending,
-    removeMapLikeError: error,
+    unlikeMap: mutateAsync,
+    isUnlikingMap: isPending,
+    unlikeMapError: error,
   };
 };
 
-export default useRemoveMapLike;
+export default useUnlikeMap;
