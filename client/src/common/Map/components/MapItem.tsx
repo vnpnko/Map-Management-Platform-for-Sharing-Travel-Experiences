@@ -24,7 +24,6 @@ const MapItem: React.FC<MapItemProps> = ({ map, isDetailPage }) => {
       id={map._id}
       name={map.name}
       likesCount={map.likes.length}
-      // commentsCount={place.comments.length}
       likedByUser={alreadyLiked}
       onLikeToggle={handleToggle}
       isPending={isPending || isLoading}

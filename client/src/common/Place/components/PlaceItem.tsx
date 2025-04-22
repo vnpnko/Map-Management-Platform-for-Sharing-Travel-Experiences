@@ -28,7 +28,6 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place, isDetailPage }) => {
       url={place.url}
       imageUrl={place.photoUrl}
       likesCount={place.likes.length}
-      // commentsCount={place.comments.length}
       likedByUser={alreadyLiked}
       onLikeToggle={handleToggle}
       isPending={isPending}

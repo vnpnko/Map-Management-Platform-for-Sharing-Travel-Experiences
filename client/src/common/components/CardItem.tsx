@@ -1,13 +1,7 @@
 import React from "react";
 import { Text, Flex, IconButton, Link } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import {
-  FaHeart,
-  FaRegHeart,
-  FaRegComment,
-  FaRegMap,
-  FaLink,
-} from "react-icons/fa6";
+import { FaHeart, FaRegHeart, FaRegMap, FaLink } from "react-icons/fa6";
 import CustomBox from "../ui/CustomBox.tsx";
 import IconCover from "../ui/IconCover.tsx";
 import useToastSuccess from "../hooks/toast/useToastSuccess.ts";
@@ -20,7 +14,6 @@ interface GenericCardItemProps {
   url?: string;
   imageUrl?: string;
   likesCount: number;
-  // commentsCount?: number;
   likedByUser: boolean;
   onLikeToggle: () => void;
   isPending: boolean;
@@ -50,7 +43,11 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   };
 
   return (
-    <CustomBox key={id} borderBottomWidth={2} borderColor={"blackAlpha.300"}>
+    <CustomBox
+      key={id}
+      borderBottomWidth={isDetailPage ? undefined : 2}
+      borderColor={isDetailPage ? undefined : "blackAlpha.300"}
+    >
       <Flex direction={"column"}>
         {isDetailPage ? (
           <Text
@@ -97,21 +94,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
               </Text>
             </Flex>
           </IconCover>
-          <IconCover>
-            <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
-              <IconButton
-                as={RouterLink}
-                to={`/${type}/${id}`}
-                aria-label="Comment"
-                icon={<FaRegComment size={20} />}
-                color="blackAlpha.700"
-              />
 
-              <Text fontSize="sm" color="blackAlpha.700">
-                21
-              </Text>
-            </Flex>
-          </IconCover>
           {url && (
             <IconCover>
               <IconButton
