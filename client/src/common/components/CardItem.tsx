@@ -21,10 +21,10 @@ interface GenericCardItemProps {
   imageUrl?: string;
   likesCount: number;
   // commentsCount?: number;
-  likedByUser?: boolean;
+  likedByUser: boolean;
   onLikeToggle: () => void;
   isPending: boolean;
-  children?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const CardItem: React.FC<GenericCardItemProps> = ({
@@ -44,7 +44,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   const copyLink = (message: string) => {
     navigator.clipboard.writeText(message).then(() => {
       toastSuccess({
-        title: "Link Copied",
+        title: `Link to the ${type} copied`,
       });
     });
   };
@@ -67,7 +67,6 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           <Link
             as={RouterLink}
             to={`/${type}/${id}`}
-            isExternal
             py={4}
             fontSize="lg"
             color="black"
@@ -98,7 +97,7 @@ const CardItem: React.FC<GenericCardItemProps> = ({
           </IconCover>
           <IconCover>
             <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
-              <Link as={RouterLink} to={`/${type}/${id}`} isExternal>
+              <Link as={RouterLink} to={`/${type}/${id}`}>
                 <IconButton
                   aria-label="Comment"
                   icon={<FaRegComment />}

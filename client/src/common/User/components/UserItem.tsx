@@ -69,14 +69,13 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       py={2}
     >
       <Flex gap={4} alignItems="center">
-        <Link as={RouterLink} to={`/${user.username}`} isExternal>
+        <Link as={RouterLink} to={`/${user.username}`}>
           <Avatar name={user.username} _hover={{ cursor: "pointer" }} />
         </Link>
         <Flex direction={"column"} justifyContent="center" alignItems={"start"}>
           <Link
             as={RouterLink}
             to={`/${user.username}`}
-            isExternal
             fontSize="lg"
             fontWeight="medium"
             color="black"

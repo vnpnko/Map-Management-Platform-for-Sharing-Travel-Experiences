@@ -1,80 +1,19 @@
 import React from "react";
-import { Flex, useToast, Image, IconButton, Link } from "@chakra-ui/react";
+import { Flex, Image, IconButton, Link } from "@chakra-ui/react";
 import CustomBox from "../../ui/CustomBox.tsx";
-import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
-import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
-import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
-import useRemovePlaceLike from "../hooks/useRemovePlaceLike.ts";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
-import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import IconCover from "../../ui/IconCover.tsx";
 import { BASE_URL } from "../../../App.tsx";
 import { Link as RouterLink } from "react-router-dom";
+import useToggleLikePlace from "../hooks/useToggleLikePlace.ts";
 
 interface SmallPlaceItemProps {
   place: Place;
 }
 
 const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
-  const toast = useToast();
-  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
-  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser, isRemovingPlaceFromUser } =
-    useRemovePlaceFromUser();
-  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
-
-  const alreadyHasPlace =
-    loggedInUser && loggedInUser.places.includes(place._id);
-
-  const handleAddPlace = async () => {
-    if (loggedInUser === null) {
-      toast({
-        title: "Not Authorized",
-        description: "Please log in to like a place.",
-        status: "error",
-        isClosable: true,
-      });
-      return;
-    }
-    if (place && loggedInUser && !alreadyHasPlace) {
-      try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
-        const updatedUser = await addPlaceToUser(payload);
-        setLoggedInUser(updatedUser);
-        await addPlaceLike({ placeId: place._id, userId: loggedInUser._id });
-      } catch (error) {
-        toast({
-          title: "UseToastError Adding hooks",
-          description: (error as Error).message,
-          status: "error",
-          isClosable: true,
-        });
-      }
-    }
-  };
-
-  const handleRemovePlace = async () => {
-    if (place && loggedInUser && alreadyHasPlace) {
-      try {
-        const payload = { placeId: place._id, userId: loggedInUser._id };
-        const updatedUser = await removePlaceFromUser(payload);
-        setLoggedInUser(updatedUser);
-        await removePlaceLike({ placeId: place._id, userId: loggedInUser._id });
-      } catch (error) {
-        toast({
-          title: "UseToastError Removing hooks",
-          description: (error as Error).message,
-          status: "error",
-          isClosable: true,
-        });
-      }
-    }
-  };
-
-  const handleLikeToggle = () =>
-    alreadyHasPlace ? handleRemovePlace() : handleAddPlace();
+  const { alreadyLiked, handleToggle, isPending } = useToggleLikePlace(place);
 
   return (
     <CustomBox bgColor={"blackAlpha.100"} borderWidth={0} height="300px">
@@ -83,7 +22,6 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
           <Link
             as={RouterLink}
             to={`/place/${place._id}`}
-            isExternal
             fontSize="lg"
             color="black"
             textAlign="left"
@@ -95,32 +33,29 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
           </Link>
 
           <Flex alignItems={"center"} gap={2} py={2}>
+            <Link as={RouterLink} to={place.url} isExternal>
+              <IconCover>
+                <IconButton
+                  aria-label={"Open in Google Maps"}
+                  icon={<FaRegMap size={25} />}
+                  color={"blackAlpha.700"}
+                />
+              </IconCover>
+            </Link>
+
             <IconCover>
               <IconButton
-                aria-label={"Open in Google Maps"}
-                icon={<FaRegMap size={25} />}
-                color={"gray.600"}
-                onClick={() => window.open(place.url, "_blank")}
-              />
-            </IconCover>
-            <IconCover>
-              <IconButton
-                aria-label={alreadyHasPlace ? "Unlike" : "Like"}
+                aria-label={alreadyLiked ? "Unlike" : "Like"}
                 icon={
-                  alreadyHasPlace ? (
+                  alreadyLiked ? (
                     <FaHeart size={25} />
                   ) : (
                     <FaRegHeart size={25} />
                   )
                 }
-                color={alreadyHasPlace ? "red.500" : "gray.600"}
-                onClick={handleLikeToggle}
-                disabled={
-                  isAddingPlaceLike ||
-                  isRemovingPlaceLike ||
-                  isAddingPlaceToUser ||
-                  isRemovingPlaceFromUser
-                }
+                color={alreadyLiked ? "red.500" : "blackAlpha.700"}
+                onClick={handleToggle}
+                disabled={isPending}
               />
             </IconCover>
           </Flex>

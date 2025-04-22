@@ -63,14 +63,15 @@ export function Header() {
     <Flex
       as="header"
       justify="end"
-      boxShadow="md"
+      borderBottomWidth={3}
+      borderBottomColor={"blackAlpha.300"}
       px={4}
       py={1}
       position="fixed"
       top={0}
       left={0}
       right={0}
-      bg="white"
+      bg="gray.50"
       zIndex={1000}
     >
       <Flex gap={4} my={2}>

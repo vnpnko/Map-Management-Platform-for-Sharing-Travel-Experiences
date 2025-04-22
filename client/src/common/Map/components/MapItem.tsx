@@ -35,7 +35,6 @@ const MapItem: React.FC<MapItemProps> = ({ map, isDetailPage }) => {
           <Link
             as={RouterLink}
             to={`/${map.creatorUsername}`}
-            isExternal
             fontWeight="medium"
           >
             {map.creatorUsername}
