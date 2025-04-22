@@ -16,7 +16,7 @@ import PlaceItem from "../../common/Place/components/PlaceItem.tsx";
 import MapItem from "../../common/Map/components/MapItem.tsx";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 import ProfileHeader from "./components/ProfileHeader.tsx";
-import useToastError from "../../common/hooks/useToastError.ts";
+import useToastError from "../../common/hooks/toast/useToastError.ts";
 import CustomSpinner from "../../common/ui/CustomSpinner.tsx";
 import CustomAlert from "../../common/ui/CustomAlert.tsx";
 

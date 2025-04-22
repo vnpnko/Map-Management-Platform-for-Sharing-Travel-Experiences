@@ -3,7 +3,7 @@ import useRemoveMapFromUser from "../../User/hooks/useRemoveMapFromUser.ts";
 import useAddMapLike from "./useAddMapLike.ts";
 import useRemoveMapLike from "./useRemoveMapLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import useToastError from "../../hooks/useToastError.ts";
+import useToastError from "../../hooks/toast/useToastError.ts";
 import { Map } from "../../../models/Map.ts";
 
 const useToggleLikeMap = (map: Map) => {

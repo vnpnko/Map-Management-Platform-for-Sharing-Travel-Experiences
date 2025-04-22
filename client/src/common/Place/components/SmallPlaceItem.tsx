@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Text, useToast, Image, IconButton } from "@chakra-ui/react";
+import { Flex, useToast, Image, IconButton, Link } from "@chakra-ui/react";
 import CustomBox from "../../ui/CustomBox.tsx";
 import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
 import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
@@ -10,6 +10,7 @@ import { Place } from "../../../models/Place.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import IconCover from "../../ui/IconCover.tsx";
 import { BASE_URL } from "../../../App.tsx";
+import { Link as RouterLink } from "react-router-dom";
 
 interface SmallPlaceItemProps {
   place: Place;
@@ -78,19 +79,21 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   return (
     <CustomBox bgColor={"blackAlpha.100"} borderWidth={0} height="300px">
       <Flex direction="column">
-        <Flex justifyContent="space-between" alignItems="center">
-          <Text
-            px={2}
-            color="black"
+        <Flex justifyContent="space-between" alignItems="center" px={2}>
+          <Link
+            as={RouterLink}
+            to={`/place/${place._id}`}
+            isExternal
             fontSize="lg"
+            color="black"
             textAlign="left"
-            cursor={"pointer"}
+            noOfLines={0}
+            w="fit-content"
             _hover={{ textDecoration: "underline" }}
-            onClick={() => window.open(`/place/${place._id}`, "_blank")}
-            noOfLines={1}
           >
             {place.name}
-          </Text>
+          </Link>
+
           <Flex alignItems={"center"} gap={2} py={2}>
             <IconCover>
               <IconButton
@@ -103,7 +106,6 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
             <IconCover>
               <IconButton
                 aria-label={alreadyHasPlace ? "Unlike" : "Like"}
-                // size={"lg"}
                 icon={
                   alreadyHasPlace ? (
                     <FaHeart size={25} />

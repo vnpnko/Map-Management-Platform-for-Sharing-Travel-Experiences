@@ -13,7 +13,7 @@ import PlaceItem from "../../Place/components/PlaceItem.tsx";
 import GenericVirtualList from "../../components/GenericVirtualList.tsx";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
-import useToastError from "../../hooks/useToastError.ts";
+import useToastError from "../../hooks/toast/useToastError.ts";
 
 type FormState = {
   name: string;

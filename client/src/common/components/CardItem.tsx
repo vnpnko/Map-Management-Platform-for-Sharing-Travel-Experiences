@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, Flex, useToast, IconButton } from "@chakra-ui/react";
+import { Text, Flex, IconButton, Link } from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   FaHeart,
   FaRegHeart,
@@ -9,6 +10,7 @@ import {
 } from "react-icons/fa6";
 import CustomBox from "../ui/CustomBox.tsx";
 import IconCover from "../ui/IconCover.tsx";
+import useToastSuccess from "../hooks/toast/useToastSuccess.ts";
 
 interface GenericCardItemProps {
   type: string;
@@ -37,40 +39,46 @@ const CardItem: React.FC<GenericCardItemProps> = ({
   isPending,
   children,
 }) => {
-  const toast = useToast();
+  const toastSuccess = useToastSuccess();
 
   const copyLink = (message: string) => {
-    if (url) {
-      navigator.clipboard.writeText(url).then(() => {
-        toast({
-          title: message,
-          status: "success",
-          isClosable: true,
-        });
+    navigator.clipboard.writeText(message).then(() => {
+      toastSuccess({
+        title: "Link Copied",
       });
-    }
+    });
   };
 
   return (
     <CustomBox key={id} borderBottomWidth={2} borderColor={"blackAlpha.300"}>
       <Flex direction={"column"}>
-        <Text
-          py={4}
-          fontSize={"lg"}
-          color={"black"}
-          textAlign={"left"}
-          noOfLines={0}
-          w={"fit-content"}
-          cursor={isDetailPage ? undefined : "pointer"}
-          _hover={{ textDecoration: isDetailPage ? undefined : "underline" }}
-          onClick={
-            isDetailPage
-              ? undefined
-              : () => window.open(`/${type}/${id}`, "_blank")
-          }
-        >
-          {name}
-        </Text>
+        {isDetailPage ? (
+          <Text
+            py={4}
+            fontSize="lg"
+            color="black"
+            textAlign="left"
+            noOfLines={0}
+            w="fit-content"
+          >
+            {name}
+          </Text>
+        ) : (
+          <Link
+            as={RouterLink}
+            to={`/${type}/${id}`}
+            isExternal
+            py={4}
+            fontSize="lg"
+            color="black"
+            textAlign="left"
+            noOfLines={0}
+            w="fit-content"
+            _hover={{ textDecoration: "underline" }}
+          >
+            {name}
+          </Link>
+        )}
         {children}
 
         <Flex py={2} gap={2}>
@@ -79,44 +87,49 @@ const CardItem: React.FC<GenericCardItemProps> = ({
               <IconButton
                 aria-label={likedByUser ? "Unlike" : "Like"}
                 icon={likedByUser ? <FaHeart /> : <FaRegHeart />}
-                color={likedByUser ? "red.500" : "gray.600"}
+                color={likedByUser ? "red.500" : "blackAlpha.700"}
                 onClick={onLikeToggle}
                 disabled={isPending}
               />
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="blackAlpha.700">
                 {likesCount}
               </Text>
             </Flex>
           </IconCover>
           <IconCover>
             <Flex justifyContent={"center"} alignItems={"center"} mr={2}>
-              <IconButton
-                aria-label="Comment"
-                icon={<FaRegComment />}
-                onClick={() => copyLink("Redirecting to comments...")}
-                color="gray.600"
-              />
-              <Text fontSize="sm" color="gray.600">
+              <Link as={RouterLink} to={`/${type}/${id}`} isExternal>
+                <IconButton
+                  aria-label="Comment"
+                  icon={<FaRegComment />}
+                  color="blackAlpha.700"
+                />
+              </Link>
+
+              <Text fontSize="sm" color="blackAlpha.700">
                 21
               </Text>
             </Flex>
           </IconCover>
-          <IconCover>
-            {url && (
-              <IconButton
-                aria-label="Open in Google Maps"
-                icon={<FaRegMap />}
-                onClick={() => window.open(url, "_blank")}
-                color="gray.600"
-              />
-            )}
-          </IconCover>
+          {url && (
+            <IconCover>
+              <Link as={RouterLink} to={url} isExternal>
+                <IconButton
+                  aria-label="Open in Google Maps"
+                  icon={<FaRegMap />}
+                  color="blackAlpha.700"
+                />
+              </Link>
+            </IconCover>
+          )}
           <IconCover>
             <IconButton
               aria-label="Share"
               icon={<FaRegPaperPlane />}
-              onClick={() => copyLink("Link copied to clipboard")}
-              color="gray.600"
+              onClick={() =>
+                copyLink(`${window.location.origin}/${type}/${id}`)
+              }
+              color="blackAlpha.700"
             />
           </IconCover>
         </Flex>

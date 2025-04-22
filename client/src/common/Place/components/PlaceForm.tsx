@@ -11,7 +11,7 @@ import useAddPlaceLike from "../hooks/useAddPlaceLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import { mapDraftStore } from "../../../store/mapDraftStore.ts";
 import { Place } from "../../../models/Place.ts";
-import useToastError from "../../hooks/useToastError.ts";
+import useToastError from "../../hooks/toast/useToastError.ts";
 
 interface PlaceFormProps {
   isDraftingMap?: boolean;

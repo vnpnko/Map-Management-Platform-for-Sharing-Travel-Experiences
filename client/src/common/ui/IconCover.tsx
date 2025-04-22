@@ -7,12 +7,7 @@ interface IconCoverProps extends BoxProps {
 
 const IconCover: React.FC<IconCoverProps> = ({ children, ...rest }) => {
   return (
-    <Box
-      borderRadius="md"
-      cursor="pointer"
-      _hover={{ bg: "blackAlpha.200" }}
-      {...rest}
-    >
+    <Box borderRadius="md" _hover={{ bg: "blackAlpha.200" }} {...rest}>
       {children}
     </Box>
   );

@@ -1,20 +1,20 @@
 import React from "react";
-import { Flex, Avatar, Text, useToast } from "@chakra-ui/react";
+import { Flex, Avatar, Text, Link } from "@chakra-ui/react";
 import CustomButton from "../../ui/CustomButton.tsx";
 import { User } from "../../../models/User.ts";
 import useFollow from "../hooks/useFollow.ts";
 import useUnfollow from "../hooks/useUnfollow.ts";
 import CustomBox from "../../ui/CustomBox.tsx";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
+import useToastError from "../../hooks/toast/useToastError.ts";
 
 interface UserItemProps {
   user: User;
 }
 
 const UserItem: React.FC<UserItemProps> = ({ user }) => {
-  const toast = useToast();
-  const navigate = useNavigate();
+  const toastError = useToastError();
 
   const { loggedInUser: loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { follow, isFollowing } = useFollow();
@@ -25,11 +25,9 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
 
   const handleFollow = async () => {
     if (!loggedInUser) {
-      toast({
+      toastError({
         title: "Not Authorized",
-        description: "Please log in to follow a user.",
-        status: "error",
-        isClosable: true,
+        description: "Please log in to follow a user",
       });
       return;
     }
@@ -71,25 +69,24 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
       py={2}
     >
       <Flex gap={4} alignItems="center">
-        <Avatar
-          name={user.username}
-          onClick={() => navigate(`/${user.username}`)}
-          _hover={{ cursor: "pointer" }}
-        />
-        <Flex
-          direction={"column"}
-          justifyContent="center"
-          alignItems="flex-start"
-        >
-          <Text
-            fontSize="xl"
+        <Link as={RouterLink} to={`/${user.username}`} isExternal>
+          <Avatar name={user.username} _hover={{ cursor: "pointer" }} />
+        </Link>
+        <Flex direction={"column"} justifyContent="center" alignItems={"start"}>
+          <Link
+            as={RouterLink}
+            to={`/${user.username}`}
+            isExternal
+            fontSize="lg"
             fontWeight="medium"
             color="black"
-            onClick={() => navigate(`/${user.username}`)}
-            _hover={{ cursor: "pointer" }}
+            noOfLines={0}
+            w="fit-content"
+            _hover={{ textDecoration: "underline" }}
           >
             {user.username}
-          </Text>
+          </Link>
+
           <Text fontSize="md" color="blackAlpha.700">
             {user.name}
           </Text>

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Flex, Heading, useToast } from "@chakra-ui/react";
+import { Flex, Heading } from "@chakra-ui/react";
 import CustomButton from "../../common/ui/CustomButton.tsx";
 import CustomInput from "../../common/ui/CustomInput.tsx";
 import useDeleteUser from "./hooks/useDeleteUser.ts";
 import useUpdateUser from "./hooks/useUpdateUser.ts";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
 import PasswordInput from "../../common/ui/PasswordInput.tsx";
+import useToastError from "../../common/hooks/toast/useToastError.ts";
 
 const EditProfilePage: React.FC = () => {
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
@@ -23,18 +24,16 @@ const EditProfilePage: React.FC = () => {
   const { deleteUser, isDeletingUser, deleteUserError } = useDeleteUser();
 
   const navigate = useNavigate();
-  const toast = useToast();
+  const toastError = useToastError();
 
   useEffect(() => {
     if (deleteUserError) {
-      toast({
+      toastError({
         title: "Delete Failed",
         description: deleteUserError.message,
-        status: "error",
-        isClosable: true,
       });
     }
-  }, [deleteUserError, toast]);
+  }, [deleteUserError, toastError]);
 
   const handleLogout = () => {
     setLoggedInUser(null);
@@ -50,11 +49,9 @@ const EditProfilePage: React.FC = () => {
           navigate("/");
         }
       } catch (error) {
-        toast({
+        toastError({
           title: "Delete Failed",
           description: (error as Error).message,
-          status: "error",
-          isClosable: true,
         });
       }
     }
@@ -73,11 +70,9 @@ const EditProfilePage: React.FC = () => {
         setLoggedInUser(updatedUser);
         navigate(`/${updatedUsername}`);
       } catch (error) {
-        toast({
+        toastError({
           title: "Update Failed",
           description: (error as Error).message,
-          status: "error",
-          isClosable: true,
         });
       }
     }

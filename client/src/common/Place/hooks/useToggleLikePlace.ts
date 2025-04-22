@@ -3,7 +3,7 @@ import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
 import useAddPlaceLike from "./useAddPlaceLike.ts";
 import useRemovePlaceLike from "./useRemovePlaceLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import useToastError from "../../hooks/useToastError.ts";
+import useToastError from "../../hooks/toast/useToastError.ts";
 import { Place } from "../../../models/Place.ts";
 
 const useToggleLikePlace = (place: Place) => {
