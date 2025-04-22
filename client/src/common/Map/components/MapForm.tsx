@@ -6,7 +6,7 @@ import CustomButton from "../../ui/CustomButton.tsx";
 import PlaceForm from "../../Place/components/PlaceForm.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
 import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
-import useAddMapLike from "../hooks/useAddMapLike.ts";
+import useLikeMap from "../hooks/useLikeMap.ts";
 import CustomBox from "../../ui/CustomBox.tsx";
 import { Place } from "../../../models/Place.ts";
 import PlaceItem from "../../Place/components/PlaceItem.tsx";
@@ -32,7 +32,7 @@ const MapForm: React.FC = () => {
 
   const { createMap, isCreatingMap } = useCreateMap();
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
-  const { addMapLike } = useAddMapLike();
+  const { likeMap } = useLikeMap();
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -75,7 +75,7 @@ const MapForm: React.FC = () => {
         mapId: createdMap._id,
         userId: loggedInUser!._id,
       });
-      await addMapLike({ mapId: createdMap._id, userId: loggedInUser!._id });
+      await likeMap({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
       setMapDraft(null);
     } catch (error) {

@@ -1,6 +1,6 @@
 import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
 import useRemoveMapFromUser from "../../User/hooks/useRemoveMapFromUser.ts";
-import useAddMapLike from "./useAddMapLike.ts";
+import useLikeMap from "./useLikeMap.ts";
 import useRemoveMapLike from "./useRemoveMapLike.ts";
 import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import useToastError from "../../hooks/toast/useToastError.ts";
@@ -12,7 +12,7 @@ const useToggleLikeMap = (map: Map) => {
 
   const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
   const { removeMap, isRemovingMap } = useRemoveMapFromUser();
-  const { addMapLike, isAddingMapLike } = useAddMapLike();
+  const { likeMap, isLikingMap } = useLikeMap();
   const { removeMapLike, isRemovingMapLike } = useRemoveMapLike();
 
   const alreadyLiked = loggedInUser?.maps.includes(map._id) ?? false;
@@ -42,7 +42,7 @@ const useToggleLikeMap = (map: Map) => {
         await removeMapLike(payload);
         map.likes = map.likes.filter((id) => id !== loggedInUser._id);
       } else {
-        await addMapLike(payload);
+        await likeMap(payload);
         map.likes.push(loggedInUser._id);
       }
     } catch (error) {
@@ -54,7 +54,7 @@ const useToggleLikeMap = (map: Map) => {
   };
 
   const isPending =
-    isAddingMapToUser || isRemovingMap || isAddingMapLike || isRemovingMapLike;
+    isAddingMapToUser || isRemovingMap || isLikingMap || isRemovingMapLike;
 
   return {
     alreadyLiked,

@@ -2,16 +2,16 @@ import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App.tsx";
 import { Map } from "../../../models/Map.ts";
 
-interface AddMapLikePayload {
+interface LikeMapPayload {
   mapId: number;
   userId: number;
 }
 
-type AddMapLikeResponse = Map;
+type LikeMapResponse = Map;
 
 const addMapLikeRequest = async (
-  payload: AddMapLikePayload,
-): Promise<AddMapLikeResponse> => {
+  payload: LikeMapPayload,
+): Promise<LikeMapResponse> => {
   const { mapId, userId } = payload;
 
   const response = await fetch(`${BASE_URL}/maps/${mapId}/likes/${userId}`, {
@@ -25,20 +25,20 @@ const addMapLikeRequest = async (
   return data;
 };
 
-const useAddMapLike = () => {
+const useLikeMap = () => {
   const { mutateAsync, isPending, error } = useMutation<
-    AddMapLikeResponse,
+    LikeMapResponse,
     Error,
-    AddMapLikePayload
+    LikeMapPayload
   >({
     mutationFn: addMapLikeRequest,
   });
 
   return {
-    addMapLike: mutateAsync,
-    isAddingMapLike: isPending,
-    addMapLikeError: error,
+    likeMap: mutateAsync,
+    isLikingMap: isPending,
+    likeMapError: error,
   };
 };
 
-export default useAddMapLike;
+export default useLikeMap;
