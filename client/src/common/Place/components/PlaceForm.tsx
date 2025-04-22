@@ -24,7 +24,7 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
 
   const [inputValue, setInputValue] = useState("");
   const [form, setForm] = useState<Place | null>(null);
-  const { place } = useFetchPlace({ place_id: form?._id ?? "" });
+  const { place } = useFetchPlace({ placeId: form?._id ?? "" });
 
   const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
   const { createPlace, isCreatingPlace } = useCreatePlace();
