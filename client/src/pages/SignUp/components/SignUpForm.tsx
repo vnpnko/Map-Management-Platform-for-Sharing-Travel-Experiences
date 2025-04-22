@@ -1,11 +1,17 @@
 import React, { useState } from "react";
-import { Flex } from "@chakra-ui/react";
+import {
+  Flex,
+  IconButton,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
 import CustomInput from "../../../common/ui/CustomInput";
 import CustomButton from "../../../common/ui/CustomButton";
 import ErrorMessage from "../../../common/ui/ErrorMessage";
 import useSignUp from "../hooks/useSignUp";
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import { useNavigate } from "react-router-dom";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 type FormState = { name: string; username: string; password: string };
 
@@ -51,6 +57,8 @@ const SignUpForm: React.FC = () => {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <Flex
       as="form"
@@ -78,15 +86,27 @@ const SignUpForm: React.FC = () => {
         isError={error?.type === "username"}
       />
 
-      <CustomInput
-        name="Password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-        isDisabled={isSigningUp}
-        isError={error?.type === "password"}
-      />
+      <InputGroup>
+        <CustomInput
+          name="Password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          isDisabled={isSigningUp}
+          isError={error?.type === "password"}
+        />
+        <InputRightElement>
+          <IconButton
+            color={"black"}
+            variant="ghost"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+            onClick={() => setShowPassword(!showPassword)}
+            mb={3}
+          />
+        </InputRightElement>
+      </InputGroup>
 
       <CustomButton
         type="submit"
