@@ -1,69 +1,60 @@
-import useAddPlaceToUser from "../../User/hooks/useAddPlaceToUser.ts";
-import useRemovePlaceFromUser from "../../User/hooks/useRemovePlaceFromUser.ts";
-import useAddPlaceLike from "./useAddPlaceLike.ts";
-import useRemovePlaceLike from "./useRemovePlaceLike.ts";
-import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import useToastError from "../../hooks/useToastError.ts";
-import { Place } from "../../../models/Place.ts";
+// useToggleFollow.ts
+import { loggedInUserStore } from "../../../store/loggedInUserStore";
+import useToastError from "../../hooks/toast/useToastError";
+import useLikePlace from "./useLikePlace";
+import useUnlikePlace from "./useUnlikePlace";
+import { Place } from "../../../models/Place";
+
+interface TogglePayload {
+  placeId: string;
+  userId: number;
+}
 
 const useToggleLikePlace = (place: Place) => {
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const toastError = useToastError();
-
-  const { addPlaceToUser, isAddingPlaceToUser } = useAddPlaceToUser();
-  const { removePlaceFromUser, isRemovingPlaceFromUser } =
-    useRemovePlaceFromUser();
-  const { addPlaceLike, isAddingPlaceLike } = useAddPlaceLike();
-  const { removePlaceLike, isRemovingPlaceLike } = useRemovePlaceLike();
+  const { likePlace, isLikingPlace } = useLikePlace();
+  const { unlikePlace, isUnlikingPlace } = useUnlikePlace();
 
   const alreadyLiked = loggedInUser?.places.includes(place._id) ?? false;
 
   const handleToggle = async () => {
     if (!loggedInUser) {
-      toastError({
-        title: "Like Failed",
-        description: "Login to like places",
-      });
+      toastError({ title: "Like Failed", description: "Please log in first." });
       return;
     }
 
-    const payload = {
+    const payload: TogglePayload = {
       placeId: place._id,
       userId: loggedInUser._id,
     };
 
     try {
       const updatedUser = alreadyLiked
-        ? await removePlaceFromUser(payload)
-        : await addPlaceToUser(payload);
+        ? await unlikePlace(payload)
+        : await likePlace(payload);
 
+      // update global store
       setLoggedInUser(updatedUser);
 
+      // reflect local UI change on place.likes
       if (alreadyLiked) {
-        await removePlaceLike(payload);
         place.likes = place.likes.filter((id) => id !== loggedInUser._id);
       } else {
-        await addPlaceLike(payload);
         place.likes.push(loggedInUser._id);
       }
-    } catch (error) {
+    } catch (err) {
       toastError({
         title: alreadyLiked ? "Unlike Failed" : "Like Failed",
-        description: (error as Error).message,
+        description: (err as Error).message,
       });
     }
   };
 
-  const isPending =
-    isAddingPlaceToUser ||
-    isRemovingPlaceFromUser ||
-    isAddingPlaceLike ||
-    isRemovingPlaceLike;
-
   return {
     alreadyLiked,
     handleToggle,
-    isPending,
+    isPending: isLikingPlace || isUnlikingPlace,
   };
 };
 

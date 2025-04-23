@@ -3,14 +3,14 @@ import { BASE_URL } from "../../../App.tsx";
 import { Place } from "../../../models/Place.ts";
 
 interface FetchPlacePayload {
-  place_id: string;
+  placeId: string;
 }
 
-const useFetchPlace = ({ place_id }: FetchPlacePayload) => {
+const useFetchPlace = ({ placeId }: FetchPlacePayload) => {
   const { data, isLoading, error } = useQuery<Place>({
-    queryKey: ["place", place_id],
+    queryKey: ["place", placeId],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/places/${place_id}`);
+      const response = await fetch(`${BASE_URL}/places/${placeId}`);
       if (response.status === 404) {
         return null;
       }
@@ -20,7 +20,7 @@ const useFetchPlace = ({ place_id }: FetchPlacePayload) => {
       }
       return response.json();
     },
-    enabled: !!place_id,
+    enabled: !!placeId,
     retry: false,
     refetchOnWindowFocus: false,
   });

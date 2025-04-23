@@ -8,7 +8,6 @@ import (
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
-	// Authentication
 	auth := api.Group("/auth")
 	auth.Post("/login", controllers.LoginUser)
 	auth.Post("/signup", controllers.CreateUser)
@@ -24,11 +23,11 @@ func SetupRoutes(app *fiber.App) {
 	users.Post("/:followerId/following/:followeeId", controllers.FollowUser)
 	users.Delete("/:followerId/following/:followeeId", controllers.UnfollowUser)
 
-	users.Post("/:userId/places/:placeId", controllers.AddPlaceToUser)
-	users.Delete("/:userId/places/:placeId", controllers.RemovePlaceFromUser)
+	//users.Post("/:userId/places/:placeId", controllers.AddPlaceToUser)
+	//users.Delete("/:userId/places/:placeId", controllers.RemovePlaceFromUser)
 
-	users.Post("/:userId/maps/:mapId", controllers.AddMapToUser)
-	users.Delete("/:userId/maps/:mapId", controllers.RemoveMapFromUser)
+	//users.Post("/:userId/maps/:mapId", controllers.AddMapToUser)
+	//users.Delete("/:userId/maps/:mapId", controllers.RemoveMapFromUser)
 
 	users.Patch("/:id", controllers.UpdateUserData)
 	users.Delete("/:id", controllers.DeleteUser)

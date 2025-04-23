@@ -9,7 +9,7 @@ import CustomAlert from "../../common/ui/CustomAlert.tsx";
 const PlacePage: React.FC = () => {
   const { id = "" } = useParams<{ id: string }>();
   const { place, isFetchingPlace, placeError } = useFetchPlace({
-    place_id: id,
+    placeId: id,
   });
 
   if (isFetchingPlace) return <CustomSpinner />;

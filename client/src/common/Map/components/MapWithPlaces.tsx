@@ -31,7 +31,7 @@ const MapWithPlaces: React.FC<MapWithPlacesProps> = ({ places }) => {
     });
 
     setTimeout(() => {
-      mapRef.current?.fitBounds(bounds, 100);
+      mapRef.current?.fitBounds(bounds, 10);
     }, 100);
   }, [places]);
 

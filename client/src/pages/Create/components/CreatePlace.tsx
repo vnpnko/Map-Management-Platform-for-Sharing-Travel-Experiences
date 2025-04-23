@@ -18,7 +18,7 @@ const CreatePlace: React.FC = () => {
       <PlaceForm />
       <CustomDivider text={"your places"} />
       <GenericVirtualList<Place, string>
-        items={[...loggedInUser.places].reverse()}
+        items={loggedInUser.places}
         type={"places"}
         pageSize={5}
         renderItem={(place) => <PlaceItem key={place._id} place={place} />}

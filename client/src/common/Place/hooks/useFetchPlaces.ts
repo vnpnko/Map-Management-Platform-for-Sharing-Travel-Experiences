@@ -24,7 +24,6 @@ const useFetchPlaces = ({ placeIds }: FetchPlacesProps) => {
     })),
   });
 
-  // Extract the data from each query result.
   const places = queries
     .map((query) => query.data)
     .filter((data) => data != null) as Place[];

@@ -1,80 +1,51 @@
 import { Flex } from "@chakra-ui/react";
 import CustomButton from "../ui/CustomButton.tsx";
 import { loggedInUserStore } from "../../store/loggedInUserStore.ts";
-import { useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 export function Header() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { loggedInUser } = loggedInUserStore();
-
   const isAuthPage =
     location.pathname === "/" || location.pathname === "/signup";
 
-  let buttons;
-
-  if (loggedInUser) {
-    buttons = (
-      <>
-        <CustomButton
-          isSelected={location.pathname === `/${loggedInUser.username}`}
-          onClick={() => navigate(`/${loggedInUser.username}`)}
-        >
-          Profile
-        </CustomButton>
-        <CustomButton
-          isSelected={location.pathname.startsWith("/create")}
-          onClick={() => navigate("/create")}
-        >
-          Create
-        </CustomButton>
-        <CustomButton
-          isSelected={location.pathname.startsWith("/search")}
-          onClick={() => navigate("/search")}
-        >
-          Explore
-        </CustomButton>
-      </>
-    );
-  } else {
-    if (isAuthPage) {
-      buttons = (
-        <CustomButton onClick={() => navigate("/search")}>Explore</CustomButton>
-      );
-    } else {
-      buttons = (
-        <>
-          <CustomButton onClick={() => navigate("/")}>Login</CustomButton>
-          <CustomButton onClick={() => navigate("/signup")}>
-            Signup
-          </CustomButton>
-          <CustomButton
-            isSelected={location.pathname.startsWith("/search")}
-            onClick={() => navigate("/search")}
-          >
-            Explore
-          </CustomButton>
-        </>
-      );
-    }
-  }
+  const navItems = loggedInUser
+    ? [
+        { to: `/${loggedInUser.username}`, label: "Profile" },
+        { to: "/search", label: "Explore" },
+        { to: "/create", label: "Create" },
+      ]
+    : isAuthPage
+      ? [{ to: "/search", label: "Explore" }]
+      : [
+          { to: "/", label: "Login", end: true },
+          { to: "/signup", label: "Signup" },
+          { to: "/search", label: "Explore" },
+        ];
 
   return (
     <Flex
       as="header"
       justify="end"
-      boxShadow="md"
+      borderBottomWidth={2}
+      borderBottomColor={"blackAlpha.300"}
       px={4}
       py={1}
       position="fixed"
       top={0}
       left={0}
       right={0}
-      bg="white"
+      bg="gray.50"
       zIndex={1000}
     >
       <Flex gap={4} my={2}>
-        {buttons}
+        {navItems.map(({ to, label, end }) => (
+          <NavLink key={to} to={to} end={end}>
+            {({ isActive }) => (
+              <CustomButton isSelected={isActive}>{label}</CustomButton>
+            )}
+          </NavLink>
+        ))}
       </Flex>
     </Flex>
   );

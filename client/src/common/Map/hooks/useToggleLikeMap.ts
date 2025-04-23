@@ -1,65 +1,54 @@
-import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
-import useRemoveMapFromUser from "../../User/hooks/useRemoveMapFromUser.ts";
-import useAddMapLike from "./useAddMapLike.ts";
-import useRemoveMapLike from "./useRemoveMapLike.ts";
-import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
-import useToastError from "../../hooks/useToastError.ts";
-import { Map } from "../../../models/Map.ts";
+// src/common/Map/hooks/useToggleLikeMap.ts
+import { loggedInUserStore } from "../../../store/loggedInUserStore";
+import useToastError from "../../hooks/toast/useToastError";
+import useLikeMap from "./useLikeMap";
+import useUnlikeMap from "./useUnlikeMap";
+import { Map as MapModel } from "../../../models/Map";
 
-const useToggleLikeMap = (map: Map) => {
-  const toastError = useToastError();
+interface Payload {
+  mapId: number;
+  userId: number;
+}
+
+const useToggleLikeMap = (map: MapModel) => {
+  const toast = useToastError();
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
-
-  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
-  const { removeMap, isRemovingMap } = useRemoveMapFromUser();
-  const { addMapLike, isAddingMapLike } = useAddMapLike();
-  const { removeMapLike, isRemovingMapLike } = useRemoveMapLike();
+  const { likeMap, isLikingMap } = useLikeMap();
+  const { unlikeMap, isUnlikingMap } = useUnlikeMap();
 
   const alreadyLiked = loggedInUser?.maps.includes(map._id) ?? false;
 
   const handleToggle = async () => {
     if (!loggedInUser) {
-      toastError({
-        title: "Like Failed",
-        description: "Login to like maps",
-      });
-      return;
+      return toast({ title: "Like Failed", description: "Please log in." });
     }
-
-    const payload = {
-      mapId: map._id,
-      userId: loggedInUser._id,
-    };
+    const payload: Payload = { mapId: map._id, userId: loggedInUser._id };
 
     try {
       const updatedUser = alreadyLiked
-        ? await removeMap(payload)
-        : await addMapToUser(payload);
+        ? await unlikeMap(payload)
+        : await likeMap(payload);
 
       setLoggedInUser(updatedUser);
 
+      // reflect on local `map.likes` array
       if (alreadyLiked) {
-        await removeMapLike(payload);
         map.likes = map.likes.filter((id) => id !== loggedInUser._id);
       } else {
-        await addMapLike(payload);
         map.likes.push(loggedInUser._id);
       }
-    } catch (error) {
-      toastError({
+    } catch (err) {
+      toast({
         title: alreadyLiked ? "Unlike Failed" : "Like Failed",
-        description: (error as Error).message,
+        description: (err as Error).message,
       });
     }
   };
 
-  const isPending =
-    isAddingMapToUser || isRemovingMap || isAddingMapLike || isRemovingMapLike;
-
   return {
     alreadyLiked,
     handleToggle,
-    isPending,
+    isPending: isLikingMap || isUnlikingMap,
   };
 };
 

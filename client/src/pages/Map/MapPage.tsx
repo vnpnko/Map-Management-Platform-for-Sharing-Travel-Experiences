@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import useFetchMap from "../../common/Map/hooks/useFetchMap";
 import MapItem from "../../common/Map/components/MapItem.tsx";
 import CustomSpinner from "../../common/ui/CustomSpinner.tsx";
@@ -15,7 +15,7 @@ const MapPage: React.FC = () => {
   if (mapError) return <CustomAlert title={mapError.message} />;
 
   if (!map) {
-    return <Text color={"red"}>map not found</Text>;
+    return <CustomAlert title={"map not found"} />;
   }
 
   return (

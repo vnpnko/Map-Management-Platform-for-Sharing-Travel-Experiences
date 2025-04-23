@@ -5,11 +5,12 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "./queryClient.ts";
+import theme from "./theme.ts";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <App />
       </ChakraProvider>
       <ReactQueryDevtools initialIsOpen={false} />
