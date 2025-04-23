@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dto"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -49,14 +50,14 @@ func GetUsers(c *fiber.Ctx) error {
 func GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "ID is required",
 		})
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid ID format",
 			Details: err.Error(),
 		})
@@ -67,7 +68,7 @@ func GetUserByID(c *fiber.Ctx) error {
 		FindOne(context.Background(), bson.M{"_id": objectID}).
 		Decode(&user)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "User not found",
 			Details: err.Error(),
 		})
@@ -78,7 +79,7 @@ func GetUserByID(c *fiber.Ctx) error {
 func GetUserByUsername(c *fiber.Ctx) error {
 	username := c.Params("username")
 	if username == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Username is required",
 		})
 	}
@@ -87,7 +88,7 @@ func GetUserByUsername(c *fiber.Ctx) error {
 		FindOne(context.Background(), bson.M{"username": username}).
 		Decode(&user)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "User not found",
 			Details: err.Error(),
 		})
@@ -99,7 +100,7 @@ func GetUserByUsername(c *fiber.Ctx) error {
 func CreateUser(c *fiber.Ctx) error {
 	var user models.User
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid request body",
 			Details: err.Error(),
 		})
@@ -110,28 +111,28 @@ func CreateUser(c *fiber.Ctx) error {
 	user.Password = strings.TrimSpace(user.Password)
 
 	if user.Name == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Full name is required",
 			Type:  "name",
 		})
 	}
 
 	if user.Username == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Username is required",
 			Type:  "username",
 		})
 	}
 
 	if user.Password == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Password is required",
 			Type:  "password",
 		})
 	}
 
 	if len(user.Password) < 6 {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Password must be at least 6 characters",
 			Type:  "password",
 		})
@@ -140,7 +141,7 @@ func CreateUser(c *fiber.Ctx) error {
 	var existing models.User
 	err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"username": user.Username}).Decode(&existing)
 	if err == nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Username already exists",
 			Type:  "username",
 		})
@@ -161,7 +162,7 @@ func CreateUser(c *fiber.Ctx) error {
 
 	res, err := config.DB.Collection("users").InsertOne(context.Background(), user)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not create user",
 			Details: err.Error(),
 		})
@@ -178,7 +179,7 @@ func LoginUser(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&payload); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid request body",
 			Details: err.Error(),
 		})
@@ -188,13 +189,13 @@ func LoginUser(c *fiber.Ctx) error {
 	payload.Password = strings.TrimSpace(payload.Password)
 
 	if payload.Username == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Username is required",
 			Type:  "username",
 		})
 	}
 	if payload.Password == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Password is required",
 			Type:  "password",
 		})
@@ -208,7 +209,7 @@ func LoginUser(c *fiber.Ctx) error {
 	var user models.User
 	err := config.DB.Collection("users").FindOne(context.Background(), filter).Decode(&user)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(ErrorResponse{
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.ErrorResponse{
 			Error:   "Invalid credentials",
 			Details: err.Error(),
 		})
@@ -223,20 +224,20 @@ func FollowUser(c *fiber.Ctx) error {
 
 	followerObjID, err := primitive.ObjectIDFromHex(followerIDHex)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid follower ID format",
 			Details: err.Error(),
 		})
 	}
 	followeeObjID, err := primitive.ObjectIDFromHex(followeeIDHex)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid follower ID format",
 			Details: err.Error(),
 		})
 	}
 	if followerObjID == followeeObjID {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "User cannot follow themselves",
 			Details: err.Error(),
 		})
@@ -244,7 +245,7 @@ func FollowUser(c *fiber.Ctx) error {
 
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not start session",
 			Details: err.Error(),
 		})
@@ -269,7 +270,7 @@ func FollowUser(c *fiber.Ctx) error {
 
 	_, err = session.WithTransaction(context.Background(), callback)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Transaction failed",
 			Details: err.Error(),
 		})
@@ -280,7 +281,7 @@ func FollowUser(c *fiber.Ctx) error {
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filterFollower).
 		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Follower user not found",
 			Details: err.Error(),
 		})
@@ -295,27 +296,27 @@ func UnfollowUser(c *fiber.Ctx) error {
 
 	followerObjID, err := primitive.ObjectIDFromHex(followerIDHex)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid follower ID format",
 			Details: err.Error(),
 		})
 	}
 	followeeObjID, err := primitive.ObjectIDFromHex(followeeIDHex)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid follower ID format",
 			Details: err.Error(),
 		})
 	}
 	if followerObjID == followeeObjID {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "User cannot unfollow themselves",
 		})
 	}
 
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not start session",
 			Details: err.Error(),
 		})
@@ -339,7 +340,7 @@ func UnfollowUser(c *fiber.Ctx) error {
 
 	_, err = session.WithTransaction(context.Background(), callback)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Transaction failed",
 			Details: err.Error(),
 		})
@@ -350,7 +351,7 @@ func UnfollowUser(c *fiber.Ctx) error {
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), filterFollower).
 		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Follower user not found",
 			Details: err.Error(),
 		})
@@ -367,7 +368,7 @@ func UpdateUserData(c *fiber.Ctx) error {
 		Password string             `json:"password"`
 	}
 	if err := c.BodyParser(&body); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid request body",
 			Details: err.Error(),
 		})
@@ -385,7 +386,7 @@ func UpdateUserData(c *fiber.Ctx) error {
 	_, err := config.DB.Collection("users").
 		UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to update user data",
 			Details: err.Error(),
 		})
@@ -396,7 +397,7 @@ func UpdateUserData(c *fiber.Ctx) error {
 		FindOne(context.Background(), filter).
 		Decode(&updatedUser)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "User not found",
 			Details: err.Error(),
 		})
@@ -407,203 +408,54 @@ func UpdateUserData(c *fiber.Ctx) error {
 func DeleteUser(c *fiber.Ctx) error {
 	userID := c.Params("id")
 	if userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "User ID is required",
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Error:   "Could not delete user",
+			Details: "User ID is required",
 		})
 	}
-
 	objectID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
-		})
-	}
-
-	filter := bson.M{"_id": objectID}
-	_, err = config.DB.Collection("users").DeleteOne(context.Background(), filter)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not delete user",
 			Details: err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
+	if _, err := config.DB.Collection("users").UpdateMany(
+		context.Background(),
+		bson.M{"following": objectID},
+		bson.M{"$pull": bson.M{"following": objectID}},
+	); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+			Error:   "Could not delete user",
+			Details: err.Error(),
+		})
+	}
+
+	if _, err := config.DB.Collection("users").UpdateMany(
+		context.Background(),
+		bson.M{"followers": objectID},
+		bson.M{"$pull": bson.M{"followers": objectID}},
+	); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+			Error:   "Could not delete user",
+			Details: err.Error(),
+		})
+	}
+
+	if _, err := config.DB.Collection("users").DeleteOne(
+		context.Background(),
+		bson.M{"_id": objectID},
+	); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+			Error:   "Could not delete user",
+			Details: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessResponse{
+		Success: true,
 	})
-}
-
-func AddPlaceToUser(c *fiber.Ctx) error {
-	userIdStr := c.Params("userId")
-	placeIdStr := c.Params("placeId")
-
-	userObjID, err := primitive.ObjectIDFromHex(userIdStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
-		})
-	}
-	if placeIdStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Place ID is required",
-		})
-	}
-
-	filter := bson.M{"_id": userObjID}
-	update := bson.M{"$addToSet": bson.M{"places": placeIdStr}}
-
-	if _, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to update user",
-			Details: err.Error(),
-		})
-	}
-
-	var updatedUser models.User
-	if err := config.DB.Collection("users").
-		FindOne(context.Background(), filter).
-		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error:   "User not found",
-			Details: err.Error(),
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(updatedUser)
-}
-
-func RemovePlaceFromUser(c *fiber.Ctx) error {
-	userIdStr := c.Params("userId")
-	placeIdStr := c.Params("placeId")
-
-	userObjID, err := primitive.ObjectIDFromHex(userIdStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
-		})
-	}
-	if placeIdStr == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error: "Place ID is required",
-		})
-	}
-
-	filter := bson.M{"_id": userObjID}
-	update := bson.M{"$pull": bson.M{"places": placeIdStr}}
-
-	if _, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to update user",
-			Details: err.Error(),
-		})
-	}
-
-	var updatedUser models.User
-	if err := config.DB.Collection("users").
-		FindOne(context.Background(), filter).
-		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error:   "User not found",
-			Details: err.Error(),
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(updatedUser)
-}
-
-func AddMapToUser(c *fiber.Ctx) error {
-	userIDStr := c.Params("userId")
-	mapIDStr := c.Params("mapId")
-
-	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
-		})
-	}
-	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
-		})
-	}
-
-	filter := bson.M{"_id": userObjID}
-	update := bson.M{
-		"$addToSet": bson.M{"maps": mapObjID},
-	}
-
-	if _, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to update user",
-			Details: err.Error(),
-		})
-	}
-
-	var updatedUser models.User
-	if err := config.DB.Collection("users").
-		FindOne(context.Background(), filter).
-		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error:   "User not found",
-			Details: err.Error(),
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(updatedUser)
-}
-
-func RemoveMapFromUser(c *fiber.Ctx) error {
-	userIDStr := c.Params("userId")
-	mapIDStr := c.Params("mapId")
-
-	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid user ID format",
-			Details: err.Error(),
-		})
-	}
-	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
-			Error:   "Invalid map ID format",
-			Details: err.Error(),
-		})
-	}
-
-	filter := bson.M{"_id": userObjID}
-	update := bson.M{
-		"$pull": bson.M{"maps": mapObjID},
-	}
-
-	if _, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-			Error:   "Failed to update user",
-			Details: err.Error(),
-		})
-	}
-
-	var updatedUser models.User
-	if err := config.DB.Collection("users").
-		FindOne(context.Background(), filter).
-		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
-			Error:   "User not found",
-			Details: err.Error(),
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
 func GetUsersIDs(c *fiber.Ctx) error {
@@ -622,7 +474,7 @@ func GetUsersIDs(c *fiber.Ctx) error {
 
 	ids, err := dbhelpers.GetItemIDs[primitive.ObjectID](config.DB.Collection("users"), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch user IDs",
 			Details: err.Error(),
 		})
@@ -633,7 +485,7 @@ func GetUsersIDs(c *fiber.Ctx) error {
 func GetRecommendedUsers(c *fiber.Ctx) error {
 	userID, err := primitive.ObjectIDFromHex(c.Params("userId"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid user ID format",
 			Details: err.Error(),
 		})
@@ -641,7 +493,7 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 
 	var currentUser models.User
 	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "User not found",
 			Details: err.Error(),
 		})
@@ -655,7 +507,7 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": currentUser.Following},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch followings",
 			Details: err.Error(),
 		})
@@ -663,7 +515,7 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 
 	var followedUsers []models.User
 	if err := cursor.All(context.Background(), &followedUsers); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to decode users",
 			Details: err.Error(),
 		})
@@ -692,7 +544,7 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": candidateIDs},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch users",
 			Details: err.Error(),
 		})
@@ -700,7 +552,7 @@ func GetRecommendedUsers(c *fiber.Ctx) error {
 
 	var candidates []models.User
 	if err := cursor.All(context.Background(), &candidates); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to decode candidate users",
 			Details: err.Error(),
 		})

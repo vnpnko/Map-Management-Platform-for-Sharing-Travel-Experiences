@@ -18,6 +18,7 @@ export const mapDraftStore = create<MapDraftStore>()(
               description: "",
               places: [placeId],
               likes: [],
+              creatorUsername: "",
             },
           });
           return;
@@ -42,7 +43,6 @@ export const mapDraftStore = create<MapDraftStore>()(
           });
         }
       },
-      reset: () => set({ mapDraft: null }),
     }),
     {
       name: "map-draft",

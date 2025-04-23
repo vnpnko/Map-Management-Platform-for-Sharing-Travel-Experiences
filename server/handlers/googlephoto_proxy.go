@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dto"
 	"io"
 	"net/http"
 )
@@ -12,15 +13,17 @@ func RegisterGooglePhotoProxy(app *fiber.App) {
 
 		resp, err := http.Get(photoURL)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to fetch image from Google",
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+				Error:   "Failed to reach Google Photos",
+				Details: err.Error(),
 			})
 		}
 		defer resp.Body.Close()
 
 		if resp.StatusCode != fiber.StatusOK {
-			return c.Status(resp.StatusCode).JSON(fiber.Map{
-				"error": "Google responded with error",
+			return c.Status(resp.StatusCode).JSON(dto.ErrorResponse{
+				Error:   "Failed to reach Google Photos",
+				Details: err.Error(),
 			})
 		}
 
@@ -29,8 +32,9 @@ func RegisterGooglePhotoProxy(app *fiber.App) {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to read image body",
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+				Error:   "Failed to reach Google Photos",
+				Details: err.Error(),
 			})
 		}
 
