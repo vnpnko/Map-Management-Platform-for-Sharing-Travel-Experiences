@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dto"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,7 +29,7 @@ func GetPlaces(c *fiber.Ctx) error {
 	var places []models.Place
 	cursor, err := config.DB.Collection("places").Find(context.Background(), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Database error",
 			Details: err.Error(),
 		})
@@ -38,7 +39,7 @@ func GetPlaces(c *fiber.Ctx) error {
 	for cursor.Next(context.Background()) {
 		var place models.Place
 		if err := cursor.Decode(&place); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 				Error:   "Failed to decode place",
 				Details: err.Error(),
 			})
@@ -51,7 +52,7 @@ func GetPlaces(c *fiber.Ctx) error {
 func GetPlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Place ID is required",
 		})
 	}
@@ -61,7 +62,7 @@ func GetPlace(c *fiber.Ctx) error {
 		FindOne(context.Background(), bson.M{"_id": placeID}).
 		Decode(&place)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Place not found",
 			Details: err.Error(),
 		})
@@ -73,7 +74,7 @@ func GetPlace(c *fiber.Ctx) error {
 func CreatePlace(c *fiber.Ctx) error {
 	var place models.Place
 	if err := c.BodyParser(&place); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid request body",
 			Details: err.Error(),
 		})
@@ -82,7 +83,7 @@ func CreatePlace(c *fiber.Ctx) error {
 	_, err := config.DB.Collection("places").
 		InsertOne(context.Background(), place)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not create place",
 			Details: err.Error(),
 		})
@@ -94,7 +95,7 @@ func CreatePlace(c *fiber.Ctx) error {
 func DeletePlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Place ID is required",
 		})
 	}
@@ -102,14 +103,14 @@ func DeletePlace(c *fiber.Ctx) error {
 	filter := bson.M{"_id": placeID}
 	_, err := config.DB.Collection("places").DeleteOne(context.Background(), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not delete place",
 			Details: err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessResponse{
+		Success: true,
 	})
 }
 
@@ -117,7 +118,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	placeID := c.Params("placeId")
 	userID := c.Params("userId")
 	if placeID == "" || userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
 			Details: "placeId and userId required",
 		})
@@ -125,7 +126,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
 			Details: "invalid user ID",
 		})
@@ -133,7 +134,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
 			Details: "could not start session",
 		})
@@ -159,7 +160,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	}
 
 	if _, err := session.WithTransaction(context.Background(), txn); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
 			Details: "transaction failed",
 		})
@@ -169,7 +170,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), bson.M{"_id": userObjID}).
 		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
 			Details: "could not fetch updated user",
 		})
@@ -182,22 +183,30 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 	placeID := c.Params("placeId")
 	userID := c.Params("userId")
 	if placeID == "" || userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "placeId and userId required"})
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Error:   "Could not unlike place",
+			Details: "placeId and userId required",
+		})
 	}
 
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Error:   "Could not unlike place",
+			Details: err.Error(),
+		})
 	}
 
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "could not start session"})
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Error:   "Could not unlike place",
+			Details: err.Error(),
+		})
 	}
 	defer session.EndSession(context.Background())
 
 	txn := func(sc mongo.SessionContext) (interface{}, error) {
-		// 1) pull from place.likes
 		if _, err := config.DB.Collection("places").
 			UpdateOne(sc,
 				bson.M{"_id": placeID},
@@ -205,7 +214,6 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 			); err != nil {
 			return nil, err
 		}
-		// 2) pull from user.places
 		if _, err := config.DB.Collection("users").
 			UpdateOne(sc,
 				bson.M{"_id": userObjID},
@@ -217,15 +225,20 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 	}
 
 	if _, err := session.WithTransaction(context.Background(), txn); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "transaction failed"})
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Error:   "Could not unlike place",
+			Details: err.Error(),
+		})
 	}
 
-	// fetch + return the updated user
 	var updatedUser models.User
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), bson.M{"_id": userObjID}).
 		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "could not fetch updated user"})
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
+			Error:   "Could not unlike place",
+			Details: err.Error(),
+		})
 	}
 
 	return c.JSON(updatedUser)
@@ -247,7 +260,7 @@ func GetPlacesIDs(c *fiber.Ctx) error {
 
 	ids, err := dbhelpers.GetItemIDs[string](config.DB.Collection("places"), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch place IDs",
 			Details: err.Error(),
 		})
@@ -258,7 +271,7 @@ func GetPlacesIDs(c *fiber.Ctx) error {
 func GetRecommendedPlaces(c *fiber.Ctx) error {
 	userID, err := primitive.ObjectIDFromHex(c.Params("userId"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid user ID format",
 			Details: err.Error(),
 		})
@@ -266,7 +279,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 
 	var currentUser models.User
 	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "User not found",
 			Details: err.Error(),
 		})
@@ -280,7 +293,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": currentUser.Following},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch followed users",
 			Details: err.Error(),
 		})
@@ -288,7 +301,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 
 	var followedUsers []models.User
 	if err := cursor.All(context.Background(), &followedUsers); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch followed users",
 			Details: err.Error(),
 		})
@@ -316,7 +329,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": candidateIDs},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch places",
 			Details: err.Error(),
 		})
@@ -324,7 +337,7 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 
 	var candidates []models.Place
 	if err := cursor.All(context.Background(), &candidates); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to decode places",
 			Details: err.Error(),
 		})

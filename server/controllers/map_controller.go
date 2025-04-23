@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/config"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dbhelpers"
+	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/dto"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/models"
 	"github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-Experiences/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,7 +33,7 @@ func GetMaps(c *fiber.Ctx) error {
 	var maps []models.Map
 	cursor, err := config.DB.Collection("maps").Find(context.Background(), filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Database error",
 			Details: err.Error(),
 		})
@@ -42,7 +43,7 @@ func GetMaps(c *fiber.Ctx) error {
 	for cursor.Next(context.Background()) {
 		var mapData models.Map
 		if err := cursor.Decode(&mapData); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 				Error:   "Failed to decode map",
 				Details: err.Error(),
 			})
@@ -55,14 +56,14 @@ func GetMaps(c *fiber.Ctx) error {
 func GetMap(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "ID is required",
 		})
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid ID format",
 			Details: err.Error(),
 		})
@@ -71,7 +72,7 @@ func GetMap(c *fiber.Ctx) error {
 	var mapData models.Map
 	err = config.DB.Collection("maps").FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&mapData)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Map not found",
 			Details: err.Error(),
 		})
@@ -83,7 +84,7 @@ func GetMap(c *fiber.Ctx) error {
 func CreateMap(c *fiber.Ctx) error {
 	username := c.Params("username")
 	if username == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid username",
 			Details: "Username parameter is required",
 		})
@@ -91,28 +92,28 @@ func CreateMap(c *fiber.Ctx) error {
 
 	var mapData models.Map
 	if err := c.BodyParser(&mapData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid request body",
 			Details: err.Error(),
 		})
 	}
 
 	if mapData.Name == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not create map",
 			Details: "Map name is required",
 		})
 	}
 
 	if mapData.Description == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not create map",
 			Details: "Map description is required",
 		})
 	}
 
 	if len(mapData.Places) < 2 {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not create map",
 			Details: "Map must have at least 2 places",
 		})
@@ -122,7 +123,7 @@ func CreateMap(c *fiber.Ctx) error {
 
 	res, err := config.DB.Collection("maps").InsertOne(context.Background(), mapData)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not create map",
 			Details: err.Error(),
 		})
@@ -135,14 +136,14 @@ func CreateMap(c *fiber.Ctx) error {
 func DeleteMap(c *fiber.Ctx) error {
 	mapID := c.Params("id")
 	if mapID == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Map ID is required",
 		})
 	}
 
 	objectID, err := primitive.ObjectIDFromHex(mapID)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid map ID format",
 			Details: err.Error(),
 		})
@@ -151,14 +152,14 @@ func DeleteMap(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectID}
 	_, err = config.DB.Collection("maps").DeleteOne(context.Background(), filter)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not delete map",
 			Details: err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
+	return c.Status(fiber.StatusOK).JSON(dto.SuccessResponse{
+		Success: true,
 	})
 }
 
@@ -166,7 +167,7 @@ func AddMapLike(c *fiber.Ctx) error {
 	mapID := c.Params("mapId")
 	userID := c.Params("userId")
 	if mapID == "" || userID == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like map",
 			Details: "mapId and userId required",
 		})
@@ -174,7 +175,7 @@ func AddMapLike(c *fiber.Ctx) error {
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapID)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like map",
 			Details: "invalid mapId",
 		})
@@ -182,7 +183,7 @@ func AddMapLike(c *fiber.Ctx) error {
 
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like map",
 			Details: "invalid userId",
 		})
@@ -190,7 +191,7 @@ func AddMapLike(c *fiber.Ctx) error {
 
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like map",
 			Details: "could not start session",
 		})
@@ -216,7 +217,7 @@ func AddMapLike(c *fiber.Ctx) error {
 	}
 
 	if _, err := session.WithTransaction(context.Background(), txn); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like map",
 			Details: "transaction failed",
 		})
@@ -226,7 +227,7 @@ func AddMapLike(c *fiber.Ctx) error {
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), bson.M{"_id": userObjID}).
 		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like map",
 			Details: "could not fetch updated user",
 		})
@@ -240,21 +241,21 @@ func RemoveMapLike(c *fiber.Ctx) error {
 	userIDStr := c.Params("userId")
 
 	if mapIDStr == "" || userIDStr == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Both mapId and userId are required",
 		})
 	}
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid map ID format",
 			Details: err.Error(),
 		})
 	}
 	userObjID, err := primitive.ObjectIDFromHex(userIDStr)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid user ID format",
 			Details: err.Error(),
 		})
@@ -265,7 +266,7 @@ func RemoveMapLike(c *fiber.Ctx) error {
 
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Could not remove like from map",
 			Details: err.Error(),
 		})
@@ -275,7 +276,7 @@ func RemoveMapLike(c *fiber.Ctx) error {
 	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
-		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(http.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Map not found",
 			Details: err.Error(),
 		})
@@ -289,14 +290,14 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 	placeIDStr := c.Params("placeId")
 
 	if mapIDStr == "" || placeIDStr == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Both mapId and placeId are required",
 		})
 	}
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid map ID format",
 			Details: err.Error(),
 		})
@@ -309,7 +310,7 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to update map",
 			Details: err.Error(),
 		})
@@ -319,7 +320,7 @@ func AddPlaceToMap(c *fiber.Ctx) error {
 	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
-		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(http.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Could not add place to map; map not found",
 			Details: err.Error(),
 		})
@@ -333,14 +334,14 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 	placeIDStr := c.Params("placeId")
 
 	if mapIDStr == "" || placeIDStr == "" {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error: "Both mapId and placeId are required",
 		})
 	}
 
 	mapObjID, err := primitive.ObjectIDFromHex(mapIDStr)
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid map ID format",
 			Details: err.Error(),
 		})
@@ -353,7 +354,7 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 
 	_, err = config.DB.Collection("maps").UpdateOne(context.Background(), filter, update)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to update map",
 			Details: err.Error(),
 		})
@@ -363,7 +364,7 @@ func RemovePlaceFromMap(c *fiber.Ctx) error {
 	if err := config.DB.Collection("maps").
 		FindOne(context.Background(), filter).
 		Decode(&updatedMap); err != nil {
-		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(http.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "Could not remove place from map; map not found",
 			Details: err.Error(),
 		})
@@ -388,7 +389,7 @@ func GetMapsIDs(c *fiber.Ctx) error {
 
 	ids, err := dbhelpers.GetItemIDs[primitive.ObjectID](config.DB.Collection("maps"), filter)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(http.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch map IDs",
 			Details: err.Error(),
 		})
@@ -400,7 +401,7 @@ func GetMapsIDs(c *fiber.Ctx) error {
 func GetRecommendedMaps(c *fiber.Ctx) error {
 	userID, err := primitive.ObjectIDFromHex(c.Params("userId"))
 	if err != nil {
-		return c.Status(http.StatusBadRequest).JSON(ErrorResponse{
+		return c.Status(http.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Invalid user ID format",
 			Details: err.Error(),
 		})
@@ -408,7 +409,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 
 	var currentUser models.User
 	if err := config.DB.Collection("users").FindOne(context.Background(), bson.M{"_id": userID}).Decode(&currentUser); err != nil {
-		return c.Status(http.StatusNotFound).JSON(ErrorResponse{
+		return c.Status(http.StatusNotFound).JSON(dto.ErrorResponse{
 			Error:   "User not found",
 			Details: err.Error(),
 		})
@@ -422,7 +423,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": currentUser.Following},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch followed users",
 			Details: err.Error(),
 		})
@@ -430,7 +431,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 
 	var followedUsers []models.User
 	if err := cursor.All(context.Background(), &followedUsers); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to decode followed users",
 			Details: err.Error(),
 		})
@@ -458,7 +459,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 		"_id": bson.M{"$in": candidateIDs},
 	})
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to fetch maps",
 			Details: err.Error(),
 		})
@@ -466,7 +467,7 @@ func GetRecommendedMaps(c *fiber.Ctx) error {
 
 	var candidates []models.Map
 	if err := cursor.All(context.Background(), &candidates); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
 			Error:   "Failed to decode maps",
 			Details: err.Error(),
 		})
