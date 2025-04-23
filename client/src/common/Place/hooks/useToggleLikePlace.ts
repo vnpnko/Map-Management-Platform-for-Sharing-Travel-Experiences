@@ -1,4 +1,4 @@
-// useToggleLikePlace.ts
+// useToggleFollow.ts
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import useToastError from "../../hooks/toast/useToastError";
 import useLikePlace from "./useLikePlace";

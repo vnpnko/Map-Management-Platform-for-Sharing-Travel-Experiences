@@ -26,8 +26,8 @@ func SetupRoutes(app *fiber.App) {
 	//users.Post("/:userId/places/:placeId", controllers.AddPlaceToUser)
 	//users.Delete("/:userId/places/:placeId", controllers.RemovePlaceFromUser)
 
-	users.Post("/:userId/maps/:mapId", controllers.AddMapToUser)
-	users.Delete("/:userId/maps/:mapId", controllers.RemoveMapFromUser)
+	//users.Post("/:userId/maps/:mapId", controllers.AddMapToUser)
+	//users.Delete("/:userId/maps/:mapId", controllers.RemoveMapFromUser)
 
 	users.Patch("/:id", controllers.UpdateUserData)
 	users.Delete("/:id", controllers.DeleteUser)

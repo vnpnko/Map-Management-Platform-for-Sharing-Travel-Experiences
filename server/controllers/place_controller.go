@@ -117,22 +117,30 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	placeID := c.Params("placeId")
 	userID := c.Params("userId")
 	if placeID == "" || userID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "placeId and userId required"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Could not like place",
+			Details: "placeId and userId required",
+		})
 	}
 
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid user ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Could not like place",
+			Details: "invalid user ID",
+		})
 	}
 
 	session, err := config.DB.Client().StartSession()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "could not start session"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Could not like place",
+			Details: "could not start session",
+		})
 	}
 	defer session.EndSession(context.Background())
 
 	txn := func(sc mongo.SessionContext) (interface{}, error) {
-		// 1) add to place.likes
 		if _, err := config.DB.Collection("places").
 			UpdateOne(sc,
 				bson.M{"_id": placeID},
@@ -140,7 +148,6 @@ func AddPlaceLike(c *fiber.Ctx) error {
 			); err != nil {
 			return nil, err
 		}
-		// 2) add to user.places
 		if _, err := config.DB.Collection("users").
 			UpdateOne(sc,
 				bson.M{"_id": userObjID},
@@ -152,15 +159,20 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	}
 
 	if _, err := session.WithTransaction(context.Background(), txn); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "transaction failed"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Could not like place",
+			Details: "transaction failed",
+		})
 	}
 
-	// fetch + return the updated user
 	var updatedUser models.User
 	if err := config.DB.Collection("users").
 		FindOne(context.Background(), bson.M{"_id": userObjID}).
 		Decode(&updatedUser); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "could not fetch updated user"})
+		return c.Status(fiber.StatusBadRequest).JSON(ErrorResponse{
+			Error:   "Could not like place",
+			Details: "could not fetch updated user",
+		})
 	}
 
 	return c.JSON(updatedUser)

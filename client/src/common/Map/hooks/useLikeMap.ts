@@ -1,44 +1,28 @@
+// src/common/Map/hooks/useLikeMap.ts
 import { useMutation } from "@tanstack/react-query";
-import { BASE_URL } from "../../../App.tsx";
-import { Map } from "../../../models/Map.ts";
+import { BASE_URL } from "../../../App";
+import { User } from "../../../models/User";
 
-interface LikeMapPayload {
+interface Payload {
   mapId: number;
   userId: number;
 }
 
-type LikeMapResponse = Map;
-
-const likeMapRequest = async (
-  payload: LikeMapPayload,
-): Promise<LikeMapResponse> => {
+export const likeMapRequest = async (payload: Payload): Promise<User> => {
   const { mapId, userId } = payload;
-
-  const response = await fetch(`${BASE_URL}/maps/${mapId}/likes/${userId}`, {
+  const res = await fetch(`${BASE_URL}/maps/${mapId}/likes/${userId}`, {
     method: "POST",
   });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to add like to map");
-  }
-  return data;
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || "Failed to like map");
+  return json as User;
 };
 
 const useLikeMap = () => {
-  const { mutateAsync, isPending, error } = useMutation<
-    LikeMapResponse,
-    Error,
-    LikeMapPayload
-  >({
+  const { mutateAsync, isPending, error } = useMutation<User, Error, Payload>({
     mutationFn: likeMapRequest,
   });
-
-  return {
-    likeMap: mutateAsync,
-    isLikingMap: isPending,
-    likeMapError: error,
-  };
+  return { likeMap: mutateAsync, isLikingMap: isPending, likeMapError: error };
 };
 
 export default useLikeMap;

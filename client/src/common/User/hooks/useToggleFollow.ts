@@ -4,7 +4,7 @@ import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 import useToastError from "../../hooks/toast/useToastError.ts";
 import { User } from "../../../models/User.ts";
 
-const useToggleLikePlace = (user: User) => {
+const useToggleFollow = (user: User) => {
   const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const toastError = useToastError();
 
@@ -58,4 +58,4 @@ const useToggleLikePlace = (user: User) => {
   };
 };
 
-export default useToggleLikePlace;
+export default useToggleFollow;

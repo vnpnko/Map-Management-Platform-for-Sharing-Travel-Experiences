@@ -5,7 +5,6 @@ import CustomTextarea from "../../ui/CustomTextarea.tsx";
 import CustomButton from "../../ui/CustomButton.tsx";
 import PlaceForm from "../../Place/components/PlaceForm.tsx";
 import useCreateMap from "../../../pages/Create/hooks/useCreateMap.ts";
-import useAddMapToUser from "../../User/hooks/useAddMapToUser.ts";
 import useLikeMap from "../hooks/useLikeMap.ts";
 import CustomBox from "../../ui/CustomBox.tsx";
 import { Place } from "../../../models/Place.ts";
@@ -31,16 +30,8 @@ const MapForm: React.FC = () => {
   const { mapDraft, setMapDraft } = mapDraftStore();
 
   const { createMap, isCreatingMap } = useCreateMap();
-  const { addMapToUser, isAddingMapToUser } = useAddMapToUser();
-  const { likeMap } = useLikeMap();
+  const { likeMap, isLikingMap } = useLikeMap();
 
-  // const [form, setForm] = useState<FormState>({
-  //   name: "",
-  //   description: "",
-  //   places: [],
-  //   likes: [loggedInUser!._id],
-  //   username: loggedInUser!.username,
-  // });
   const initialForm: FormState = {
     name: "",
     description: "",
@@ -48,9 +39,11 @@ const MapForm: React.FC = () => {
     likes: [loggedInUser!._id],
     username: loggedInUser!.username,
   };
-  const [form, setForm] = useState<FormState>(initialForm);
 
+  const [form, setForm] = useState<FormState>(initialForm);
   const [error, setError] = useState<FieldError>(null);
+
+  if (!loggedInUser) return null;
 
   const handleCreateMap = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,15 +72,13 @@ const MapForm: React.FC = () => {
 
     try {
       const createdMap = await createMap(finalForm);
-      setMapDraft(createdMap);
-      const updatedUser = await addMapToUser({
+      const updatedUser = await likeMap({
         mapId: createdMap._id,
         userId: loggedInUser!._id,
       });
-      await likeMap({ mapId: createdMap._id, userId: loggedInUser!._id });
       setLoggedInUser(updatedUser);
-      setForm(initialForm);
       setMapDraft(null);
+      setForm(initialForm);
     } catch (error) {
       const apiError = error as { error: string; details: string };
       toastError({
@@ -119,7 +110,7 @@ const MapForm: React.FC = () => {
           isError={error?.type === "description"}
         />
         <CustomButton w={"full"} type="submit" isSelected={false}>
-          {isCreatingMap || isAddingMapToUser ? (
+          {isCreatingMap || isLikingMap ? (
             <Spinner size="md" />
           ) : (
             <Text>Create Map</Text>

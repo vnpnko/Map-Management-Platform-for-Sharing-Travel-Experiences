@@ -87,11 +87,11 @@ const PlaceForm: React.FC<PlaceFormProps> = ({ isDraftingMap }) => {
       if (!place) {
         await createPlace(form);
       }
-      await likePlace({ placeId: form._id, userId: loggedInUser._id });
-      setLoggedInUser({
-        ...loggedInUser,
-        places: [...loggedInUser.places, form._id],
+      const updatedUser = await likePlace({
+        placeId: form._id,
+        userId: loggedInUser._id,
       });
+      setLoggedInUser(updatedUser);
       if (isDraftingMap) {
         addPlace(form._id);
       }
