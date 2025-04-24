@@ -1,4 +1,3 @@
-// useToggleFollow.ts
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import useToastError from "../../hooks/toast/useToastError";
 import useLikePlace from "./useLikePlace";
@@ -11,8 +10,8 @@ interface TogglePayload {
 }
 
 const useToggleLikePlace = (place: Place) => {
-  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const toastError = useToastError();
+  const { loggedInUser, setLoggedInUser } = loggedInUserStore();
   const { likePlace, isLikingPlace } = useLikePlace();
   const { unlikePlace, isUnlikingPlace } = useUnlikePlace();
 
@@ -20,7 +19,7 @@ const useToggleLikePlace = (place: Place) => {
 
   const handleToggle = async () => {
     if (!loggedInUser) {
-      toastError({ title: "Like Failed", description: "Please log in first." });
+      toastError({ title: "Like Failed", description: "Please log in " });
       return;
     }
 
@@ -34,10 +33,8 @@ const useToggleLikePlace = (place: Place) => {
         ? await unlikePlace(payload)
         : await likePlace(payload);
 
-      // update global store
       setLoggedInUser(updatedUser);
 
-      // reflect local UI change on place.likes
       if (alreadyLiked) {
         place.likes = place.likes.filter((id) => id !== loggedInUser._id);
       } else {

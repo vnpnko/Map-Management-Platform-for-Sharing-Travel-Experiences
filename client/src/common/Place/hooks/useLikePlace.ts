@@ -1,4 +1,3 @@
-// useLikePlace.ts
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App";
 import { User } from "../../../models/User";

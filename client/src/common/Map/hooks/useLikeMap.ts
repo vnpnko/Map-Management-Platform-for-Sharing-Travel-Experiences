@@ -1,4 +1,3 @@
-// src/common/Map/hooks/useLikeMap.ts
 import { useMutation } from "@tanstack/react-query";
 import { BASE_URL } from "../../../App";
 import { User } from "../../../models/User";
@@ -13,9 +12,9 @@ export const likeMapRequest = async (payload: Payload): Promise<User> => {
   const res = await fetch(`${BASE_URL}/maps/${mapId}/likes/${userId}`, {
     method: "POST",
   });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error || "Failed to like map");
-  return json as User;
+  const user = await res.json();
+  if (!res.ok) throw new Error(user.error || "Failed to like map");
+  return user;
 };
 
 const useLikeMap = () => {

@@ -128,7 +128,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
-			Details: "invalid user ID",
+			Details: "Invalid user ID",
 		})
 	}
 
@@ -136,7 +136,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
-			Details: "could not start session",
+			Details: "Could not start session",
 		})
 	}
 	defer session.EndSession(context.Background())
@@ -162,7 +162,7 @@ func AddPlaceLike(c *fiber.Ctx) error {
 	if _, err := session.WithTransaction(context.Background(), txn); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
-			Details: "transaction failed",
+			Details: "Transaction failed",
 		})
 	}
 
@@ -172,16 +172,17 @@ func AddPlaceLike(c *fiber.Ctx) error {
 		Decode(&updatedUser); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not like place",
-			Details: "could not fetch updated user",
+			Details: "Could not fetch updated user",
 		})
 	}
 
-	return c.JSON(updatedUser)
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
 func RemovePlaceLike(c *fiber.Ctx) error {
 	placeID := c.Params("placeId")
 	userID := c.Params("userId")
+
 	if placeID == "" || userID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
 			Error:   "Could not unlike place",
@@ -192,7 +193,7 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.ErrorResponse{
-			Error:   "Could not unlike place",
+			Error:   "Invalid user ID format",
 			Details: err.Error(),
 		})
 	}
@@ -241,7 +242,7 @@ func RemovePlaceLike(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(updatedUser)
+	return c.Status(fiber.StatusOK).JSON(updatedUser)
 }
 
 func GetPlacesIDs(c *fiber.Ctx) error {
@@ -359,5 +360,5 @@ func GetRecommendedPlaces(c *fiber.Ctx) error {
 		top = append(top, scored[i].Place)
 	}
 
-	return c.JSON(top)
+	return c.Status(fiber.StatusOK).JSON(top)
 }

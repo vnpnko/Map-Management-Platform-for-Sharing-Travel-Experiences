@@ -1,4 +1,3 @@
-// src/common/Map/hooks/useToggleLikeMap.ts
 import { loggedInUserStore } from "../../../store/loggedInUserStore";
 import useToastError from "../../hooks/toast/useToastError";
 import useLikeMap from "./useLikeMap";
@@ -20,8 +19,9 @@ const useToggleLikeMap = (map: MapModel) => {
 
   const handleToggle = async () => {
     if (!loggedInUser) {
-      return toast({ title: "Like Failed", description: "Please log in." });
+      return toast({ title: "Like Failed", description: "Please log in" });
     }
+
     const payload: Payload = { mapId: map._id, userId: loggedInUser._id };
 
     try {
@@ -31,7 +31,6 @@ const useToggleLikeMap = (map: MapModel) => {
 
       setLoggedInUser(updatedUser);
 
-      // reflect on local `map.likes` array
       if (alreadyLiked) {
         map.likes = map.likes.filter((id) => id !== loggedInUser._id);
       } else {

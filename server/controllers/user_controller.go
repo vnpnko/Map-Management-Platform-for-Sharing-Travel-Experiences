@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"sort"
 	"strings"
 )
@@ -374,35 +375,64 @@ func UpdateUserData(c *fiber.Ctx) error {
 		})
 	}
 
-	filter := bson.M{"_id": body.UserID}
-	update := bson.M{
-		"$set": bson.M{
-			"name":     body.Name,
-			"username": body.Username,
-			"password": body.Password,
-		},
-	}
-
-	_, err := config.DB.Collection("users").
-		UpdateOne(context.Background(), filter, update)
+	sess, err := config.DB.Client().StartSession()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
-			Error:   "Failed to update user data",
+			Error:   "session start failed",
+			Details: err.Error(),
+		})
+	}
+	defer sess.EndSession(context.Background())
+
+	callback := func(sc mongo.SessionContext) (interface{}, error) {
+
+		var oldUser models.User
+		if err := config.DB.Collection("users").
+			FindOneAndUpdate(
+				sc,
+				bson.M{"_id": body.UserID},
+				bson.M{"$set": bson.M{
+					"name":     body.Name,
+					"username": body.Username,
+					"password": body.Password,
+				}},
+				options.FindOneAndUpdate().SetReturnDocument(options.Before),
+			).Decode(&oldUser); err != nil {
+			return nil, err
+		}
+
+		if oldUser.Username != body.Username {
+			_, err := config.DB.Collection("maps").UpdateMany(
+				sc,
+				bson.M{"creatorUsername": oldUser.Username},
+				bson.M{"$set": bson.M{"creatorUsername": body.Username}},
+			)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		return nil, nil
+	}
+
+	if _, err = sess.WithTransaction(context.Background(), callback); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+			Error:   "update failed",
 			Details: err.Error(),
 		})
 	}
 
-	var updatedUser models.User
-	err = config.DB.Collection("users").
-		FindOne(context.Background(), filter).
-		Decode(&updatedUser)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(dto.ErrorResponse{
-			Error:   "User not found",
+	var updated models.User
+	if err := config.DB.Collection("users").
+		FindOne(context.Background(), bson.M{"_id": body.UserID}).
+		Decode(&updated); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
+			Error:   "fetch updated user failed",
 			Details: err.Error(),
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(updatedUser)
+
+	return c.Status(fiber.StatusOK).JSON(updated)
 }
 
 func DeleteUser(c *fiber.Ctx) error {
