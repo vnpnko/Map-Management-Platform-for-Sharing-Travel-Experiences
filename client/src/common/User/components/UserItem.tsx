@@ -5,12 +5,14 @@ import { User } from "../../../models/User.ts";
 import CustomBox from "../../ui/CustomBox.tsx";
 import { Link as RouterLink } from "react-router-dom";
 import useToggleFollow from "../hooks/useToggleFollow.ts";
+import { loggedInUserStore } from "../../../store/loggedInUserStore.ts";
 
 interface UserItemProps {
   user: User;
 }
 
 const UserItem: React.FC<UserItemProps> = ({ user }) => {
+  const { loggedInUser } = loggedInUserStore();
   const { alreadyFollowing, handleToggle, isPending } = useToggleFollow(user);
 
   return (
@@ -48,14 +50,16 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
           </Text>
         </Flex>
       </Flex>
-      <CustomButton
-        w={100}
-        onClick={handleToggle}
-        isSelected={alreadyFollowing}
-        isLoading={isPending}
-      >
-        {alreadyFollowing ? "Unfollow" : "Follow"}
-      </CustomButton>
+      {user._id !== loggedInUser?._id && (
+        <CustomButton
+          w={100}
+          onClick={handleToggle}
+          isSelected={alreadyFollowing}
+          isLoading={isPending}
+        >
+          {alreadyFollowing ? "Unfollow" : "Follow"}
+        </CustomButton>
+      )}
     </CustomBox>
   );
 };

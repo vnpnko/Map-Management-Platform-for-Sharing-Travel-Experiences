@@ -35,10 +35,8 @@ const useToggleFollow = (user: User) => {
       setLoggedInUser(updatedUser);
 
       if (alreadyFollowing) {
-        await unfollow(payload);
         user.followers = user.followers.filter((id) => id !== loggedInUser._id);
       } else {
-        await follow(payload);
         user.followers.push(loggedInUser._id);
       }
     } catch (error) {
