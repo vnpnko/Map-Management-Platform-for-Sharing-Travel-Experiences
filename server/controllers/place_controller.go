@@ -14,41 +14,6 @@ import (
 	"sort"
 )
 
-func GetPlaces(c *fiber.Ctx) error {
-	searchTerm := c.Query("search")
-
-	var filter bson.M
-	if searchTerm != "" {
-		filter = bson.M{
-			"name": bson.M{"$regex": searchTerm, "$options": "i"},
-		}
-	} else {
-		filter = bson.M{}
-	}
-
-	var places []models.Place
-	cursor, err := config.DB.Collection("places").Find(context.Background(), filter)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
-			Error:   "Database error",
-			Details: err.Error(),
-		})
-	}
-	defer cursor.Close(context.Background())
-
-	for cursor.Next(context.Background()) {
-		var place models.Place
-		if err := cursor.Decode(&place); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
-				Error:   "Failed to decode place",
-				Details: err.Error(),
-			})
-		}
-		places = append(places, place)
-	}
-	return c.Status(fiber.StatusOK).JSON(places)
-}
-
 func GetPlace(c *fiber.Ctx) error {
 	placeID := c.Params("id")
 	if placeID == "" {

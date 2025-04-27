@@ -15,44 +15,6 @@ import (
 	"sort"
 )
 
-func GetMaps(c *fiber.Ctx) error {
-	searchTerm := c.Query("search")
-
-	var filter bson.M
-	if searchTerm != "" {
-		filter = bson.M{
-			"$or": []bson.M{
-				{"name": bson.M{"$regex": searchTerm, "$options": "i"}},
-				{"description": bson.M{"$regex": searchTerm, "$options": "i"}},
-			},
-		}
-	} else {
-		filter = bson.M{}
-	}
-
-	var maps []models.Map
-	cursor, err := config.DB.Collection("maps").Find(context.Background(), filter)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
-			Error:   "Database error",
-			Details: err.Error(),
-		})
-	}
-	defer cursor.Close(context.Background())
-
-	for cursor.Next(context.Background()) {
-		var mapData models.Map
-		if err := cursor.Decode(&mapData); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(dto.ErrorResponse{
-				Error:   "Failed to decode map",
-				Details: err.Error(),
-			})
-		}
-		maps = append(maps, mapData)
-	}
-	return c.Status(fiber.StatusOK).JSON(maps)
-}
-
 func GetMap(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {

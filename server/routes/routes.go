@@ -8,13 +8,13 @@ import (
 func SetupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
+	// Authentication routes
 	auth := api.Group("/auth")
 	auth.Post("/login", controllers.LoginUser)
 	auth.Post("/signup", controllers.CreateUser)
 
 	// User routes
 	users := api.Group("/users")
-	users.Get("/", controllers.GetUsers)
 	users.Get("/username/:username", controllers.GetUserByUsername)
 	users.Get("/id/:id", controllers.GetUserByID)
 	users.Get("/get/ids", controllers.GetUsersIDs)
@@ -28,7 +28,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// Place routes
 	places := api.Group("/places")
-	places.Get("/", controllers.GetPlaces)
 	places.Get("/:id", controllers.GetPlace)
 	places.Get("/get/ids", controllers.GetPlacesIDs)
 	places.Get("/recommended/:userId", controllers.GetRecommendedPlaces)
@@ -41,7 +40,6 @@ func SetupRoutes(app *fiber.App) {
 
 	// Map routes
 	maps := api.Group("/maps")
-	maps.Get("/", controllers.GetMaps)
 	maps.Get("/:id", controllers.GetMap)
 	maps.Get("/get/ids", controllers.GetMapsIDs)
 	maps.Get("/recommended/:userId", controllers.GetRecommendedMaps)

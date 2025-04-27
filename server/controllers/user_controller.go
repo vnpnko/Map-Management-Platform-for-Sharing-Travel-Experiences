@@ -16,38 +16,6 @@ import (
 	"strings"
 )
 
-func GetUsers(c *fiber.Ctx) error {
-	searchTerm := c.Query("search")
-
-	var filter bson.M
-	if searchTerm != "" {
-		filter = bson.M{
-			"$or": []bson.M{
-				{"name": bson.M{"$regex": searchTerm, "$options": "i"}},
-				{"username": bson.M{"$regex": searchTerm, "$options": "i"}},
-			},
-		}
-	} else {
-		filter = bson.M{}
-	}
-
-	var users []models.User
-	cursor, err := config.DB.Collection("users").Find(context.Background(), filter)
-	if err != nil {
-		return err
-	}
-	defer cursor.Close(context.Background())
-
-	for cursor.Next(context.Background()) {
-		var user models.User
-		if err := cursor.Decode(&user); err != nil {
-			return err
-		}
-		users = append(users, user)
-	}
-	return c.Status(fiber.StatusOK).JSON(users)
-}
-
 func GetUserByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
