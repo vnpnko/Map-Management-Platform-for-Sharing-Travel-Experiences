@@ -60,7 +60,6 @@ const PlaceItem: React.FC<PlaceItemProps> = ({ place, isDetailPage }) => {
         ) : (
           <Image
             src={`${BASE_URL}/proxy/googlephoto?url=${encodeURIComponent(place.photoUrl)}`}
-            fallbackSrc={"src/assets/logo.png"}
             alt={`${place.name} photo`}
             width={"50%"}
             height={"300px"}
