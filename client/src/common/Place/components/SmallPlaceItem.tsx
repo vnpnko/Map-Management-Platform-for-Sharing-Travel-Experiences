@@ -1,5 +1,5 @@
-import React from "react";
-import { Flex, Image, IconButton, Link } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { Flex, Image, IconButton, Link, Text } from "@chakra-ui/react";
 import CustomBox from "../../ui/CustomBox.tsx";
 import { FaHeart, FaRegHeart, FaRegMap } from "react-icons/fa6";
 import { Place } from "../../../models/Place.ts";
@@ -14,6 +14,8 @@ interface SmallPlaceItemProps {
 
 const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
   const { alreadyLiked, handleToggle, isPending } = useToggleLikePlace(place);
+
+  const [useError, setUseError] = useState(false);
 
   return (
     <CustomBox bgColor={"blackAlpha.100"} borderWidth={0} height="300px">
@@ -61,13 +63,28 @@ const SmallPlaceItem: React.FC<SmallPlaceItemProps> = ({ place }) => {
             </IconCover>
           </Flex>
         </Flex>
-        <Image
-          src={`${BASE_URL}/proxy/googlephoto?url=${encodeURIComponent(place.photoUrl)}`}
-          alt={`${place.name} photo`}
-          width={"100%"}
-          height={"200px"}
-          objectFit="cover"
-        />
+        {useError ? (
+          <Flex
+            width="100%"
+            height="200px"
+            align="center"
+            justify="center"
+            bg="gray.100"
+          >
+            <Text color="black" fontWeight="semibold" textAlign="center">
+              image unavailable
+            </Text>
+          </Flex>
+        ) : (
+          <Image
+            src={`${BASE_URL}/proxy/googlephoto?url=${encodeURIComponent(place.photoUrl)}`}
+            alt={`${place.name} photo`}
+            width={"100%"}
+            height={"200px"}
+            objectFit="cover"
+            onError={() => setUseError(true)}
+          />
+        )}
       </Flex>
     </CustomBox>
   );

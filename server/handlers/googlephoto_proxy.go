@@ -23,7 +23,7 @@ func RegisterGooglePhotoProxy(app *fiber.App) {
 		if resp.StatusCode != fiber.StatusOK {
 			return c.Status(resp.StatusCode).JSON(dto.ErrorResponse{
 				Error:   "Failed to fetch the photo",
-				Details: err.Error(),
+				Details: resp.Status,
 			})
 		}
 
