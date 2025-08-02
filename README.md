@@ -15,7 +15,7 @@ A full-stack web application for creating, managing, and sharing personalized ma
 - **APIs:** Google Maps API
 
 ##  Architecture
-![Architecture diagram](docs\architecture_diagram.png)
+![Architecture diagram](docs/architecture_diagram.png)
 
 
 ## Installation
