@@ -2,6 +2,9 @@
 
 A full-stack web application for creating, managing, and sharing personalized maps with favorite places. Users can explore locations, follow other users, and get personalized recommendations.
 
+## Documentation
+To read the full thesis document, open [Map_Management_Platform_for_Sharing_Travel_Experiences.pdf](docs/Map_Management_Platform_for_Sharing_Travel_Experiences.pdf)
+
 ## Features
 - Create and share interactive maps with your favorite places
 - Find places using Google Maps integration and save them to your profile
@@ -33,9 +36,15 @@ git clone https://github.com/vnpnko/Map-Management-Platform-for-Sharing-Travel-E
 
 # Frontend
 cd client
+# Create .env file and add:
+# VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+# REACT_APP_BASE_URL=http://localhost:5000/api
 npm install
 npm run dev
 
 # Backend
 cd server
+# Create .env file and add:
+# PORT=5000
+# MONGODB_URI=your_mongodb_connection_string
 go run main.go
