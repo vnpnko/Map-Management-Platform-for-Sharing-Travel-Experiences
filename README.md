@@ -2,8 +2,10 @@
 
 A full-stack web application for creating, managing, and sharing personalized maps with favorite places. Users can explore locations, follow other users, and get personalized recommendations.
 
-## Documentation
-To read the full thesis document, open [Map_Management_Platform_for_Sharing_Travel_Experiences.pdf](docs/Map_Management_Platform_for_Sharing_Travel_Experiences.pdf)
+You can find the documentation here [Map_Management_Platform_for_Sharing_Travel_Experiences.pdf](docs/Map_Management_Platform_for_Sharing_Travel_Experiences.pdf)
+
+## Motivation
+The idea behind this project came from the need for a simple way to collect and share travel experiences. Existing solutions like Google Maps allow saving places, but they lack of social graph-based recommendations. This project bridges this gap with a custom recommendation engine that ranks places not only by popularity, but also by preferences in your social circle.
 
 ## Features
 - Create and share interactive maps with your favorite places
@@ -12,14 +14,17 @@ To read the full thesis document, open [Map_Management_Platform_for_Sharing_Trav
 - Recommendation engine for maps, places, and users
 
 ## Tech Stack
-- **Frontend:** React.js, TypeScript, Chakra UI, Zustand, Vite
-- **Backend:** Go (Fiber), RESTful API
-- **Database:** MongoDB
-- **APIs:** Google Maps API
+- **Frontend:**  
+  **React.js** for modular and reusable UI, **TypeScript** for type safety, **Chakra UI** for responsive design, **Zustand** for lightweight state management, **Vite** for fast builds and hot reload during development.
 
-##  Architecture
-![Architecture diagram](docs/architecture_diagram.png)
+- **Backend:**  
+  **Go (Fiber)** for its performance, minimal footprint, and built-in concurrency support — ideal for scalable RESTful APIs.
 
+- **Database:**  
+  **MongoDB** was chosen over relational options for its flexible schema, making it easier to handle nested map and user data structures.
+
+- **APIs:**  
+  **Google Maps API** for map rendering and place search functionality.
 
 ## Installation
 ### Prerequisites
